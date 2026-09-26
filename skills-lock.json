@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "skills": {
+    "build-brief": {
+      "source": "devexpert-io/ai-expert-project",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/build-brief/SKILL.md",
+      "computedHash": "68dc6526f4a5fd30f85c42c57387e674c20955641e2c48672bd7079cbb4415e2"
+    },
+    "feature-flow": {
+      "source": "devexpert-io/ai-expert-project",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/feature-flow/SKILL.md",
+      "computedHash": "6baf651a72f03d2a3289cead8a8eecda5140ada9f6bad432d45de7290fac4757"
+    },
+    "feature-implementer": {
+      "source": "devexpert-io/ai-expert-project",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/feature-implementer/SKILL.md",
+      "computedHash": "02900b033d5daaf20d046a53a6d8aefb8209dbe5d5bbfbb1fd6e87c945e076ae"
+    },
+    "feature-spec": {
+      "source": "devexpert-io/ai-expert-project",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/feature-spec/SKILL.md",
+      "computedHash": "c8b8592f8f36af74b7ad65d3ce4e2e90ba337dacf72cf294c0419325fe35111f"
+    },
+    "feature-validator": {
+      "source": "devexpert-io/ai-expert-project",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/feature-validator/SKILL.md",
+      "computedHash": "591afe2d107d6c93b57e56aacd246f002eb092c141e7fc5a9ef6d2906d37eada"
+    },
+    "harness-starter": {
+      "source": "devexpert-io/ai-expert-project",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/harness-starter/SKILL.md",
+      "computedHash": "331beeb6239a5abe45d10f9a393fcfa58e3d24b0a44c919702b2fb58351ffb24"
+    }
+  }
+}
