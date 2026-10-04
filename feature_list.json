@@ -1,0 +1,304 @@
+[
+  {
+    "id": "static-bootstrap",
+    "area": "bootstrap",
+    "title": "Sitio estático arrancable localmente",
+    "user_visible_behavior": "Existe un `index.html` en la raíz con `lang=\"es\"`, sin build ni dependencias, que se puede abrir o servir en el navegador móvil y muestra un documento válido.",
+    "depends_on": [],
+    "status": "not_started",
+    "verification": [
+      "Ejecutar `./init.sh` y confirmar que reporta estado bootstrapped.",
+      "Servir con `python3 -m http.server 8080` y abrir http://localhost:8080 sin errores de consola."
+    ],
+    "evidence": [],
+    "notes": "Stack: HTML5 + CSS moderno, sin framework ni bundler (docs/technical-discovery.md). El repo aún no tiene app ejecutable, por eso bootstrap es una feature."
+  },
+  {
+    "id": "design-tokens",
+    "area": "design-system",
+    "title": "Tokens visuales de Serene Bio Card como CSS custom properties",
+    "user_visible_behavior": "El documento aplica la paleta, la tipografía Plus Jakarta Sans con pila de respaldo, los radios y la escala de espaciado definidos en DESIGN.md a través de variables CSS reutilizables.",
+    "depends_on": ["static-bootstrap"],
+    "status": "not_started",
+    "verification": [
+      "Inspeccionar el CSS y confirmar que cada token de DESIGN.md existe como custom property.",
+      "Verificar en el navegador que fondo y texto principal usan los colores definidos."
+    ],
+    "evidence": [],
+    "notes": "Fuente de verdad de diseño: DESIGN.md (sección colors, typography, rounded, spacing)."
+  },
+  {
+    "id": "page-shell",
+    "area": "layout",
+    "title": "Lienzo y tarjeta flotante centrada",
+    "user_visible_behavior": "Se ve una tarjeta blanca flotante sobre el fondo `#f7f9ff`, centrada y con ancho máximo de 380–420px en escritorio y `calc(100vw - 2rem)` en móvil, con los márgenes seguros de DESIGN.md.",
+    "depends_on": ["design-tokens"],
+    "status": "not_started",
+    "verification": [
+      "Abrir la página en 320px, 375px, 768px y escritorio y confirmar ausencia de scroll horizontal.",
+      "Confirmar visualmente el ancho máximo de la tarjeta y su centrado vertical/horizontal en escritorio."
+    ],
+    "evidence": [],
+    "notes": "DESIGN.md: layout, shapes, responsive baseline."
+  },
+  {
+    "id": "profile-avatar",
+    "area": "profile",
+    "title": "Avatar circular con halo",
+    "user_visible_behavior": "Se muestra `assets/avatar.jpg` en un círculo de 88×88 con `object-fit: cover` y anillo blanco de 3px, con `alt` descriptivo.",
+    "depends_on": ["page-shell"],
+    "status": "not_started",
+    "verification": [
+      "Abrir la página y confirmar el avatar circular con borde blanco.",
+      "Confirmar que la imagen carga desde `assets/avatar.jpg` sin 404."
+    ],
+    "evidence": [],
+    "notes": "assets/avatar.jpg ya está en el repositorio (DESIGN.md, technical-discovery.md)."
+  },
+  {
+    "id": "profile-identity",
+    "area": "profile",
+    "title": "Nombre, Handle y Tagline del Perfil",
+    "user_visible_behavior": "Bajo el avatar se leen el Nombre \"Fahed Hermoza\", el Handle \"@fahedhermoza\" y la Tagline \"Software Engineer & Speaker & Builder\" con la jerarquía tipográfica de DESIGN.md.",
+    "depends_on": ["page-shell"],
+    "status": "not_started",
+    "verification": [
+      "Leer en el navegador los tres textos y compararlos con docs/build-brief.md.",
+      "Verificar tamaños y pesos tipográficos contra DESIGN.md (headline-lg, body-md)."
+    ],
+    "evidence": [],
+    "notes": "Contenido visible en español; la Tagline se corrigió a \"Engineer\" (docs/build-brief.md)."
+  },
+  {
+    "id": "avatar-fallback",
+    "area": "profile",
+    "title": "Fallback de avatar con iniciales FH",
+    "user_visible_behavior": "Si `assets/avatar.jpg` no carga, el círculo muestra las iniciales \"FH\" en `#484dc4` sobre `#f1f4fa` sin romper el layout.",
+    "depends_on": ["profile-avatar"],
+    "status": "not_started",
+    "verification": [
+      "Renombrar temporalmente el archivo del avatar, recargar y confirmar el fallback con \"FH\".",
+      "Restaurar el archivo y confirmar que el avatar vuelve a mostrarse."
+    ],
+    "evidence": [],
+    "notes": "Edge case de docs/domain-model.md; puede requerir JS mínimo o `onerror` según docs/technical-discovery.md."
+  },
+  {
+    "id": "link-button-component",
+    "area": "components",
+    "title": "Componente visual de botón de Enlace",
+    "user_visible_behavior": "Un Enlace se representa como botón de ancho completo de 48px, esquinas `rounded.md`, etiqueta en mayúsculas con tracking `0.18em` a la izquierda e icono SVG a la derecha, con hover/focus visibles.",
+    "depends_on": ["design-tokens"],
+    "status": "not_started",
+    "verification": [
+      "Renderizar un botón de prueba y confirmar alto 48px, etiqueta mayúsculas e icono a la derecha.",
+      "Probar hover, focus de teclado y `prefers-reduced-motion` sin transiciones activas."
+    ],
+    "evidence": [],
+    "notes": "DESIGN.md: components/button-link. Iconos SVG inline sin dependencias (technical-discovery.md)."
+  },
+  {
+    "id": "link-instagram",
+    "area": "links",
+    "title": "Enlace a Instagram",
+    "user_visible_behavior": "Pulsar el botón de Instagram abre `https://www.instagram.com/fahedhermoza/` en el navegador o app correspondiente.",
+    "depends_on": ["link-button-component"],
+    "status": "not_started",
+    "verification": [
+      "Pulsar el botón en un teléfono y confirmar que abre el perfil correcto de Instagram.",
+      "Confirmar que el enlace es un `<a>` con texto legible y objetivo correcto."
+    ],
+    "evidence": [],
+    "notes": "URL en docs/technical-discovery.md (integrations)."
+  },
+  {
+    "id": "link-facebook",
+    "area": "links",
+    "title": "Enlace a Facebook",
+    "user_visible_behavior": "Pulsar el botón de Facebook abre `https://www.facebook.com/fahed19`.",
+    "depends_on": ["link-button-component"],
+    "status": "not_started",
+    "verification": [
+      "Pulsar el botón en un teléfono y confirmar que abre el perfil correcto de Facebook."
+    ],
+    "evidence": [],
+    "notes": "URL en docs/technical-discovery.md (integrations)."
+  },
+  {
+    "id": "link-whatsapp",
+    "area": "links",
+    "title": "Enlace a WhatsApp",
+    "user_visible_behavior": "Pulsar el botón de WhatsApp abre `https://wa.me/51955116562` y permite iniciar el chat.",
+    "depends_on": ["link-button-component"],
+    "status": "not_started",
+    "verification": [
+      "Pulsar el botón en un teléfono y confirmar que WhatsApp abre el chat del número correcto."
+    ],
+    "evidence": [],
+    "notes": "Formato de URL pendiente de confirmar: `wa.me` vs `api.whatsapp.com` (docs/risks-and-open-questions.md)."
+  },
+  {
+    "id": "link-linkedin",
+    "area": "links",
+    "title": "Enlace a LinkedIn",
+    "user_visible_behavior": "Pulsar el botón de LinkedIn abre `https://www.linkedin.com/in/fahedhermoza/`.",
+    "depends_on": ["link-button-component"],
+    "status": "not_started",
+    "verification": [
+      "Pulsar el botón en un teléfono y confirmar que abre el perfil correcto de LinkedIn."
+    ],
+    "evidence": [],
+    "notes": "URL en docs/technical-discovery.md (integrations)."
+  },
+  {
+    "id": "link-portafolio",
+    "area": "links",
+    "title": "Enlace al Portafolio",
+    "user_visible_behavior": "Pulsar el botón de Portafolio abre `https://fahedhermoza.github.io/`.",
+    "depends_on": ["link-button-component"],
+    "status": "not_started",
+    "verification": [
+      "Pulsar el botón y confirmar que abre el portafolio correcto."
+    ],
+    "evidence": [],
+    "notes": "URL en docs/technical-discovery.md (integrations)."
+  },
+  {
+    "id": "link-correo",
+    "area": "links",
+    "title": "Enlace de Correo",
+    "user_visible_behavior": "Pulsar el botón de Correo abre la app de correo con el destinatario `fahedhermoza@gmail.com` (protocolo `mailto:`).",
+    "depends_on": ["link-button-component"],
+    "status": "not_started",
+    "verification": [
+      "Pulsar el botón en un teléfono y confirmar que se abre la app de correo con el destinatario correcto."
+    ],
+    "evidence": [],
+    "notes": "El sistema decide la app de correo; la página no puede forzarla (docs/domain-model.md)."
+  },
+  {
+    "id": "link-celular",
+    "area": "links",
+    "title": "Enlace de Celular",
+    "user_visible_behavior": "Pulsar el botón de Celular abre el marcador con `+51955116562` (protocolo `tel:`).",
+    "depends_on": ["link-button-component"],
+    "status": "not_started",
+    "verification": [
+      "Pulsar el botón en un teléfono y confirmar que el marcador se abre con el número correcto."
+    ],
+    "evidence": [],
+    "notes": "El sistema decide la app de teléfono; la página no puede forzarla (docs/domain-model.md)."
+  },
+  {
+    "id": "links-order-gradient",
+    "area": "links",
+    "title": "Orden de Enlaces y degradado lavanda→violeta",
+    "user_visible_behavior": "Los siete Enlaces aparecen en el orden Instagram, Facebook, WhatsApp, LinkedIn, Portafolio, Correo, Celular, con una progresión de color continua del degradado y separación vertical de `space-sm`.",
+    "depends_on": [
+      "link-instagram",
+      "link-facebook",
+      "link-whatsapp",
+      "link-linkedin",
+      "link-portafolio",
+      "link-correo",
+      "link-celular"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Confirmar visualmente en el navegador el orden de los siete botones.",
+      "Confirmar la progresión de color del degradado sin saltos bruscos y el espaciado entre botones."
+    ],
+    "evidence": [],
+    "notes": "Orden definido en docs/build-brief.md; progresión de 5 tonos y su repetición en DESIGN.md."
+  },
+  {
+    "id": "save-contact-vcard",
+    "area": "contact",
+    "title": "Botón Guardar contacto descarga la vCard",
+    "user_visible_behavior": "Pulsar \"Guardar contacto\" ofrece/descarga una Contacto vCard con nombre, teléfono, correo y Enlaces, que iOS y Android pueden importar a la agenda.",
+    "depends_on": ["profile-identity", "links-order-gradient"],
+    "status": "not_started",
+    "verification": [
+      "Pulsar el botón en iOS y confirmar que se abre la vista previa/descarga de la vCard.",
+      "Pulsar el botón en Android y confirmar que se importa el contacto con teléfono y correo."
+    ],
+    "evidence": [],
+    "notes": "Pendiente decidir `.vcf` estático vs `data:text/vcard` (docs/risks-and-open-questions.md); el botón puede usar tratamiento neutro (DESIGN.md)."
+  },
+  {
+    "id": "page-footer",
+    "area": "layout",
+    "title": "Pie con correo y handle",
+    "user_visible_behavior": "Bajo los botones hay un pie con borde superior de 1px, texto centrado y enlaces acentuados al correo y al handle.",
+    "depends_on": ["page-shell"],
+    "status": "not_started",
+    "verification": [
+      "Confirmar visualmente el pie con borde superior y texto centrado.",
+      "Confirmar que el enlace de correo usa `mailto:` y el acento `#585ce5`."
+    ],
+    "evidence": [],
+    "notes": "DESIGN.md: components/pie."
+  },
+  {
+    "id": "open-graph-metadata",
+    "area": "sharing",
+    "title": "Metadatos Open Graph y Twitter Card",
+    "user_visible_behavior": "Al compartir la URL, la vista previa muestra título, descripción e imagen `assets/og-image.jpg` (1200×630) correctamente.",
+    "depends_on": ["page-shell"],
+    "status": "not_started",
+    "verification": [
+      "Validar las etiquetas `og:*` y `twitter:*` en el HTML.",
+      "Tras publicar, comprobar la vista previa compartiendo el enlace por WhatsApp."
+    ],
+    "evidence": [],
+    "notes": "`assets/og-image.jpg` aún no existe y debe crearse con otra herramienta (DESIGN.md, technical-discovery.md); `og:url`/`canonical` esperan la URL final de Cloudflare Pages."
+  },
+  {
+    "id": "accessibility-baseline",
+    "area": "quality",
+    "title": "Base de accesibilidad AA",
+    "user_visible_behavior": "Todos los controles son elementos interactivos reales, con foco visible, contraste AA, iconos decorativos `aria-hidden`, `alt` en el avatar, `lang=\"es\"` y respeto a `prefers-reduced-motion`.",
+    "depends_on": ["page-shell", "link-button-component"],
+    "status": "not_started",
+    "verification": [
+      "Navegar toda la página solo con teclado y confirmar foco visible en cada control.",
+      "Ejecutar Lighthouse móvil y confirmar accesibilidad sin errores críticos."
+    ],
+    "evidence": [],
+    "notes": "DESIGN.md: accessibility baseline; testing en docs/technical-discovery.md."
+  },
+  {
+    "id": "responsive-baseline",
+    "area": "quality",
+    "title": "Layout responsive sin scroll horizontal",
+    "user_visible_behavior": "La Tarjeta se ve correctamente y sin scroll horizontal en 320px, 375px, 768px y escritorio, con áreas táctiles de al menos 44×44px.",
+    "depends_on": ["page-shell", "links-order-gradient"],
+    "status": "not_started",
+    "verification": [
+      "Probar los cuatro viewports y confirmar ausencia de scroll horizontal.",
+      "Confirmar áreas táctiles de los botones ≥44px."
+    ],
+    "evidence": [],
+    "notes": "Breakpoints ~736px, ~480px y ~360px (DESIGN.md)."
+  },
+  {
+    "id": "deploy-cloudflare-pages",
+    "area": "operations",
+    "title": "Publicación en Cloudflare Pages",
+    "user_visible_behavior": "La Tarjeta digital es accesible por su URL pública de Cloudflare Pages con HTTPS, sin comando de build, y la URL real queda registrada en los metadatos.",
+    "depends_on": [
+      "save-contact-vcard",
+      "page-footer",
+      "open-graph-metadata",
+      "accessibility-baseline",
+      "responsive-baseline"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Abrir la URL pública en un teléfono y confirmar carga y HTTPS.",
+      "Actualizar `canonical`/`og:url` con la URL final y re-desplegar."
+    ],
+    "evidence": [],
+    "notes": "URL final indefinida (docs/risks-and-open-questions.md); salida desde la raíz del repo (docs/technical-discovery.md)."
+  }
+]
