@@ -5,12 +5,17 @@
     "title": "Sitio estático arrancable localmente",
     "user_visible_behavior": "Existe un `index.html` en la raíz con `lang=\"es\"`, sin build ni dependencias, que se puede abrir o servir en el navegador móvil y muestra un documento válido.",
     "depends_on": [],
-    "status": "not_started",
+    "status": "passing",
     "verification": [
       "Ejecutar `./init.sh` y confirmar que reporta estado bootstrapped.",
       "Servir con `python3 -m http.server 8080` y abrir http://localhost:8080 sin errores de consola."
     ],
-    "evidence": [],
+    "evidence": [
+      "`index.html` creado en la raíz: `<!DOCTYPE html>`, `<html lang=\"es\">`, charset utf-8, viewport y `<title>Fahed Hermoza — Tarjeta digital</title>`, con `<main>` vacío; sin CSS ni JS.",
+      "`./init.sh` reporta `Harness status: bootstrapped (static site detected)`, las 3 comprobaciones [ok] y sale con código 0, sin iniciar servidor.",
+      "Prueba negativa: al quitar `lang=\"es\"`, `./init.sh` imprime `Harness status: FAILED - index.html is missing lang=\"es\"` y sale con código 1.",
+      "Servido con `python3 -m http.server 8080 --directory .` devuelve HTTP 200 y el documento con lang/ title/ viewport correctos (sin scripts, por lo que no puede haber errores de consola)."
+    ],
     "notes": "Stack: HTML5 + CSS moderno, sin framework ni bundler (docs/technical-discovery.md). El repo aún no tiene app ejecutable, por eso bootstrap es una feature."
   },
   {

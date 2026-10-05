@@ -3,18 +3,42 @@ set -euo pipefail
 
 echo "Repository: $(pwd)"
 
-if [ -f "index.html" ]; then
-  echo "Harness status: bootstrapped (static site detected)"
-  echo "Serving command: python3 -m http.server 8080 --directory ."
-  echo "Manual verification: abrir http://localhost:8080 en un viewport móvil."
-  if [ "${RUN_SERVE_COMMAND:-0}" = "1" ]; then
-    exec python3 -m http.server 8080 --directory .
-  fi
-else
+fail() {
+  echo "Harness status: FAILED - $1" >&2
+  exit 1
+}
+
+if [ ! -f "index.html" ]; then
   echo "Harness status: pre-bootstrap"
   echo "Application stack is not initialized yet."
-  echo "Next step: choose the first feature from feature_list.json and perform technical bootstrap."
-  echo "Expected future commands after bootstrap:"
-  echo "  - Serve: python3 -m http.server 8080 --directory ."
-  echo "  - Verify: manual browser checks per feature (iOS/Android, viewports 320/375/768px)."
+  echo "Next step: create index.html (feature static-bootstrap)."
+  exit 1
+fi
+
+echo "Harness status: bootstrapped (static site detected)"
+echo "Bootstrap checks:"
+
+if grep -q 'lang="es"' index.html; then
+  echo "  [ok] lang=\"es\""
+else
+  fail "index.html is missing lang=\"es\""
+fi
+
+if grep -qE '<title>[^<]+</title>' index.html; then
+  echo "  [ok] non-empty <title>"
+else
+  fail "index.html is missing a non-empty <title>"
+fi
+
+if grep -q 'name="viewport"' index.html && grep -q 'width=device-width' index.html; then
+  echo '  [ok] viewport meta'
+else
+  fail "index.html is missing the viewport meta tag"
+fi
+
+echo "Serving command: python3 -m http.server 8080 --directory ."
+echo "Manual verification: open http://localhost:8080 in a mobile viewport (320/375/768px)."
+
+if [ "${RUN_SERVE_COMMAND:-0}" = "1" ]; then
+  exec python3 -m http.server 8080 --directory .
 fi
