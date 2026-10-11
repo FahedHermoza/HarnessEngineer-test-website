@@ -54,6 +54,7 @@ For every selected feature, confirm each `depends_on` id exists and has status `
 
 ### 2. Base is clean
 
+- Pull the latest changes first: check out the base branch if needed and run `git pull` on it. If the pull fails (conflicts, diverged history, or no upstream), stop and report; do not force or invent a resolution.
 - `git status --porcelain` must be empty in the base checkout (ignored files are fine). If the tree is dirty, stop and ask the user to commit or stash before starting.
 - `git fetch origin` and confirm the base branch exists (`git rev-parse --verify origin/<base>` or local `<base>`). If it does not exist, stop and report; do not create it silently.
 - Resolve the base SHA once for the whole run: `BASE_SHA="$(git rev-parse "origin/<base>")"`. Every feature worktree uses exactly this SHA.
