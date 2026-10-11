@@ -2,12 +2,12 @@
 
 ## Current Verified State
 
-- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/DevExpert-1`
+- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/devexpert-project-worktrees/static-bootstrap`
 - Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, no arranca servidor por defecto).
 - Standard verification path: `./init.sh` sale `0` + `python3 -m http.server 8080 --directory .` y verificación manual en navegador móvil.
-- Current next ready feature: `design-tokens` (bloqueada hasta que la validación independiente acepte `static-bootstrap`).
+- Current next ready feature: `design-tokens` (desbloqueada tras aceptar `static-bootstrap`).
 - Current blocker: none
-- Last verified at: 2026-10-04 (`static-bootstrap` en `passing`, pendiente de validación independiente)
+- Last verified at: 2026-10-11 (`static-bootstrap` en `accepted` tras validación independiente)
 
 ## Session Log
 
@@ -32,3 +32,14 @@
 - Files or artifacts updated: `index.html` (new), `init.sh`, `feature_list.json`, `PROGRESS.md`.
 - Known risk or unresolved issue: browser console check is not automated (no test framework); document has no scripts, so console errors are not possible in this slice.
 - Next best step: independent validation of `static-bootstrap` (`feature-validator`); after acceptance, plan `design-tokens`.
+
+### Session 003
+
+- Date: 2026-10-11
+- Goal: independently validate feature `static-bootstrap` (`feature-flow`, role `validator`).
+- Completed: validator `feature-validator` returned `accept`; `feature_list.json` moved `static-bootstrap` from `passing` to `accepted` with validator evidence; validation record created at `docs/validations/static-bootstrap.md`.
+- Verification run: `./init.sh` → `bootstrapped` + 3 `[ok]`, exit 0, no server started; 4 negative cases → exit 1 with stderr message; `python3 -m http.server 8099 --directory .` + `curl` → HTTP 200 `text/html` with body identical to `index.html`; HTML structural parse (doctype/lang/main, no script/style).
+- Evidence captured: `docs/validations/static-bootstrap.md`; acceptance entry appended in `feature_list.json`.
+- Files or artifacts updated: `feature_list.json`, `PROGRESS.md`, `docs/validations/static-bootstrap.md`.
+- Known risk or unresolved issue: none blocking; validator low-severity notes recorded in the validation record.
+- Next best step: plan feature `design-tokens` (`feature-spec`/planner), now dependency-ready.
