@@ -2,12 +2,13 @@
 
 ## Current Verified State
 
-- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/devexpert-project-worktrees/static-bootstrap`
-- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, no arranca servidor por defecto).
-- Standard verification path: `./init.sh` sale `0` + `python3 -m http.server 8080 --directory .` y verificación manual en navegador móvil.
-- Current next ready feature: `design-tokens` (desbloqueada tras aceptar `static-bootstrap`).
+- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/devexpert-project-worktrees/design-tokens`
+- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html` + tokens de `styles.css`; no arranca servidor por defecto).
+- Standard verification path: `./init.sh` sale `0` + `python3 -m http.server 8080 --directory .` y verificación en navegador.
+- Current status: `design-tokens` en `accepted` (validación independiente `accept` tras una ronda `revise`; commit pendiente en esta sesión).
+- Current next ready feature: `page-shell` (depende de `design-tokens`, ahora `accepted`; lista para planificar/implementar).
 - Current blocker: none
-- Last verified at: 2026-10-11 (`static-bootstrap` en `accepted` tras validación independiente)
+- Last verified at: 2026-10-11 (`design-tokens` en `accepted`; re-validación independiente `accept`, ver Session 005)
 
 ## Session Log
 
@@ -43,3 +44,26 @@
 - Files or artifacts updated: `feature_list.json`, `PROGRESS.md`, `docs/validations/static-bootstrap.md`.
 - Known risk or unresolved issue: none blocking; validator low-severity notes recorded in the validation record.
 - Next best step: plan feature `design-tokens` (`feature-spec`/planner), now dependency-ready.
+
+### Session 004
+
+- Date: 2026-10-11
+- Goal: implement feature `design-tokens` (spec `docs/specs/design-tokens.md`).
+- Completed: created root `styles.css` with a `:root` block of exactly 51 custom properties (16 color, 23 typography, 5 radius, 7 spacing) plus the minimal `body` base rule using tokens; added to `index.html` `<head>` the `styles.css` link and the Google Fonts preconnect + Plus Jakarta Sans stylesheet (`wght@400;600;800&display=swap`); extended `init.sh` with a non-blocking token gate (styles.css exists, index.html links it, all 51 tokens present) without removing the static-bootstrap checks.
+- Verification run: `bash -n init.sh` → OK; `./init.sh` → `bootstrapped`, static-bootstrap `[ok]` + `[ok] styles.css exists` + `[ok] index.html links styles.css` + `[ok] design tokens present (51/51)`, exit 0, no server; 3 negative tests on temp copies → exit 1 with `FAILED - styles.css missing token: --color-primary`, `Harness status: FAILED - styles.css is missing`, `Harness status: FAILED - index.html does not link styles.css`; 1:1 audit → 51 declarations, 51/51 tokens match DESIGN.md exact values; headless Chrome computed `body` → background `rgb(247,249,255)`, color `rgb(45,49,57)`, font-family `"Plus Jakarta Sans", system-ui, ...`, margin 0; served via `python3 -m http.server 8080` (index.html 200 text/html, styles.css 200 text/css); Google Fonts css2 → HTTP 200.
+- Repair (validator `revise`, brief: falso negativo del harness por prefijos): en `init.sh` se cambió el test de presencia de tokens de subcadena `grep -qF -- "$token" styles.css` a declaración anclada `grep -qE -- "^[[:space:]]*${token}[[:space:]]*:" styles.css`, porque `--color-surface` es subcadena de `--color-surface-container-low` y `--color-on-surface` de `--color-on-surface-variant`. Re-verificado: `bash -n init.sh && ./init.sh` → exit 0, static-bootstrap `[ok]` + `[ok] design tokens present (51/51)`, sin arrancar servidor; copia temporal sin `--color-on-surface` → stderr `FAILED - styles.css missing token: --color-on-surface` + `Harness status: FAILED - styles.css is missing 1 of 51 required design tokens`, exit 1; copia temporal sin `--color-surface` → stderr `FAILED - styles.css missing token: --color-surface` + mismo status, exit 1 (antes ambos daban 51/51); caso correcto (`--color-primary` presente) sigue en 51/51; regresión `styles.css` ausente y `<link>` ausente → exit 1; ninguna ruta de fallo arranca servidor; copias temporales eliminadas. `status` se mantiene en `passing` para re-validación independiente.
+- Evidence captured: command outputs above; `feature_list.json` `design-tokens` set to `passing` with evidence (incluida la reparación del gate anclado).
+- Files or artifacts updated: `styles.css` (new), `index.html`, `init.sh`, `feature_list.json`, `PROGRESS.md`.
+- Known risk or unresolved issue: font loading/FOUT fine-tuning (preload, self-hosting) remains a non-goal/open question; Google Fonts availability is an external dependency (mitigated by the token fallback stack). Computed-style check used a temp probe (script injected post-load) because no browser test harness exists.
+- Next best step: independent validation of `design-tokens` (`feature-validator`); after acceptance, plan `page-shell`.
+
+### Session 005
+
+- Date: 2026-10-11
+- Goal: independently validate feature `design-tokens` (`feature-flow`, role `validator`) and persist acceptance.
+- Completed: validator `feature-validator` returned `revise` (Medium: falso negativo del gate por prefijos) then `accept` tras la reparación anclada; `feature_list.json` moved `design-tokens` from `passing` to `accepted` with validator evidence; validation record created at `docs/validations/design-tokens.md`.
+- Verification run: `bash -n init.sh` OK; `./init.sh` → `bootstrapped` + static-bootstrap `[ok]` + `[ok] design tokens present (51/51)`, exit 0, sin servidor; copias temporales sin `--color-on-surface` y sin `--color-surface` → exit 1 con `FAILED - styles.css missing token: <token>` (antes daban 51/51); `styles.css` ausente y `<link>` ausente → exit 1, sin servidor; auditoría 1:1 independiente → 51/51 tokens exactos; servido → `index.html` 200 `text/html`, `styles.css` 200 `text/css`; headless Chrome computed `body` → background `rgb(247,249,255)`, color `rgb(45,49,57)`, font-family Plus Jakarta Sans + pila de respaldo, sin scroll horizontal.
+- Evidence captured: `docs/validations/design-tokens.md`; acceptance entry appended in `feature_list.json`.
+- Files or artifacts updated: `feature_list.json`, `PROGRESS.md`, `docs/validations/design-tokens.md`.
+- Known risk or unresolved issue: none blocking; 3 notas Low no bloqueantes del validator (el gate valida presencia, no valor; no limita las declaraciones a `:root`; cuenta declaraciones comentadas).
+- Next best step: commit `design-tokens` (Conventional Commit) y planificar/implementar `page-shell` (`feature-spec`/planner), ahora dependency-ready.
