@@ -546,9 +546,128 @@ else
   echo "  [warn] og:url/canonical pending public URL (deploy-cloudflare-pages)"
 fi
 
-echo "Serving command: python3 -m http.server 3201 --directory ."
-echo "Manual verification: open http://localhost:3201 in a mobile viewport (320/375/768px)."
+echo "Instagram link checks:"
+
+LINKS_BLOCK=$(awk '
+  /<nav class="links"/ { in_nav = 1 }
+  in_nav { print }
+  in_nav && /<\/nav>/ { exit }
+' index.html)
+
+if [ -z "$LINKS_BLOCK" ]; then
+  fail "index.html is missing the links navigation block (<nav class=\"links\">)"
+fi
+echo "  [ok] links navigation block exists"
+
+if printf '%s\n' "$LINKS_BLOCK" | grep -qF 'aria-label="Enlaces de contacto"'; then
+  echo "  [ok] links navigation label"
+else
+  fail "index.html is missing the links navigation label Enlaces de contacto"
+fi
+
+case "$LINKS_BLOCK" in
+  *link-button--gradient-*)
+    fail "the Instagram Enlace must not use a link-button--gradient-* modifier (tone assignment belongs to links-order-gradient)"
+    ;;
+  *)
+    echo "  [ok] Instagram Enlace uses the component base tone"
+    ;;
+esac
+
+instagram_link_count=$(printf '%s\n' "$LINKS_BLOCK" | grep -o 'class="link-button"' | wc -l || true)
+if [ "$instagram_link_count" -eq 1 ]; then
+  echo "  [ok] Instagram Enlace markup"
+else
+  fail "index.html must contain exactly one class=\"link-button\" Enlace inside the links navigation (found $instagram_link_count)"
+fi
+
+if printf '%s\n' "$LINKS_BLOCK" | grep -qF 'href="https://www.instagram.com/fahedhermoza/"'; then
+  echo "  [ok] Instagram Enlace destination https://www.instagram.com/fahedhermoza/"
+else
+  fail "index.html is missing the Instagram Enlace destination https://www.instagram.com/fahedhermoza/"
+fi
+
+if printf '%s\n' "$LINKS_BLOCK" | grep -qF '>Instagram<'; then
+  echo "  [ok] Instagram Enlace label"
+else
+  fail "index.html is missing the Instagram Enlace label >Instagram<"
+fi
+
+ICON_CONTRACT=(
+  'class="link-button__icon"'
+  'width="18"'
+  'height="18"'
+  'stroke="currentColor"'
+  'aria-hidden="true"'
+  'focusable="false"'
+)
+
+icon_total=${#ICON_CONTRACT[@]}
+icon_present=0
+icon_missing=0
+for attribute in "${ICON_CONTRACT[@]}"; do
+  case "$LINKS_BLOCK" in
+    *"$attribute"*)
+      icon_present=$((icon_present + 1))
+      ;;
+    *)
+      echo "FAILED - Instagram Enlace icon missing attribute: $attribute" >&2
+      icon_missing=$((icon_missing + 1))
+      ;;
+  esac
+done
+
+if [ "$icon_missing" -gt 0 ]; then
+  echo "Harness status: FAILED - Instagram Enlace icon contract is missing $icon_missing of $icon_total required attributes" >&2
+  exit 1
+fi
+
+echo "  [ok] Instagram Enlace icon contract ($icon_present/$icon_total)"
+
+LINKS_RULE=$(awk '
+  /^[[:space:]]*\.links[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -z "$LINKS_RULE" ]; then
+  fail "styles.css is missing the .links layout rule"
+fi
+
+case "$LINKS_RULE" in
+  *'padding: 0 var(--space-lg);'*)
+    echo "  [ok] .links layout rule"
+    ;;
+  *)
+    fail "styles.css .links layout rule is missing declaration: padding: 0 var(--space-lg);"
+    ;;
+esac
+
+if grep -qF 'data-demo="link-button"' index.html; then
+  echo "  [ok] link button demo preserved"
+else
+  fail "index.html is missing the temporary link button demo [data-demo=\"link-button\"] (must be preserved in this feature)"
+fi
+
+LINK_DEMO_LABELS=(
+  '>Enlace uno<'
+  '>Enlace dos<'
+  '>Enlace tres<'
+  '>Enlace cuatro<'
+  '>Enlace cinco<'
+)
+for label in "${LINK_DEMO_LABELS[@]}"; do
+  if grep -qF -- "$label" index.html; then
+    :
+  else
+    fail "index.html is missing the temporary link button demo label: $label"
+  fi
+done
+echo "  [ok] link button demo labels preserved (5/5)"
+
+echo "Serving command: python3 -m http.server 3301 --directory ."
+echo "Manual verification: open http://localhost:3301 in a mobile viewport (390×844) and a desktop viewport (1280×800)."
 
 if [ "${RUN_SERVE_COMMAND:-0}" = "1" ]; then
-  exec python3 -m http.server 3201 --directory .
+  exec python3 -m http.server 3301 --directory .
 fi
