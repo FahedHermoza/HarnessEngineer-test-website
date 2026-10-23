@@ -361,6 +361,65 @@ else
   fail "styles.css is missing the page footer focus-visible outline: 2px solid var(--color-accent);"
 fi
 
+echo "Link checks:"
+
+if grep -qF 'class="links"' index.html \
+  && grep -qF 'class="link-button"' index.html \
+  && grep -qF '<span class="link-button__label">Celular</span>' index.html; then
+  echo "  [ok] celular link markup"
+else
+  fail "index.html is missing the Celular link markup"
+fi
+
+if grep -qF 'href="tel:+51955116562"' index.html; then
+  echo "  [ok] celular link destination"
+else
+  fail "index.html is missing the Celular link destination tel:+51955116562"
+fi
+
+if grep -qF 'aria-label="Celular: llamar al +51 955 116 562"' index.html; then
+  echo "  [ok] celular link accessible label"
+else
+  fail "index.html is missing the Celular link accessible label"
+fi
+
+LINKS_RULE=$(awk '
+  /^[[:space:]]*\.links[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -z "$LINKS_RULE" ]; then
+  fail "styles.css is missing the .links base rule"
+fi
+echo "  [ok] .links base rule exists"
+
+LINKS_CONTRACT=(
+  'padding: 0 var(--space-lg);'
+)
+
+links_total=${#LINKS_CONTRACT[@]}
+links_present=0
+links_missing=0
+for declaration in "${LINKS_CONTRACT[@]}"; do
+  case "$LINKS_RULE" in
+    *"$declaration"*)
+      links_present=$((links_present + 1))
+      ;;
+    *)
+      echo "FAILED - .links base rule missing declaration: $declaration" >&2
+      links_missing=$((links_missing + 1))
+      ;;
+  esac
+done
+
+if [ "$links_missing" -gt 0 ]; then
+  echo "Harness status: FAILED - links container contract is missing $links_missing of $links_total required declarations" >&2
+  exit 1
+fi
+
+echo "  [ok] links container contract ($links_present/$links_total)"
+
 echo "Profile identity checks:"
 
 if grep -qF 'class="profile-identity"' index.html; then
