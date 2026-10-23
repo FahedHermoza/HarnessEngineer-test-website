@@ -723,6 +723,57 @@ for label in "${LINK_DEMO_LABELS[@]}"; do
 done
 echo "  [ok] link button demo labels preserved (5/5)"
 
+echo "WhatsApp link checks:"
+
+if printf '%s\n' "$LINKS_BLOCK" | grep -qF 'href="https://wa.me/51955116562"' \
+  && printf '%s\n' "$LINKS_BLOCK" | grep -qF '>WhatsApp<' \
+  && printf '%s\n' "$LINKS_BLOCK" | grep -qF 'aria-label="WhatsApp"'; then
+  echo "  [ok] WhatsApp Enlace markup"
+else
+  fail "index.html is missing the WhatsApp Enlace markup (href, label or aria-label)"
+fi
+
+WHATSAPP_ANCHOR=$(awk '
+  /href="https:\/\/wa\.me\/51955116562"/ { in_anchor = 1 }
+  in_anchor { print }
+  in_anchor && /<\/a>/ { exit }
+' index.html)
+
+if [ -z "$WHATSAPP_ANCHOR" ]; then
+  fail "index.html is missing the WhatsApp anchor block"
+fi
+
+WHATSAPP_ICON_CONTRACT=(
+  'class="link-button__icon"'
+  'width="18"'
+  'height="18"'
+  'fill="currentColor"'
+  'aria-hidden="true"'
+  'focusable="false"'
+)
+
+whatsapp_icon_total=${#WHATSAPP_ICON_CONTRACT[@]}
+whatsapp_icon_present=0
+whatsapp_icon_missing=0
+for attribute in "${WHATSAPP_ICON_CONTRACT[@]}"; do
+  case "$WHATSAPP_ANCHOR" in
+    *"$attribute"*)
+      whatsapp_icon_present=$((whatsapp_icon_present + 1))
+      ;;
+    *)
+      echo "FAILED - WhatsApp link icon is missing attribute: $attribute" >&2
+      whatsapp_icon_missing=$((whatsapp_icon_missing + 1))
+      ;;
+  esac
+done
+
+if [ "$whatsapp_icon_missing" -gt 0 ]; then
+  echo "Harness status: FAILED - whatsapp icon contract is missing $whatsapp_icon_missing of $whatsapp_icon_total required attributes" >&2
+  exit 1
+fi
+
+echo "  [ok] whatsapp icon contract ($whatsapp_icon_present/$whatsapp_icon_total)"
+
 echo "Serving command: python3 -m http.server 3301 --directory ."
 echo "Manual verification: open http://localhost:3301 in a mobile viewport (390×844) and a desktop viewport (1280×800)."
 
