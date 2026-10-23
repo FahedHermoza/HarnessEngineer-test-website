@@ -76,7 +76,9 @@
     "area": "profile",
     "title": "Avatar circular con halo",
     "user_visible_behavior": "Se muestra `assets/avatar.jpg` en un círculo de 88×88 con `object-fit: cover` y anillo blanco de 3px, con `alt` descriptivo.",
-    "depends_on": ["page-shell"],
+    "depends_on": [
+      "page-shell"
+    ],
     "status": "accepted",
     "verification": [
       "Abrir la página y confirmar el avatar circular con borde blanco.",
@@ -254,12 +256,26 @@
     "depends_on": [
       "link-button-component"
     ],
-    "status": "not_started",
+    "status": "accepted",
     "verification": [
       "Pulsar el botón en un teléfono y confirmar que abre el perfil correcto de LinkedIn."
     ],
-    "evidence": [],
-    "notes": "URL en docs/technical-discovery.md (integrations)."
+    "evidence": [
+      "`index.html`: se añadió `<section class=\"links\" aria-label=\"Enlaces\">` dentro de `.card`, después de `header.profile-identity` y antes de la demo temporal, con un único `<a class=\"link-button\" href=\"https://www.linkedin.com/in/fahedhermoza/\">`, `<span class=\"link-button__label\">LinkedIn</span>` y SVG inline 18×18 con `fill=\"currentColor\"`, `aria-hidden=\"true\"` y `focusable=\"false\"` (sin `<title>` ni `stroke`). Sin `target`, `rel`, `aria-label` ni modificador `link-button--gradient-*`. La demo y el resto de la página no se tocaron.",
+      "`styles.css`: se añadió solo la regla `.links { padding: 0 var(--space-gutter); }` (con comentario que difiere columna/orden/progresión a `links-order-gradient`) antes de la sección del pie. No se modificaron `:root` (51 tokens), `body`, `.page`, `.card`, `.link-button`, sus modificadores ni `[data-demo=\"link-button\"]`.",
+      "`init.sh`: nueva sección `LinkedIn link checks:` después de `Sharing metadata checks:` con `[ok] links container markup`, `[ok] LinkedIn link destination` (regex de `<a>` con `class=\"link-button\"` y href exacto), `[ok] LinkedIn link label` (`>LinkedIn<` dentro del bloque del `<a>` extraído con `awk`), `[ok] LinkedIn icon is decorative` (`aria-hidden=\"true\"` + `focusable=\"false\"` en ese bloque) y `[ok] links container rule` (regla `.links` extraída con `awk` y `padding: 0 var(--space-gutter);`). Los checks previos quedan intactos y ningún fallo arranca servidor.",
+      "`bash -n init.sh` → sin errores. `./init.sh` → `Harness status: bootstrapped (static site detected)`, bootstrap 3/3, tokens 51/51, componente 6/6 + reduced motion, page shell 3/3, avatar 5/5, pie 5/5, identidad completa, `Sharing metadata checks:` 14/14 + 3 `[warn]` heredados, `LinkedIn link checks:` 5/5 `[ok]`, exit `0`, sin arrancar servidor.",
+      "Casos negativos en una copia temporal fuera del repo (eliminada; repo intacto) → todos exit `1` con el motivo en stderr y sin listener: href sustituido por `https://www.linkedin.com/` → `Harness status: FAILED - index.html is missing the LinkedIn link destination https://www.linkedin.com/in/fahedhermoza/`; etiqueta cambiada a `LinkedIn!` → `FAILED - LinkedIn link is missing its visible label >LinkedIn<`; SVG de LinkedIn sin `aria-hidden`/`focusable` (la demo conserva los suyos) → `FAILED - LinkedIn icon must declare aria-hidden=\"true\" and focusable=\"false\"`; `.links` con `padding: 0;` → `FAILED - styles.css .links rule is missing declaration: padding: 0 var(--space-gutter);`.",
+      "Servidor único de la sesión `python3 -m http.server 3304 --directory .` (PID 79227, detenido al terminar; puerto 3304 libre antes y después): log sin peticiones 4xx/5xx ni `favicon`; `/`, `/styles.css` y `/assets/avatar.jpg` responden 200.",
+      "Navegador 390×844 (viewport emulado mobile 390, dpr 3, recarga ignorando caché): consola **0 mensajes**; red 5/5 peticiones 200 (`/`, Google Fonts CSS, `styles.css`, `avatar.jpg`, WOFF2), **sin `/favicon.ico`**; `scrollWidth=clientWidth=390` en documento y body. Tarjeta 358px en x=16; `.links` 356×48 en x=17; Enlace 324×48 en x=33; icono 18×18 en x=319. Computed: `display:flex`, `height:48px`, `padding:0px 20px`, `border-radius:6px`, `justify-content:space-between`, 11px/800, line-height 16px, tracking 1.98px, uppercase, `color:rgb(255,255,255)`, fondo `rgb(104,118,240)` (`--color-gradient-1`) sin modificador de degradado. Demo intacta: 5 anclas e `[data-demo=\"link-button\"]` CSS presente; Perfil, avatar, pie y metadatos presentes; 0 `<script>`.",
+      "Semántica y accesibilidad (390×844 y 1280×800): `getAttribute(\"href\")` y `anchor.href` exactamente `https://www.linkedin.com/in/fahedhermoza/`, `target===\"\"` (atributo ausente), `rel===\"\"` (atributo ausente), sin `aria-label`; árbol de accesibilidad expone `link \"LINKEDIN\"` (nombre derivado del texto visible; mayúsculas son el render de `text-transform`); un solo `<a>` dentro de `.links`; SVG con `aria-hidden=\"true\"`, `focusable=\"false\"`, `fill=\"currentColor\"`, 18×18 y sin `<title>`.",
+      "Click (390×844): pulsar el Enlace navegó a `https://www.linkedin.com/in/fahedhermoza` (normalización de barra final del navegador); se volvió a la página local para continuar. La respuesta/disponibilidad externa de LinkedIn no se califica. El handoff a la app nativa queda como verificación manual de producto.",
+      "Navegador 1280×800 (recarga ignorando caché): consola **0 mensajes**; red 5/5 peticiones 200, sin `/favicon.ico`; sin scroll horizontal (`scrollWidth=clientWidth=1265`, reducido por la barra de scroll vertical de 15px al superar el contenido los 800px de alto). Tarjeta 400px centrada en x=432.5; `.links` 398×48 en x=433.5; Enlace 366×48 en x=449.5 (x=457 solo sin barra de scroll vertical); mismos estilos computados y fondo base; demo intacta (primer botón 366×48); 0 `<script>`.",
+      "Hover (escritorio, hover real): `transform:matrix(1, 0, 0, 1, 0, -1.5)`, `box-shadow:rgba(108,114,234,0.28) 0px 8px 18px 0px`, `filter:brightness(1.03)`, transición 0.18s. `Tab` real → primer foco en el Enlace, `:focus-visible=true`, outline `rgb(88,92,229) solid 2px` offset 2px, misma transformación/sombra/brillo. `prefers-reduced-motion: reduce` → `transition-property:none`, `transition-duration:0s`, `transform:none` en hover y foco, outline visible.",
+      "Scope guard: `git diff` solo añade el bloque de Enlace en `index.html`, la regla `.links` en `styles.css` y los checks en `init.sh` (+67 líneas, 0 eliminaciones); demo HTML/CSS, `:root` (51 tokens), `body`, `.page`, `.card`, `.link-button`, pie, identidad, avatar y metadatos idénticos a `HEAD`; 0 `<script>`, sin `package.json`, frameworks, bundlers, dependencias, assets ni tokens nuevos. `git diff --check` OK.",
+      "Validación independiente (validator `feature-validator`, 2026-10-23): verdict `accept`, sin hallazgos Critical/High/Medium; 3 notas Low no bloqueantes (coordenada x=457 del spec ilustrativa sin barra de scroll, gate textual que no prueba por sí solo unicidad/posición, y aviso heredado de puerto 3201/viewports en `init.sh`). Reproducción: `bash -n init.sh` OK; `./init.sh` exit 0 sin servidor con todos los checks previos y `LinkedIn link checks:` 5/5; cuatro casos negativos independientes en copia temporal fuera del repo (href incorrecto, etiqueta `LinkedIn!`, SVG sin atributos decorativos, `.links` con `padding: 0;`) → exit 1 con stderr esperado y sin listener en 3304; servidor propio en 3304 (detenido, puerto libre) con 390×844 y 1280×800 sin errores de consola ni peticiones fallidas (5/5 200, sin `/favicon.ico`) y sin scroll horizontal; Enlace 324×48 en x=33 (móvil) y 366×48 en x=449.5 (escritorio con barra vertical), estilos del componente y fondo `rgb(104,118,240)`; árbol de accesibilidad `link \"LINKEDIN\"`, `href` exacto, sin `target`/`rel`/`aria-label`, SVG decorativo 18×18; click inicia navegación al perfil, hover/foco/reduced motion idénticos al componente; demo de 5 anclas intacta, `:root` 51 tokens y sin JS/frameworks/dependencias/orden/degradado. Registro: `docs/validations/link-linkedin.md`."
+    ],
+    "notes": "URL en docs/technical-discovery.md (integrations). Implementa solo el markup/estilos/gate del Enlace; orden, separación y degradado quedan para `links-order-gradient`. Aceptada por validación independiente; demo temporal conservada."
   },
   {
     "id": "link-portafolio",
@@ -359,7 +375,9 @@
     "area": "layout",
     "title": "Pie con correo y handle",
     "user_visible_behavior": "Bajo los botones hay un pie con borde superior de 1px, texto centrado y enlaces acentuados al correo y al handle.",
-    "depends_on": ["page-shell"],
+    "depends_on": [
+      "page-shell"
+    ],
     "status": "accepted",
     "verification": [
       "Confirmar visualmente el pie con borde superior y texto centrado.",
@@ -386,7 +404,9 @@
     "area": "sharing",
     "title": "Metadatos Open Graph y Twitter Card",
     "user_visible_behavior": "Al compartir la URL, la vista previa muestra título, descripción e imagen `assets/og-image.jpg` (1200×630) correctamente.",
-    "depends_on": ["page-shell"],
+    "depends_on": [
+      "page-shell"
+    ],
     "status": "accepted",
     "verification": [
       "Validar las etiquetas `og:*` y `twitter:*` en el HTML.",

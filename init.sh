@@ -568,6 +568,33 @@ else
   fail "index.html is missing the decorative portfolio link icon"
 fi
 
+echo "LinkedIn link checks:"
+
+if printf '%s\n' "$LINKS_BLOCK" | grep -qE '<a[^>]*class="link-button"[^>]*href="https://www\.linkedin\.com/in/fahedhermoza/"'; then
+  echo "  [ok] LinkedIn link destination"
+else
+  fail "index.html is missing the LinkedIn link destination https://www.linkedin.com/in/fahedhermoza/"
+fi
+
+LINKEDIN_LINK_BLOCK=$(awk '
+  /<a[^>]*href="https:\/\/www\.linkedin\.com\/in\/fahedhermoza\/"/ { in_link = 1 }
+  in_link { print }
+  in_link && /<\/a>/ { exit }
+' index.html)
+
+if printf '%s\n' "$LINKEDIN_LINK_BLOCK" | grep -qF '>LinkedIn<'; then
+  echo "  [ok] LinkedIn link label"
+else
+  fail "LinkedIn link is missing its visible label >LinkedIn<"
+fi
+
+if printf '%s\n' "$LINKEDIN_LINK_BLOCK" | grep -qF 'aria-hidden="true"' \
+  && printf '%s\n' "$LINKEDIN_LINK_BLOCK" | grep -qF 'focusable="false"'; then
+  echo "  [ok] LinkedIn icon is decorative"
+else
+  fail "LinkedIn icon must declare aria-hidden=\"true\" and focusable=\"false\""
+fi
+
 echo "Sharing metadata checks:"
 
 SHARING_METADATA_CONTRACT=(
