@@ -488,6 +488,58 @@ case "$PROFILE_IDENTITY_TAGLINE_RULE" in
     ;;
 esac
 
+echo "Link checks:"
+
+if grep -qF '<nav class="links" aria-label="Enlaces de contacto">' index.html; then
+  echo "  [ok] links container"
+else
+  fail 'index.html is missing the links container (<nav class="links" aria-label="Enlaces de contacto">)'
+fi
+
+LINKS_BLOCK=$(awk '
+  /<nav class="links"/ { in_nav = 1 }
+  in_nav { print }
+  in_nav && /<\/nav>/ { exit }
+' index.html)
+
+if printf '%s\n' "$LINKS_BLOCK" | grep -qF 'href="https://www.facebook.com/fahed19"' \
+  && printf '%s\n' "$LINKS_BLOCK" | grep -qF 'class="link-button link-button--gradient-1"' \
+  && printf '%s\n' "$LINKS_BLOCK" | grep -qF '<span class="link-button__label">Facebook</span>' \
+  && printf '%s\n' "$LINKS_BLOCK" | grep -qF 'aria-label="Facebook de Fahed Hermoza"'; then
+  echo "  [ok] facebook link markup"
+else
+  fail "index.html is missing the Facebook link markup (href, .link-button--gradient-1, visible label or accessible name)"
+fi
+
+if printf '%s\n' "$LINKS_BLOCK" | grep -qF 'class="link-button__icon"' \
+  && printf '%s\n' "$LINKS_BLOCK" | grep -qF 'fill="currentColor"' \
+  && printf '%s\n' "$LINKS_BLOCK" | grep -qF 'aria-hidden="true"' \
+  && printf '%s\n' "$LINKS_BLOCK" | grep -qF 'focusable="false"'; then
+  echo "  [ok] facebook link icon"
+else
+  fail "index.html is missing the decorative Facebook icon (currentColor, aria-hidden or focusable)"
+fi
+
+LINKS_RULE=$(awk '
+  /^[[:space:]]*\.links[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -n "$LINKS_RULE" ] && printf '%s\n' "$LINKS_RULE" | grep -qF 'padding: 0 var(--space-lg);'; then
+  echo "  [ok] links container padding"
+else
+  fail "styles.css is missing the links container padding: 0 var(--space-lg);"
+fi
+
+if [ -n "$LINKS_RULE" ] \
+  && printf '%s\n' "$LINKS_RULE" | grep -qF 'gap: var(--space-sm);' \
+  && printf '%s\n' "$LINKS_RULE" | grep -qF 'flex-direction: column;'; then
+  echo "  [ok] links container gap"
+else
+  fail "styles.css is missing the links container gap: var(--space-sm); with flex-direction: column;"
+fi
+
 echo "Sharing metadata checks:"
 
 SHARING_METADATA_CONTRACT=(
@@ -565,7 +617,13 @@ else
   fail "index.html is missing the links navigation label Enlaces de contacto"
 fi
 
-case "$LINKS_BLOCK" in
+INSTAGRAM_LINK_BLOCK=$(awk '
+  /href="https:\/\/www\.instagram\.com\/fahedhermoza\/"/ { in_link = 1 }
+  in_link { print }
+  in_link && /<\/a>/ { exit }
+' index.html)
+
+case "$INSTAGRAM_LINK_BLOCK" in
   *link-button--gradient-*)
     fail "the Instagram Enlace must not use a link-button--gradient-* modifier (tone assignment belongs to links-order-gradient)"
     ;;
