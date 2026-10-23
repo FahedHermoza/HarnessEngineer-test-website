@@ -2,13 +2,13 @@
 
 ## Current Verified State
 
-- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/devexpert-project-worktrees/design-tokens`
-- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html` + tokens de `styles.css`; no arranca servidor por defecto).
-- Standard verification path: `./init.sh` sale `0` + `python3 -m http.server 8080 --directory .` y verificación en navegador.
-- Current status: `design-tokens` en `accepted` (validación independiente `accept` tras una ronda `revise`; commit pendiente en esta sesión).
-- Current next ready feature: `page-shell` (depende de `design-tokens`, ahora `accepted`; lista para planificar/implementar).
+- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/devexpert-project-worktrees/page-shell`
+- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, tokens de `styles.css`, markup `.page`/`.card` y contrato de ancho; no arranca servidor por defecto).
+- Standard verification path: `./init.sh` sale `0` + `python3 -m http.server 3101 --directory .` (o `RUN_SERVE_COMMAND=1 ./init.sh`) y verificación en navegador.
+- Current status: `page-shell` en `accepted` (validación independiente `accept`, ver Session 007).
+- Current next ready feature: `profile-avatar` (depende de `page-shell`, ahora `accepted`; también listas `profile-identity`, `page-footer` y `open-graph-metadata`).
 - Current blocker: none
-- Last verified at: 2026-10-11 (`design-tokens` en `accepted`; re-validación independiente `accept`, ver Session 005)
+- Last verified at: 2026-10-23 (`page-shell` en `accepted`; gate + navegador 320/375/390/768/1280 y validación independiente, ver Sessions 006–007)
 
 ## Session Log
 
@@ -67,3 +67,25 @@
 - Files or artifacts updated: `feature_list.json`, `PROGRESS.md`, `docs/validations/design-tokens.md`.
 - Known risk or unresolved issue: none blocking; 3 notas Low no bloqueantes del validator (el gate valida presencia, no valor; no limita las declaraciones a `:root`; cuenta declaraciones comentadas).
 - Next best step: commit `design-tokens` (Conventional Commit) y planificar/implementar `page-shell` (`feature-spec`/planner), ahora dependency-ready.
+
+### Session 006
+
+- Date: 2026-10-23
+- Goal: implement feature `page-shell` (spec `docs/specs/page-shell.md`).
+- Completed: `index.html` ahora tiene `<main class="page"><article class="card"></article></main>` (tarjeta vacía); `styles.css` añade reset universal `box-sizing`, regla `.page` (flex column, centrado horizontal, `min-height: 100vh`/`100dvh`, padding `var(--space-margin) var(--space-gutter)`) y regla `.card` (ancho `min(400px, calc(100vw - 2rem))`, `max-width: 100%`, piso provisional `min-height: 20rem`, `margin-block: auto`, superficie, borde, radio y sombra de DESIGN.md), sin tocar `:root` ni `body`; `init.sh` añade los checks `page shell markup`, `page shell styles` y `card width contract` y sugiere/arranca el servidor en 3101.
+- Verification run: `bash -n init.sh` → OK; `./init.sh` → `bootstrapped` + checks previos + 3 `[ok]` del shell + comando 3101, exit 0, sin servidor; 3 casos negativos en copias temporales → exit 1 con el mensaje correspondiente en stderr y sin listener en 3101 (copias eliminadas); `python3 -m http.server 3101 --directory .` + `curl -sI` → `/` 200 `text/html`, `/styles.css` 200 `text/css`, Google Fonts 200; Chrome DevTools 390×844 sin mensajes de consola y red solo con `/`, `styles.css` y la hoja de fuentes (sin fallos); geometría 320→288px/x16, 375→343px/x16, 390→358px/x16, 768→400px/x184, 1280→400px/x440, con espacio superior/inferior igual y `scrollWidth == clientWidth` en todos; computed `.card` = fondo blanco, radio 12px, borde 1px `rgba(0,0,0,0.04)`, sombra de DESIGN.md, y `body` en `rgb(247, 249, 255)`; override temporal `.card { min-height: 1200px }` a 390×600 → `top=24` en `scrollTop=0`, scroll hasta el fondo, sin scroll horizontal (override retirado). Servidor de 3101 detenido; puerto libre.
+- Evidence captured: command outputs above; `feature_list.json` `page-shell` set to `passing` with evidence; `PROGRESS.md` current state updated.
+- Files or artifacts updated: `index.html`, `styles.css`, `init.sh`, `feature_list.json`, `PROGRESS.md`.
+- Known risk or unresolved issue: el navegador pidió una vez `GET /favicon.ico` (404 automático, fuera de la lista de red de DevTools); el favicon es non-goal del spec y no se añadió. No hay harness E2E (no existe y añadirlo introduciría dependencias prohibidas). La validación visual de screenshots no fue posible en este modelo (sin lectura de imágenes); se compensó con mediciones de `getBoundingClientRect()`/`getComputedStyle()`.
+- Next best step: validación independiente de `page-shell` (`feature-validator`); después, implementar `profile-avatar` (y siguientes features de contenido) sobre el contenedor ya estable.
+
+### Session 007
+
+- Date: 2026-10-23
+- Goal: independently validate feature `page-shell` (`feature-flow`, role `validator`) and persist acceptance.
+- Completed: validator `feature-validator` returned `accept`; `feature_list.json` moved `page-shell` from `passing` to `accepted` with validator evidence; validation record created at `docs/validations/page-shell.md`.
+- Verification run: `bash -n init.sh` OK; `./init.sh` → `bootstrapped` + checks previos + `[ok] page shell markup` + `[ok] page shell styles` + `[ok] card width contract`, exit 0, sin servidor; 3 casos negativos en copias temporales → exit 1 con stderr correcto y sin listener en 3101; servido en 3101 → `/` 200 `text/html`, `/styles.css` 200 `text/css`, Google Fonts 200; Chrome 390×844 y 1280×800 sin errores de consola ni peticiones fallidas de la página; geometría 320→288px/x16, 375→343px/x16, 390→358px/x16, 768→400px/x184, 1280→400px/x440, centrado vertical y `scrollWidth == clientWidth`; computed `.card` blanco/radio 12px/borde 1px `rgba(0,0,0,0.04)`/sombra de DESIGN.md y `.page` flex con padding 24px/16px; override `.card { min-height: 1200px }` a 390×600 → `top=24` en `scrollTop=0`, scroll hasta el final, sin scroll horizontal (override retirado); servidor detenido y puerto 3101 libre.
+- Evidence captured: `docs/validations/page-shell.md`; acceptance entry appended in `feature_list.json`.
+- Files or artifacts updated: `feature_list.json`, `PROGRESS.md`, `docs/validations/page-shell.md`.
+- Known risk or unresolved issue: none blocking; notas Low no bloqueantes del validator (gate por `grep` textual y matiz de "sin archivos nuevos" referido a producto). El `404 /favicon.ico` automático no se contó como fallo de la feature por ser non-goal y no formar parte de las peticiones de la página.
+- Next best step: commit `page-shell` (Conventional Commit) y planificar/implementar `profile-avatar` (`feature-spec`/planner), ahora dependency-ready.
