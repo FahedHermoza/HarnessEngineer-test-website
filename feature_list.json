@@ -24,7 +24,9 @@
     "area": "design-system",
     "title": "Tokens visuales de Serene Bio Card como CSS custom properties",
     "user_visible_behavior": "El documento aplica la paleta, la tipografía Plus Jakarta Sans con pila de respaldo, los radios y la escala de espaciado definidos en DESIGN.md a través de variables CSS reutilizables.",
-    "depends_on": ["static-bootstrap"],
+    "depends_on": [
+      "static-bootstrap"
+    ],
     "status": "accepted",
     "verification": [
       "Inspeccionar el CSS y confirmar que cada token de DESIGN.md existe como custom property.",
@@ -47,7 +49,9 @@
     "area": "layout",
     "title": "Lienzo y tarjeta flotante centrada",
     "user_visible_behavior": "Se ve una tarjeta blanca flotante sobre el fondo `#f7f9ff`, centrada y con ancho máximo de 380–420px en escritorio y `calc(100vw - 2rem)` en móvil, con los márgenes seguros de DESIGN.md.",
-    "depends_on": ["design-tokens"],
+    "depends_on": [
+      "design-tokens"
+    ],
     "status": "accepted",
     "verification": [
       "Abrir la página en 320px, 375px, 768px y escritorio y confirmar ausencia de scroll horizontal.",
@@ -95,13 +99,26 @@
     "area": "profile",
     "title": "Nombre, Handle y Tagline del Perfil",
     "user_visible_behavior": "Bajo el avatar se leen el Nombre \"Fahed Hermoza\", el Handle \"@fahedhermoza\" y la Tagline \"Software Engineer & Speaker & Builder\" con la jerarquía tipográfica de DESIGN.md.",
-    "depends_on": ["page-shell"],
-    "status": "not_started",
+    "depends_on": [
+      "page-shell"
+    ],
+    "status": "accepted",
     "verification": [
       "Leer en el navegador los tres textos y compararlos con docs/build-brief.md.",
       "Verificar tamaños y pesos tipográficos contra DESIGN.md (headline-lg, body-md)."
     ],
-    "evidence": [],
+    "evidence": [
+      "`index.html`: se añadió `<header class=\"profile-identity\">` como primer hijo de `.card`, antes de la demo, con `<h1 class=\"profile-identity__name\">Fahed Hermoza</h1>`, `<p class=\"profile-identity__handle\">@fahedhermoza</p>` y `<p class=\"profile-identity__tagline\">Software Engineer &amp; Speaker &amp; Builder</p>`. Sin avatar, ids, data-* ni estilos inline; la demo temporal y `<head>` no se tocaron.",
+      "`styles.css`: se añadieron las cuatro reglas `.profile-identity` (padding `var(--space-xl) var(--space-lg)`, `text-align: center`), `__name` (headline-lg + `--color-on-surface`), `__handle` (headline-lg + `--color-on-surface-variant`) y `__tagline` (body-md + `--color-on-surface-variant`, sin `letter-spacing`), después de `.card` y antes del componente de botón. No se modificaron `:root` (51 tokens), `body`, `.page`, `.card`, `.link-button` ni `[data-demo=\"link-button\"]`.",
+      "`bash -n init.sh` → OK. `./init.sh` → `Harness status: bootstrapped (static site detected)`, checks previos `[ok]`, `Profile identity checks:` con `[ok]` de markup, nombre, tres textos exactos, cuatro reglas CSS, contratos `.profile-identity` 2/2, `__name` 5/5, `__handle` 5/5, `__tagline` 4/4 y ausencia de `letter-spacing`; exit `0` y sin arrancar servidor.",
+      "Casos negativos en copias temporales fuera del repo (eliminadas después): Nombre eliminado → stderr `Harness status: FAILED - index.html is missing the profile name heading`, exit `1`; Tagline con `&` sin escapar → stderr `Harness status: FAILED - index.html is missing profile identity text: >Software Engineer &amp; Speaker &amp; Builder<`, exit `1`; Tagline con tokens `headline-lg` → tres `FAILED - .profile-identity__tagline rule missing declaration: ...` + `Harness status: FAILED - .profile-identity__tagline contract is missing 3 of 4 required declarations`, exit `1`. Ninguno arrancó servidor; el listener preexistente de 3101 (iniciado antes de esta sesión) se dejó intacto.",
+      "Servidor único de la sesión en 3202 (`python3 -m http.server 3202 --directory .`, PID 53859, detenido al terminar): `curl -sI /` → `200` `text/html`, `curl -sI /styles.css` → `200` `text/css`; access log sin peticiones 4xx/5xx ni `/favicon.ico`.",
+      "Navegador 390×844 (Chrome DevTools, recarga ignorando caché): textos en orden H1 `Fahed Hermoza`, P `@fahedhermoza`, P `Software Engineer & Speaker & Builder` (HTML con `&amp;`), un solo `h1`. Computed: Nombre y Handle 26px/600/34px/-0.52px, colores `rgb(45, 49, 57)` y `rgb(113, 120, 134)`; Tagline 13px/400/20px/`normal`, `rgb(113, 120, 134)`; los tres `text-align: center`. Tarjeta 358px en x=16; bloque 356px en x=17 (ancho interior de la tarjeta tras 1px de borde por lado) con padding 36px 24px; centros 194.99/195 contra centro de tarjeta 195. Demo intacta: wrapper presente, 5 botones, primero 324×48 en x=33, padding `0px 20px`, radio 6px, uppercase, tracking 1.98px, icono 18×18. Sin scroll horizontal (`scrollWidth=clientWidth=390`). Consola: 0 mensajes. Red: 4 peticiones 200 (`/`, Google Fonts CSS, `styles.css`, WOFF2), sin `/favicon.ico`.",
+      "Navegador 1280×800 (recarga ignorando caché): mismos textos, estilos computados y un solo `h1`. Tarjeta 400px centrada en x=440; bloque 398px en x=441 con padding 36px 24px; centros 639.99/640 contra centro 640. Demo intacta: wrapper 398px, 5 botones, primero 366×48 en x=457, icono 18×18. Sin scroll horizontal (`scrollWidth=clientWidth=1280`). Consola: 0 mensajes. Red: 4 peticiones 200, sin `/favicon.ico`.",
+      "Edge 320×844: tarjeta 288px en x=16; Nombre y Handle completos en una línea (238×34, sin recorte); Tagline 13px/20px en una línea dentro de 238px (no necesita envolver), sin overflow; `document.documentElement.scrollWidth === clientWidth === 320`.",
+      "Scope guard verificado por diff y extracción contra `HEAD`: demo HTML y CSS `[data-demo=\"link-button\"]` idénticos; `:root` sin cambios y con 51 tokens; `body`, `.page` y `.card` idénticos; 0 `<script>`, 0 `<img>`, sin `package.json`, frameworks, bundlers ni archivos nuevos de producto. Riesgo de contraste ≈4.43:1 de `#717886` sobre blanco registrado en `docs/risks-and-open-questions.md` para `accessibility-baseline`.",
+      "Validación independiente (validator `feature-validator`, 2026-10-23): verdict `accept`, sin hallazgos Critical/High/Medium y 2 notas Low no bloqueantes (el spec menciona un bloque de 358px mientras el ancho interior medido es 356px tras el borde de 1px por lado, y el gate usa coincidencia textual). Reproducción: `bash -n init.sh` exit 0; `./init.sh` exit 0 con todos los checks previos e identidad `[ok]`, sin arrancar servidor; 3 casos negativos independientes en copias temporales fuera del repo (Nombre eliminado, `&` sin escapar, Tagline con `headline-lg`) → exit 1 con stderr correcto y sin listener; servidor único de la validación en 3202 (PID 59551, detenido; 3101 preexistente intacto y 3202 libre). Navegador 390×844: textos exactos y en orden, un `h1`, Nombre/Handle 26px/600/34px/-0.52px (`rgb(45,49,57)`/`rgb(113,120,134)`), Tagline 13px/400/20px/`normal` (`rgb(113,120,134)`), padding `36px 24px`, tarjeta 358px x=16, sin scroll horizontal, consola 0 mensajes y 4 peticiones exitosas sin `/favicon.ico`; demo intacta (5 botones, primero 324×48 x=33). 1280×800: mismos textos/estilos, tarjeta 400px x=440 centrada, sin scroll horizontal, consola 0 mensajes y red sin fallos; demo intacta (primer botón 366×48 x=457). Edge 320×844: tarjeta 288px x=16, textos completos sin overflow. Scope guard confirmado por diff: `:root` 51 tokens, `body`/`.page`/`.card` y demo idénticos a `HEAD`, sin avatar/Enlaces/vCard/pie/metadatos/JS/dependencias/bundlers ni archivos nuevos de producto; evidencia de `feature_list.json`, `PROGRESS.md` y riesgo de contraste de Tagline ≈4.43:1 en `docs/risks-and-open-questions.md` verificados. Registro: `docs/validations/profile-identity.md`."
+    ],
     "notes": "Contenido visible en español; la Tagline se corrigió a \"Engineer\" (docs/build-brief.md)."
   },
   {
@@ -109,7 +126,9 @@
     "area": "profile",
     "title": "Fallback de avatar con iniciales FH",
     "user_visible_behavior": "Si `assets/avatar.jpg` no carga, el círculo muestra las iniciales \"FH\" en `#484dc4` sobre `#f1f4fa` sin romper el layout.",
-    "depends_on": ["profile-avatar"],
+    "depends_on": [
+      "profile-avatar"
+    ],
     "status": "not_started",
     "verification": [
       "Renombrar temporalmente el archivo del avatar, recargar y confirmar el fallback con \"FH\".",
@@ -123,7 +142,9 @@
     "area": "components",
     "title": "Componente visual de botón de Enlace",
     "user_visible_behavior": "Un Enlace se representa como botón de ancho completo de 48px, esquinas `rounded.md`, etiqueta en mayúsculas con tracking `0.18em` a la izquierda e icono SVG a la derecha, con hover/focus visibles.",
-    "depends_on": ["design-tokens"],
+    "depends_on": [
+      "design-tokens"
+    ],
     "status": "accepted",
     "verification": [
       "Renderizar un botón de prueba y confirmar alto 48px, etiqueta mayúsculas e icono a la derecha.",
@@ -149,7 +170,9 @@
     "area": "links",
     "title": "Enlace a Instagram",
     "user_visible_behavior": "Pulsar el botón de Instagram abre `https://www.instagram.com/fahedhermoza/` en el navegador o app correspondiente.",
-    "depends_on": ["link-button-component"],
+    "depends_on": [
+      "link-button-component"
+    ],
     "status": "not_started",
     "verification": [
       "Pulsar el botón en un teléfono y confirmar que abre el perfil correcto de Instagram.",
@@ -163,7 +186,9 @@
     "area": "links",
     "title": "Enlace a Facebook",
     "user_visible_behavior": "Pulsar el botón de Facebook abre `https://www.facebook.com/fahed19`.",
-    "depends_on": ["link-button-component"],
+    "depends_on": [
+      "link-button-component"
+    ],
     "status": "not_started",
     "verification": [
       "Pulsar el botón en un teléfono y confirmar que abre el perfil correcto de Facebook."
@@ -176,7 +201,9 @@
     "area": "links",
     "title": "Enlace a WhatsApp",
     "user_visible_behavior": "Pulsar el botón de WhatsApp abre `https://wa.me/51955116562` y permite iniciar el chat.",
-    "depends_on": ["link-button-component"],
+    "depends_on": [
+      "link-button-component"
+    ],
     "status": "not_started",
     "verification": [
       "Pulsar el botón en un teléfono y confirmar que WhatsApp abre el chat del número correcto."
@@ -189,7 +216,9 @@
     "area": "links",
     "title": "Enlace a LinkedIn",
     "user_visible_behavior": "Pulsar el botón de LinkedIn abre `https://www.linkedin.com/in/fahedhermoza/`.",
-    "depends_on": ["link-button-component"],
+    "depends_on": [
+      "link-button-component"
+    ],
     "status": "not_started",
     "verification": [
       "Pulsar el botón en un teléfono y confirmar que abre el perfil correcto de LinkedIn."
@@ -202,7 +231,9 @@
     "area": "links",
     "title": "Enlace al Portafolio",
     "user_visible_behavior": "Pulsar el botón de Portafolio abre `https://fahedhermoza.github.io/`.",
-    "depends_on": ["link-button-component"],
+    "depends_on": [
+      "link-button-component"
+    ],
     "status": "not_started",
     "verification": [
       "Pulsar el botón y confirmar que abre el portafolio correcto."
@@ -215,7 +246,9 @@
     "area": "links",
     "title": "Enlace de Correo",
     "user_visible_behavior": "Pulsar el botón de Correo abre la app de correo con el destinatario `fahedhermoza@gmail.com` (protocolo `mailto:`).",
-    "depends_on": ["link-button-component"],
+    "depends_on": [
+      "link-button-component"
+    ],
     "status": "not_started",
     "verification": [
       "Pulsar el botón en un teléfono y confirmar que se abre la app de correo con el destinatario correcto."
@@ -228,7 +261,9 @@
     "area": "links",
     "title": "Enlace de Celular",
     "user_visible_behavior": "Pulsar el botón de Celular abre el marcador con `+51955116562` (protocolo `tel:`).",
-    "depends_on": ["link-button-component"],
+    "depends_on": [
+      "link-button-component"
+    ],
     "status": "not_started",
     "verification": [
       "Pulsar el botón en un teléfono y confirmar que el marcador se abre con el número correcto."
@@ -263,7 +298,10 @@
     "area": "contact",
     "title": "Botón Guardar contacto descarga la vCard",
     "user_visible_behavior": "Pulsar \"Guardar contacto\" ofrece/descarga una Contacto vCard con nombre, teléfono, correo y Enlaces, que iOS y Android pueden importar a la agenda.",
-    "depends_on": ["profile-identity", "links-order-gradient"],
+    "depends_on": [
+      "profile-identity",
+      "links-order-gradient"
+    ],
     "status": "not_started",
     "verification": [
       "Pulsar el botón en iOS y confirmar que se abre la vista previa/descarga de la vCard.",
@@ -304,7 +342,9 @@
     "area": "sharing",
     "title": "Metadatos Open Graph y Twitter Card",
     "user_visible_behavior": "Al compartir la URL, la vista previa muestra título, descripción e imagen `assets/og-image.jpg` (1200×630) correctamente.",
-    "depends_on": ["page-shell"],
+    "depends_on": [
+      "page-shell"
+    ],
     "status": "not_started",
     "verification": [
       "Validar las etiquetas `og:*` y `twitter:*` en el HTML.",
@@ -318,7 +358,10 @@
     "area": "quality",
     "title": "Base de accesibilidad AA",
     "user_visible_behavior": "Todos los controles son elementos interactivos reales, con foco visible, contraste AA, iconos decorativos `aria-hidden`, `alt` en el avatar, `lang=\"es\"` y respeto a `prefers-reduced-motion`.",
-    "depends_on": ["page-shell", "link-button-component"],
+    "depends_on": [
+      "page-shell",
+      "link-button-component"
+    ],
     "status": "not_started",
     "verification": [
       "Navegar toda la página solo con teclado y confirmar foco visible en cada control.",
@@ -332,7 +375,10 @@
     "area": "quality",
     "title": "Layout responsive sin scroll horizontal",
     "user_visible_behavior": "La Tarjeta se ve correctamente y sin scroll horizontal en 320px, 375px, 768px y escritorio, con áreas táctiles de al menos 44×44px.",
-    "depends_on": ["page-shell", "links-order-gradient"],
+    "depends_on": [
+      "page-shell",
+      "links-order-gradient"
+    ],
     "status": "not_started",
     "verification": [
       "Probar los cuatro viewports y confirmar ausencia de scroll horizontal.",

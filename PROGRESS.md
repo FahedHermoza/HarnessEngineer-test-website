@@ -2,14 +2,14 @@
 
 ## Current Verified State
 
-- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/DevExpert-1` (rama `feature/page-footer` rebaseada sobre `demo/seed`).
-- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, tokens de `styles.css`, markup `.page`/`.card`, contrato de ancho, contrato CSS del botón de Enlace, markup/asset/contrato del avatar y markup/destinos/contratos CSS del pie; no arranca servidor por defecto).
+- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/DevExpert-1` (rama `feature/profile-identity` rebaseada sobre `demo/seed`).
+- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, tokens de `styles.css`, markup `.page`/`.card`, contrato de ancho, contrato CSS del botón de Enlace, avatar, pie e identidad; no arranca servidor por defecto).
 - Standard verification path: `./init.sh` sale `0` + `python3 -m http.server 3201 --directory .` y verificación en navegador móvil (390×844) y escritorio (1280×800).
-- Current status: `static-bootstrap`, `design-tokens`, `page-shell`, `link-button-component`, `profile-avatar` y `page-footer` en `accepted`.
-- Current next ready feature: `profile-identity`, `avatar-fallback` y `open-graph-metadata` (dependen de features ya `accepted`).
+- Current status: `static-bootstrap`, `design-tokens`, `page-shell`, `link-button-component`, `profile-avatar`, `page-footer` y `profile-identity` en `accepted`.
+- Current next ready feature: `avatar-fallback` y `open-graph-metadata` (dependen de features ya `accepted`). Los siete Enlaces quedan listos tras `link-button-component`.
 - Current blocker: none
-- Inherited risk: etiquetas blancas sobre los cinco tonos miden 3.86–4.13:1 (AA 4.5:1 no cumplido); debe resolverlo o aceptarlo `accessibility-baseline`. El pie sí cumple AA (13.04:1 base, 5.15:1 enlaces).
-- Last verified at: 2026-10-23 (`page-footer` rebaseada sobre `demo/seed` con `profile-avatar`; `./init.sh` y navegador 390×844/1280×800, ver Session 012)
+- Inherited risk: etiquetas blancas sobre los cinco tonos miden 3.86–4.13:1 y la Tagline `#717886` sobre blanco mide ≈4.43:1 (AA 4.5:1 no cumplido en ambos casos); debe resolverlos o aceptarlos `accessibility-baseline`. El pie sí cumple AA (13.04:1 base, 5.15:1 enlaces).
+- Last verified at: 2026-10-23 (`profile-identity` rebaseada sobre `demo/seed` con `profile-avatar` y `page-footer`; `./init.sh` y navegador 390×844/1280×800, ver Session 015)
 
 ## Session Log
 
@@ -188,3 +188,40 @@
 - Files or artifacts updated: `init.sh`, `PROGRESS.md`.
 - Known risk or unresolved issue: las demás PRs abiertas (#15, #16) tocan los mismos archivos y volverán a necesitar rebase después de cada merge.
 - Next best step: force-push de la rama y “Rebase and merge” de la PR #14.
+### Session 013 — profile-identity
+
+- Date: 2026-10-23
+- Goal: implement feature `profile-identity` (spec `docs/specs/profile-identity.md`) in the isolated `profile-identity` worktree.
+- Completed: `index.html` añade `<header class="profile-identity">` como primer hijo de `.card`, antes de la demo, con Nombre, Handle y Tagline escapada (`&amp;`); `styles.css` añade las cuatro reglas de identidad con tokens existentes; `init.sh` añade `Profile identity checks:` no bloqueantes sin alterar checks previos ni arrancar servidor. `feature_list.json` pasa a `passing` con evidencia; `PROGRESS.md` y `docs/risks-and-open-questions.md` actualizados. Sin avatar, Enlaces, vCard, pie, JS, dependencias, tokens ni archivos nuevos de producto.
+- Verification run: `bash -n init.sh` → OK. `./init.sh` → exit `0`, `Harness status: bootstrapped (static site detected)`, checks previos `[ok]`, identidad con markup/nombre/textos/reglas `[ok]`, contratos 2/2, 5/5, 5/5 y 4/4, ausencia de `letter-spacing` en Tagline; sin servidor iniciado.
+- Negative cases (copias temporales fuera del repo, eliminadas): Nombre eliminado → exit `1`, stderr `Harness status: FAILED - index.html is missing the profile name heading`; Tagline con `&` sin escapar → exit `1`, stderr `Harness status: FAILED - index.html is missing profile identity text: >Software Engineer &amp; Speaker &amp; Builder<`; Tagline con `headline-lg` → exit `1`, stderr con 3 declaraciones faltantes y `Harness status: FAILED - .profile-identity__tagline contract is missing 3 of 4 required declarations`. Ningún caso arrancó servidor. Se observó un listener preexistente en 3101 (PID 49259, iniciado a las 12:44 antes de esta sesión) y no se tocó.
+- Serving/browser: único servidor de la sesión `python3 -m http.server 3202 --directory .` (PID 53859, detenido al terminar). `curl -sI /` → 200 `text/html`; `curl -sI /styles.css` → 200 `text/css`; access log sin 4xx/5xx ni `/favicon.ico`.
+- 390×844: textos exactos y en orden, un solo `h1`; Nombre/Handle 26px/600/34px/-0.52px (`rgb(45,49,57)` / `rgb(113,120,134)`), Tagline 13px/400/20px/`normal` (`rgb(113,120,134)`), todo centrado; tarjeta 358px x=16, bloque 356px x=17 (interior tras borde 1px) con padding 36px 24px; demo intacta (5 botones, primero 324×48 x=33, radio 6px, uppercase, tracking 1.98px, icono 18×18); `scrollWidth=clientWidth=390`; consola 0 mensajes; 4 peticiones 200 (documento, Google Fonts CSS, `styles.css`, WOFF2), sin `/favicon.ico`.
+- 1280×800: mismos textos/estilos; tarjeta 400px x=440, bloque 398px x=441, centros 639.99/640; demo intacta (5 botones, primero 366×48 x=457); `scrollWidth=clientWidth=1280`; consola 0 mensajes; 4 peticiones 200, sin `/favicon.ico`.
+- 320×844: tarjeta 288px x=16; Nombre/Handle completos sin recorte; Tagline en una línea dentro de 238px (no necesita envolver) sin overflow; `scrollWidth=clientWidth=320`.
+- Scope guard: demo HTML y CSS idénticos a `HEAD`; `:root` con 51 tokens sin cambios; `body`, `.page` y `.card` idénticos; 0 `<script>`, 0 `<img>`, sin `package.json`, frameworks, bundlers ni archivos nuevos de producto. Riesgo de contraste de Tagline ≈4.43:1 documentado en `docs/risks-and-open-questions.md`.
+- Files or artifacts updated: `index.html`, `styles.css`, `init.sh`, `feature_list.json`, `PROGRESS.md`, `docs/risks-and-open-questions.md`.
+- Known risk or unresolved issue: contraste ≈4.43:1 de `#717886` sobre blanco para Tagline de 13px, heredado a `accessibility-baseline`; demo temporal de Enlaces sigue pendiente de retirada en las features de enlaces. No bloquea esta feature.
+- Next best step: validación independiente de `profile-identity` (`feature-validator`). No commitear hasta que el orquestador persista la aceptación.
+
+### Session 014 — profile-identity
+
+- Date: 2026-10-23
+- Goal: independently validate feature `profile-identity` (`feature-flow`, role `validator`) and persist acceptance.
+- Completed: validator `feature-validator` returned `accept`; `feature_list.json` moved `profile-identity` from `passing` to `accepted` with validator evidence; validation record created at `docs/validations/profile-identity.md`; commit created by the main orchestrator (no push).
+- Verification run: `bash -n init.sh` exit `0`; `./init.sh` exit `0` con todos los checks previos y de identidad `[ok]`, sin arrancar servidor; 3 casos negativos independientes en copias temporales fuera del repo (Nombre eliminado, `&` sin escapar, Tagline con `headline-lg`) → exit `1` con stderr correcto y sin listener; servidor único de la validación en 3202 (detenido; 3101 preexistente intacto, 3202 libre).
+- Browser evidence: 390×844 → textos exactos en orden, un `h1`, Nombre/Handle 26px/600/34px/-0.52px (`rgb(45,49,57)`/`rgb(113,120,134)`), Tagline 13px/400/20px/`normal` (`rgb(113,120,134)`), padding `36px 24px`, tarjeta 358px x=16, bloque 356px x=17, sin scroll horizontal, consola 0 mensajes y 4 peticiones exitosas sin `/favicon.ico`; demo intacta (5 botones, primero 324×48 x=33). 1280×800 → mismos textos/estilos, tarjeta 400px x=440 centrada, sin scroll horizontal, consola 0 mensajes y red sin fallos; demo intacta (primer botón 366×48 x=457). 320×844 → tarjeta 288px x=16, textos completos sin overflow.
+- Evidence captured: `docs/validations/profile-identity.md`; acceptance entry appended in `feature_list.json`.
+- Files or artifacts updated: `feature_list.json`, `PROGRESS.md`, `docs/validations/profile-identity.md`, `docs/specs/profile-identity.md`.
+- Known risk or unresolved issue: contraste ≈4.43:1 de `#717886` sobre blanco para la Tagline de 13px, heredado a `accessibility-baseline`; contraste 3.86–4.13:1 de etiquetas de botón también heredado; la demo temporal de Enlaces sigue pendiente de retirada. Notas Low no bloqueantes: el spec menciona 358px para el bloque mientras el ancho interior medido es 356px tras el borde, y el gate usa coincidencia textual.
+- Next best step: planificar/implementar `profile-avatar` (`feature-spec`/planner), dependency-ready.
+
+### Session 015 — rebase de profile-identity
+
+- Date: 2026-10-23
+- Goal: rebasear `feature/profile-identity` sobre `demo/seed` tras los merges de `profile-avatar` (#13) y `page-footer` (#14) para habilitar “Rebase and merge”.
+- Completed: `git rebase origin/demo/seed` (base `4d1edb7`); conflictos en `index.html`, `styles.css`, `init.sh`, `feature_list.json` y `PROGRESS.md`. `index.html` conserva el header del avatar y añade el bloque de identidad; `styles.css` conserva `.profile`/`.profile-avatar` y añade las reglas de identidad; `init.sh` conserva los checks de avatar/pie y añade `Profile identity checks:`; `feature_list.json` conserva `profile-avatar`, `page-footer` y `profile-identity` en `accepted`; `PROGRESS.md` conserva todas las sesiones.
+- Verification run: `bash -n init.sh` OK; `./init.sh` exit 0 con bootstrap 3/3, tokens 51/51, componente 6/6, page shell 3/3, avatar 5/5, pie 5/5 e identidad 2/2 + 5/5 + 5/5 + 4/4. Navegador 390×844: 0 mensajes de consola, 5/5 peticiones 200 (`/`, Google Fonts CSS, `styles.css`, `assets/avatar.jpg`, WOFF2), sin `/favicon.ico`, sin scroll horizontal; avatar 88×88, textos de identidad en orden y pie 356×69. 1280×800: mismas condiciones, avatar 88×88, pie 398×69, sin scroll horizontal.
+- Files or artifacts updated: `index.html`, `styles.css`, `init.sh`, `feature_list.json`, `PROGRESS.md`.
+- Known risk or unresolved issue: `open-graph-metadata` (#16) toca los mismos archivos y volverá a necesitar rebase tras el merge de esta PR.
+- Next best step: force-push de la rama y “Rebase and merge” de la PR #15.
