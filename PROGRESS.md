@@ -2,15 +2,15 @@
 
 ## Current Verified State
 
-- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/DevExpert-1` (rama `feature/link-portafolio` rebaseada sobre `demo/seed`).
-- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, tokens de `styles.css`, markup `.page`/`.card`, contrato de ancho, contrato CSS del botón de Enlace, avatar, pie, identidad, Enlaces reales de Instagram/Facebook/WhatsApp/Portafolio y metadatos de compartición 14/14; no arranca servidor por defecto).
+- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/DevExpert-1` (rama `feature/link-linkedin` rebaseada sobre `demo/seed`).
+- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, tokens de `styles.css`, markup `.page`/`.card`, contrato de ancho, contrato CSS del botón de Enlace, avatar, pie, identidad, Enlaces reales de Instagram/Facebook/WhatsApp/Portafolio/LinkedIn y metadatos de compartición 14/14; no arranca servidor por defecto).
 - Standard verification path: `./init.sh` sale `0` + `python3 -m http.server 3201 --directory .` y verificación en navegador móvil (390×844) y escritorio (1280×800).
-- Current status: `static-bootstrap`, `design-tokens`, `page-shell`, `link-button-component`, `profile-avatar`, `page-footer`, `profile-identity`, `open-graph-metadata`, `link-instagram`, `link-facebook`, `link-whatsapp` y `link-portafolio` en `accepted`.
-- Current next ready feature: `avatar-fallback` (depende de `profile-avatar`) y los tres Enlaces restantes (dependen de `link-button-component`).
+- Current status: `static-bootstrap`, `design-tokens`, `page-shell`, `link-button-component`, `profile-avatar`, `page-footer`, `profile-identity`, `open-graph-metadata`, `link-instagram`, `link-facebook`, `link-whatsapp`, `link-portafolio` y `link-linkedin` en `accepted`.
+- Current next ready feature: `avatar-fallback` (depende de `profile-avatar`) y los dos Enlaces restantes (dependen de `link-button-component`). `links-order-gradient` sigue bloqueada hasta completar los siete Enlaces.
 - Current blocker (diferido): `assets/og-image.jpg` (JPEG 1200×630) ausente y URL pública final de Cloudflare Pages indefinida. Por eso `og:image`/`twitter:image` son relativas provisionales y `og:url`/canonical están omitidos; el unfurl real se cierra en `deploy-cloudflare-pages`. No bloquea el contrato de metadatos ya aceptado.
 - Current deferred work: la demo temporal `[data-demo="link-button"]` se conserva a propósito; su retirada junto con su CSS se difiere a `links-order-gradient`.
 - Inherited risk: etiquetas blancas sobre los cinco tonos miden 3.86–4.13:1 y la Tagline `#717886` sobre blanco mide ≈4.43:1 (AA 4.5:1 no cumplido en ambos casos); debe resolverlos o aceptarlos `accessibility-baseline`. El pie sí cumple AA (13.04:1 base, 5.15:1 enlaces). El handoff real de WhatsApp a la app solo se comprueba manualmente en un dispositivo.
-- Last verified at: 2026-10-23 (`link-portafolio` rebaseada sobre `demo/seed` con `link-instagram`, `link-facebook` y `link-whatsapp`; `./init.sh` y navegador 390×844/1280×800, ver Session 030)
+- Last verified at: 2026-10-23 (`link-linkedin` rebaseada sobre `demo/seed` con los cuatro Enlaces previos; `./init.sh` y navegador 390×844/1280×800, ver Session 033)
 
 ## Session Log
 
@@ -394,3 +394,38 @@
 - Files or artifacts updated: `index.html`, `styles.css`, `init.sh`, `PROGRESS.md`.
 - Known risk or unresolved issue: los tres Enlaces restantes tocarán los mismos archivos y necesitarán rebase tras cada merge; contraste AA hereditario.
 - Next best step: force-push de la rama y “Rebase and merge” de la PR #27.
+### Session 031 — link-linkedin
+
+- Date: 2026-10-23
+- Goal: implement feature `link-linkedin` (spec `docs/specs/link-linkedin.md`) in worktree `link-linkedin`.
+- Completed: `index.html` añade `<section class="links" aria-label="Enlaces">` dentro de `.card`, después de `header.profile-identity` y antes de la demo, con un único `<a class="link-button" href="https://www.linkedin.com/in/fahedhermoza/">`, `span.link-button__label` "LinkedIn" y SVG inline 18×18 con `fill="currentColor"`, `aria-hidden="true"` y `focusable="false"`; sin `target`, `rel`, `aria-label` ni modificador de degradado. `styles.css` añade solo `.links { padding: 0 var(--space-gutter); }`. `init.sh` añade `LinkedIn link checks:` (contenedor, destino exacto, etiqueta, icono decorativo y regla `.links`) sin alterar checks previos ni arrancar servidor. `:root` sigue con 51 tokens; sin JS, frameworks, bundlers, dependencias, assets ni tokens nuevos. La demo `[data-demo="link-button"]` conserva sus cinco anclas y su CSS.
+- Verification run: `bash -n init.sh` → OK. `./init.sh` → `Harness status: bootstrapped (static site detected)`, checks previos `[ok]`, `LinkedIn link checks:` 5/5 `[ok]`, exit `0`, sin servidor. Cuatro casos negativos en una copia temporal fuera del repo (eliminada): href incorrecto, etiqueta `LinkedIn!`, SVG de LinkedIn sin `aria-hidden`/`focusable` y `.links` con `padding: 0;` → exit `1` con el mensaje esperado en stderr y sin listener.
+- Browser (servidor único `python3 -m http.server 3304 --directory .`, PID 79227, detenido al terminar; puerto 3304 libre antes y después; log sin 4xx/5xx ni `favicon`): **390×844** (emulación mobile, dpr 3, recarga ignorando caché) → consola 0 mensajes; red 5/5 peticiones 200 (`/`, Google Fonts CSS, `styles.css`, `avatar.jpg`, WOFF2), sin `/favicon.ico`; `scrollWidth=clientWidth=390`; tarjeta 358px en x=16, `.links` 356×48 en x=17, Enlace 324×48 en x=33, icono 18×18; computed `display:flex`, alto 48px, `padding:0px 20px`, radio 6px, `space-between`, 11px/800, line-height 16px, tracking 1.98px, uppercase, blanco sobre `rgb(104,118,240)`. **1280×800** → consola 0 mensajes; red 5/5 peticiones 200, sin `/favicon.ico`; sin scroll horizontal (`scrollWidth=clientWidth=1265` por la barra vertical de 15px); tarjeta 400px centrada en x=432.5, Enlace 366×48 en x=449.5 (x=457 teórico sin barra de scroll vertical), mismos estilos y demo intacta (primer botón 366×48).
+- Semántica/estilos: `href` exacto en atributo y propiedad, `target`/`rel` ausentes (`""`), sin `aria-label`; árbol de accesibilidad `link "LINKEDIN"` derivado del texto visible; `aria-hidden="true"` + `focusable="false"` + `fill="currentColor"` + 18×18 en el SVG. Click → navegación a `https://www.linkedin.com/in/fahedhermoza` (normalización de la barra final por el navegador), luego vuelta a la página local. Hover real → `matrix(1, 0, 0, 1, 0, -1.5)` + sombra `rgba(108,114,234,0.28) 0px 8px 18px 0px` + `brightness(1.03)`; `Tab` real → primer foco en el Enlace, `:focus-visible=true`, outline `rgb(88,92,229) solid 2px` offset 2px; `prefers-reduced-motion: reduce` → `transition-property:none`, `transition-duration:0s`, `transform:none` con outline visible.
+- Scope guard: `git diff` solo añade +67 líneas en `index.html`, `styles.css` e `init.sh` (0 eliminaciones); demo HTML/CSS, `:root` (51 tokens), `body`, `.page`, `.card`, `.link-button`, pie, identidad, avatar y metadatos idénticos a `HEAD`; 0 `<script>`, sin `package.json`, bundlers, dependencias, assets ni tokens nuevos; `git diff --check` OK.
+- Evidence captured: salidas anteriores; `feature_list.json` `link-linkedin` en `passing` con 12 entradas de evidencia; `PROGRESS.md` actualizado.
+- Files or artifacts updated: `index.html`, `styles.css`, `init.sh`, `feature_list.json`, `PROGRESS.md`, `docs/specs/link-linkedin.md` (spec de planificación preexistente sin cambios).
+- Known risk or unresolved issue: contraste 3.86–4.13:1 de etiquetas blancas sobre los tonos, heredado a `accessibility-baseline`; handoff a la app nativa de LinkedIn solo verificable manualmente en iOS/Android; la demo temporal sigue pendiente de retirada en `links-order-gradient`. No hay harness E2E (añadirlo introduciría dependencias prohibidas).
+- Next best step: validación independiente de `link-linkedin` (`feature-validator`). No commitear; no marcar `accepted` desde el implementador.
+
+### Session 032 — link-linkedin
+
+- Date: 2026-10-23
+- Goal: independently validate feature `link-linkedin` (`feature-flow`, role `validator`) and persist acceptance.
+- Completed: validator `feature-validator` returned `accept` with no Critical/High/Medium findings; `feature_list.json` moved `link-linkedin` from `passing` to `accepted` with validator evidence; validation record created at `docs/validations/link-linkedin.md`. Three non-blocking Low notes: the spec's illustrative desktop `x=457` assumes no vertical scrollbar, the `init.sh` gate is textual and does not by itself prove uniqueness/placement, and the inherited `init.sh` port `3201`/viewport hint remains.
+- Verification run: `bash -n init.sh` OK; `./init.sh` exit 0 without a server, all prior checks `[ok]` and `LinkedIn link checks:` 5/5. Four independent negative cases in a temp copy outside the repo (wrong href, label `LinkedIn!`, LinkedIn SVG without `aria-hidden`/`focusable`, `.links { padding: 0; }`) → exit 1 with the expected stderr and no listener on 3304. Own server on 3304 (stopped; port free afterwards and before): 390×844 → console 0 messages, 5/5 requests 200 with no `/favicon.ico`, no horizontal scroll, link 324×48 at x=33; 1280×800 → console 0 messages, 5/5 requests 200, no horizontal scroll, link 366×48 at x=449.5 (vertical scrollbar reduces client width to 1265). Component computed styles and base `rgb(104,118,240)` confirmed in both viewports.
+- Semantics and behavior: accessibility tree exposes one region `Enlaces` with one link `LINKEDIN`; exact `href`, no `target`/`rel`/`aria-label`; inline SVG 18×18 decorative with `fill="currentColor"`; click starts navigation to the LinkedIn profile (trailing slash normalized by the browser); hover, keyboard focus and `prefers-reduced-motion` match the accepted `.link-button`; demo with five anchors and its CSS intact; `:root` still 51 tokens; no JS, frameworks, bundlers, dependencies, ordering or gradient progression added.
+- Evidence captured: `docs/validations/link-linkedin.md`; acceptance entry appended in `feature_list.json`.
+- Files or artifacts updated: `feature_list.json`, `PROGRESS.md`, `docs/validations/link-linkedin.md`.
+- Known risk or unresolved issue: white-label contrast 3.86–4.13:1 inherited by `accessibility-baseline`; native LinkedIn app handoff only manually verifiable on iOS/Android; temporary demo pending removal in `links-order-gradient`.
+- Next best step: stage only this feature's files and create one Conventional Commit (`feat: complete link-linkedin`); do not push.
+
+### Session 033 — rebase de link-linkedin
+
+- Date: 2026-10-23
+- Goal: rebasear `feature/link-linkedin` sobre `demo/seed` tras el merge de #27 (`link-portafolio`) para habilitar “Rebase and merge”.
+- Completed: `git rebase origin/demo/seed` (base `8d30ad8`); conflictos en `index.html`, `styles.css`, `init.sh` y `PROGRESS.md`. El `<nav class="links">` conserva Instagram, Facebook, WhatsApp y Portafolio y añade LinkedIn; se eliminó la regla `.links` duplicada; `init.sh` conserva los checks previos y añade los de LinkedIn; `PROGRESS.md` conserva todas las sesiones.
+- Verification run: `bash -n init.sh` OK; `./init.sh` exit 0 con todos los checks, incluido LinkedIn. Navegador 390×844 y 1280×800: 0 mensajes de consola, 5/5 peticiones 200, sin `/favicon.ico`, sin scroll horizontal; cinco Enlaces reales con separación de 12px, demo intacta y pie último hijo.
+- Files or artifacts updated: `index.html`, `styles.css`, `init.sh`, `PROGRESS.md`.
+- Known risk or unresolved issue: quedan `link-correo` y `link-celular`, que necesitarán rebase tras cada merge; contraste AA hereditario.
+- Next best step: force-push de la rama y “Rebase and merge” de la PR #28.
