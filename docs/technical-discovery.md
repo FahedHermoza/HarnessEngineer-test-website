@@ -46,11 +46,29 @@ No aplica. Página pública, sin roles, sin permisos, sin datos de usuario.
 
 ## Testing and Verification
 
+- `./init.sh` es el gate estándar no bloqueante. Además de bootstrap, tokens, componentes,
+  layout y contenido, ejecuta `Accessibility checks:`: idioma del documento y viewport
+  zoomable, `lang="en"` de la Tagline, `alt` no vacío del avatar, 14 controles `<a>` reales
+  (12 `.link-button` + 2 `.page-footer__link`) con `href` no vacío, 12 SVG decorativos con
+  `aria-hidden="true"`/`focusable="false"`, foco visible (`outline: 2px solid` + offset 2px),
+  reduced motion (`transition: none`/`transform: none`) y un contraste calculado de 13
+  comprobaciones (cinco tonos en reposo y con `brightness(1.03)`, Tagline/Handle, enlaces y
+  texto del pie) con la fórmula WCAG 2.x.
+- Servido manual: `python3 -m http.server 3413 --directory .` (no se arranca por defecto;
+  `RUN_SERVE_COMMAND=1` lo inicia). Validación visual en 390×844 y 1280×800.
+- Pruebas negativas del gate en copias temporales fuera del repositorio: token de contraste
+  revertido, SVG sin `aria-hidden`, `alt` vacío, sin foco, `prefers-reduced-motion` roto,
+  control no real y zoom deshabilitado deben salir con código 1 sin listener.
+- Lighthouse móvil de accesibilidad sobre `http://localhost:3413` (device `mobile`,
+  navigation): objetivo ≥95 y sin auditorías `critical`/`serious`. Es una comprobación manual,
+  no forma parte de `init.sh`; repetirla tras cambios visuales o de contraste.
 - Pruebas manuales en iOS y Android de cada Enlace y de la vCard.
 - Viewports 320 / 375 / 768 px y escritorio.
-- Lighthouse móvil (rendimiento, accesibilidad, SEO).
 - Validador de Open Graph (p. ej. depurador de enlaces) tras el despliegue.
 - Comprobación de enlaces con un chequeador simple antes de publicar.
+- No existe harness E2E persistente (`package.json`, Playwright/Cypress): añadirlo
+  introduciría dependencias prohibidas por este stack. La cobertura es `init.sh` +
+  Chrome DevTools + Lighthouse móvil.
 
 ## Observability
 

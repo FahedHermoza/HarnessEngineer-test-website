@@ -5,6 +5,7 @@ Este repositorio contiene la **Tarjeta digital** de Fahed Hermoza: una página e
 ## Read First
 
 - `CONTEXT.md` — vocabulario del dominio (Tarjeta digital, Enlace, Perfil, Handle, Tagline, Contacto).
+- `CONSTRAINTS.md` — reglas durables MUST/MUST NOT, incluida la base de accesibilidad AA.
 - `docs/build-brief.md` — problema, objetivos, alcance del MVP y criterios de éxito.
 - `docs/domain-model.md` — entidades, relaciones, escenarios y edge cases.
 - `docs/risks-and-open-questions.md` — riesgos, supuestos y preguntas abiertas.
@@ -29,6 +30,7 @@ Antes de escribir código:
 - No cambiar silenciosamente las reglas de verificación durante la implementación.
 - Actualizar los artefactos durables del repo en lugar de depender de resúmenes de chat.
 - No introducir frameworks, bundlers ni dependencias nuevas sin justificarlo (ver `docs/technical-discovery.md`).
+- Mantener la base de accesibilidad AA de `CONSTRAINTS.md` y el gate `Accessibility checks:` de `./init.sh`; no debilitar sus checks, tokens de contraste, foco, `aria-hidden`, `alt`, idioma ni reduced motion.
 - Toda feature con UI se valida también en navegador, en móvil (390×844) y escritorio (1280×800), sin errores de consola ni peticiones fallidas, antes de aceptarla.
 
 ## Required Artifacts
@@ -42,6 +44,7 @@ Antes de escribir código:
 Una feature está terminada solo cuando todo lo siguiente es cierto:
 
 - el comportamiento objetivo está implementado,
+- la base AA sigue vigente: `./init.sh` pasa sus `Accessibility checks:` y la auditoría Lighthouse móvil de accesibilidad da ≥95 sin fallos `critical`/`serious`,
 - la validación en navegador (móvil 390×844 y escritorio 1280×800) se ejecutó sin errores de consola ni peticiones fallidas,
 - la verificación requerida realmente se ejecutó,
 - la evidencia quedó registrada en `feature_list.json` o `PROGRESS.md`,
