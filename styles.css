@@ -254,6 +254,25 @@ body {
   --link-button-bg: var(--color-gradient-5);
 }
 
+/* Fallback for browsers without color-mix: lower anchor tone. */
+.link-button--gradient-3-4 {
+  --link-button-bg: var(--color-gradient-3);
+}
+
+.link-button--gradient-4-5 {
+  --link-button-bg: var(--color-gradient-4);
+}
+
+@supports (color: color-mix(in srgb, red, blue)) {
+  .link-button--gradient-3-4 {
+    --link-button-bg: color-mix(in srgb, var(--color-gradient-3), var(--color-gradient-4));
+  }
+
+  .link-button--gradient-4-5 {
+    --link-button-bg: color-mix(in srgb, var(--color-gradient-4), var(--color-gradient-5));
+  }
+}
+
 @media (hover: hover) {
   .link-button:hover {
     transform: translateY(-1.5px);
@@ -311,15 +330,4 @@ body {
 
 .page-footer__separator {
   margin: 0 var(--space-xs);
-}
-
-/* Demo temporal de link-button-component. Retirar con page-shell. */
-[data-demo="link-button"] {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  max-width: 420px;
-  margin: var(--space-xl) auto;
-  padding: 0 var(--space-gutter);
-  box-sizing: border-box;
 }

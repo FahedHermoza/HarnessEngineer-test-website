@@ -135,7 +135,17 @@ Minimalismo cálido y etéreo. Mucho aire, geometría refinada, autoridad tipogr
   5. `#a85ee2`
   El texto y el icono de todos los botones van siempre en `#ffffff`.
 
-Con 7 Enlaces + "Guardar contacto" (8 botones), la progresión de 5 tonos se repite o se interpola suavemente; el botón "Guardar contacto" puede usar un tratamiento neutro (superficie `#f1f4fa` con texto `#484dc4`) para diferenciarse de los Enlaces externos.
+Con 7 Enlaces, la progresión se resuelve recorriendo los cinco tonos e insertando dos intermedios 50/50 en los saltos mayores (3→4 y 4→5), sin repetir tonos ni superar 14/255 por canal entre botones consecutivos:
+
+1. Instagram — `gradient-1` `#6876f0`
+2. Facebook — `gradient-2` `#736deb`
+3. WhatsApp — `gradient-3` `#8168e8`
+4. LinkedIn — intermedio `gradient-3`/`gradient-4` ≈ `#8a65e7`
+5. Portafolio — `gradient-4` `#9362e6`
+6. Correo — intermedio `gradient-4`/`gradient-5` ≈ `#9e60e4`
+7. Celular — `gradient-5` `#a85ee2`
+
+Los intermedios se derivan con `color-mix` a partir de los tokens existentes (con fallback al tono inferior). No se añaden colores ni tokens. El botón "Guardar contacto" queda fuera de la rampa con tratamiento neutro (superficie `#f1f4fa` con texto `#484dc4`) para diferenciarse de los Enlaces externos.
 
 ## Typography
 
@@ -201,6 +211,6 @@ Una sola vista: la Tarjeta digital. Estados:
 ## Open Design Questions
 
 - Tratamiento final del botón "Guardar contacto" (neutro vs dentro del degradado).
-- Cómo se repite/extiende el degradado de 5 tonos para 8 botones.
+- ~~Cómo se repite/extiende el degradado de 5 tonos para 8 botones.~~ **Resuelto (2026-10-23, `links-order-gradient`):** los 7 Enlaces usan los cinco tonos más dos intermedios 50/50; "Guardar contacto" queda neutro y fuera de la rampa.
 - Diseño definitivo de `assets/og-image.jpg`.
 - ¿Se necesita favicon y `theme-color`? (fuera del MVP por ahora).
