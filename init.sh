@@ -249,6 +249,155 @@ fi
 
 echo "  [ok] profile avatar contract ($profile_contract_present/$profile_contract_total)"
 
+echo "Avatar fallback checks:"
+
+PROFILE_BLOCK=$(awk '
+  /<header class="profile">/ { in_profile = 1 }
+  in_profile { print }
+  in_profile && /<\/header>/ { exit }
+' index.html)
+
+AVATAR_FALLBACK_MARKUP=(
+  'class="profile-avatar-frame"'
+  'class="profile-avatar-fallback"'
+  '>FH</span>'
+  'aria-hidden="true"'
+  "onerror=\"this.parentElement.classList.add('profile-avatar-frame--fallback')\""
+)
+
+fallback_markup_missing=0
+for entry in "${AVATAR_FALLBACK_MARKUP[@]}"; do
+  case "$PROFILE_BLOCK" in
+    *"$entry"*)
+      ;;
+    *)
+      echo "FAILED - .profile markup missing avatar fallback element: $entry" >&2
+      fallback_markup_missing=$((fallback_markup_missing + 1))
+      ;;
+  esac
+done
+
+if [ "$fallback_markup_missing" -gt 0 ]; then
+  fail "avatar fallback markup is missing $fallback_markup_missing of 5 required elements"
+fi
+echo "  [ok] avatar fallback markup"
+
+PROFILE_AVATAR_FRAME_RULE=$(awk '
+  /^[[:space:]]*\.profile-avatar-frame[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -z "$PROFILE_AVATAR_FRAME_RULE" ]; then
+  fail "styles.css is missing the .profile-avatar-frame base rule"
+fi
+echo "  [ok] .profile-avatar-frame rule exists"
+
+PROFILE_AVATAR_FRAME_CONTRACT=(
+  'display: grid;'
+  'width: 88px;'
+  'height: 88px;'
+)
+
+frame_total=${#PROFILE_AVATAR_FRAME_CONTRACT[@]}
+frame_present=0
+frame_missing=0
+for declaration in "${PROFILE_AVATAR_FRAME_CONTRACT[@]}"; do
+  case "$PROFILE_AVATAR_FRAME_RULE" in
+    *"$declaration"*)
+      frame_present=$((frame_present + 1))
+      ;;
+    *)
+      echo "FAILED - .profile-avatar-frame base rule missing declaration: $declaration" >&2
+      frame_missing=$((frame_missing + 1))
+      ;;
+  esac
+done
+
+if [ "$frame_missing" -gt 0 ]; then
+  fail "profile avatar frame contract is missing $frame_missing of $frame_total required declarations"
+fi
+
+echo "  [ok] profile avatar frame contract ($frame_present/$frame_total)"
+
+PROFILE_AVATAR_STACK_RULE=$(awk '
+  /^[[:space:]]*\.profile-avatar-frame > \*[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -n "$PROFILE_AVATAR_STACK_RULE" ] && printf '%s\n' "$PROFILE_AVATAR_STACK_RULE" | grep -qF 'grid-area: 1 / 1;'; then
+  echo "  [ok] avatar fallback stacking"
+else
+  fail "styles.css is missing the avatar fallback stacking rule grid-area: 1 / 1;"
+fi
+
+PROFILE_AVATAR_FALLBACK_RULE=$(awk '
+  /^[[:space:]]*\.profile-avatar-fallback[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -z "$PROFILE_AVATAR_FALLBACK_RULE" ]; then
+  fail "styles.css is missing the .profile-avatar-fallback base rule"
+fi
+echo "  [ok] .profile-avatar-fallback rule exists"
+
+PROFILE_AVATAR_FALLBACK_CONTRACT=(
+  'display: none;'
+  'width: 88px;'
+  'height: 88px;'
+  'border-radius: var(--radius-full);'
+  'background-color: var(--color-surface-container-low);'
+  'color: var(--color-primary);'
+  'box-shadow: 0 0 0 3px var(--color-surface);'
+  'font-size: var(--text-headline-lg-font-size);'
+  'font-weight: var(--text-headline-lg-font-weight);'
+  'line-height: var(--text-headline-lg-line-height);'
+)
+
+fallback_total=${#PROFILE_AVATAR_FALLBACK_CONTRACT[@]}
+fallback_present=0
+fallback_missing=0
+for declaration in "${PROFILE_AVATAR_FALLBACK_CONTRACT[@]}"; do
+  case "$PROFILE_AVATAR_FALLBACK_RULE" in
+    *"$declaration"*)
+      fallback_present=$((fallback_present + 1))
+      ;;
+    *)
+      echo "FAILED - .profile-avatar-fallback base rule missing declaration: $declaration" >&2
+      fallback_missing=$((fallback_missing + 1))
+      ;;
+  esac
+done
+
+if [ "$fallback_missing" -gt 0 ]; then
+  fail "avatar fallback contract is missing $fallback_missing of $fallback_total required declarations"
+fi
+
+echo "  [ok] avatar fallback contract ($fallback_present/$fallback_total)"
+
+PROFILE_AVATAR_FALLBACK_IMAGE_RULE=$(awk '
+  /^[[:space:]]*\.profile-avatar-frame--fallback \.profile-avatar[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+PROFILE_AVATAR_FALLBACK_ACTIVE_RULE=$(awk '
+  /^[[:space:]]*\.profile-avatar-frame--fallback \.profile-avatar-fallback[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -n "$PROFILE_AVATAR_FALLBACK_IMAGE_RULE" ] \
+  && printf '%s\n' "$PROFILE_AVATAR_FALLBACK_IMAGE_RULE" | grep -qF 'opacity: 0;' \
+  && [ -n "$PROFILE_AVATAR_FALLBACK_ACTIVE_RULE" ] \
+  && printf '%s\n' "$PROFILE_AVATAR_FALLBACK_ACTIVE_RULE" | grep -qF 'display: flex;'; then
+  echo "  [ok] avatar fallback activation"
+else
+  fail "styles.css is missing the avatar fallback activation rules (opacity: 0; and display: flex;)"
+fi
+
 echo "Page footer checks:"
 
 if grep -qF '<footer class="page-footer">' index.html && grep -qF 'class="page-footer__link"' index.html; then

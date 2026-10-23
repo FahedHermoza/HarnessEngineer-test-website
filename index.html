@@ -29,13 +29,17 @@
     <main class="page">
       <article class="card">
         <header class="profile">
-          <img
-            class="profile-avatar"
-            src="assets/avatar.jpg"
-            alt="Retrato de Fahed Hermoza"
-            width="88"
-            height="88"
-          >
+          <span class="profile-avatar-frame">
+            <img
+              class="profile-avatar"
+              src="assets/avatar.jpg"
+              alt="Retrato de Fahed Hermoza"
+              width="88"
+              height="88"
+              onerror="this.parentElement.classList.add('profile-avatar-frame--fallback')"
+            >
+            <span class="profile-avatar-fallback" aria-hidden="true">FH</span>
+          </span>
         </header>
 
         <header class="profile-identity">

@@ -112,6 +112,43 @@ body {
   box-shadow: 0 0 0 3px var(--color-surface);
 }
 
+/* Components — Profile avatar fallback (DESIGN.md > Core Screens, estado Avatar ausente) */
+.profile-avatar-frame {
+  display: grid;
+  width: 88px;
+  height: 88px;
+  place-items: center;
+}
+
+.profile-avatar-frame > * {
+  grid-area: 1 / 1;
+}
+
+.profile-avatar-fallback {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-container-low);
+  color: var(--color-primary);
+  font-family: var(--font-family-base);
+  font-size: var(--text-headline-lg-font-size);
+  font-weight: var(--text-headline-lg-font-weight);
+  line-height: var(--text-headline-lg-line-height);
+  letter-spacing: var(--text-headline-lg-letter-spacing);
+  box-shadow: 0 0 0 3px var(--color-surface);
+}
+
+.profile-avatar-frame--fallback .profile-avatar {
+  opacity: 0;
+}
+
+.profile-avatar-frame--fallback .profile-avatar-fallback {
+  display: flex;
+}
+
 /* Profile — Identity (DESIGN.md > typography, colors, components/profile) */
 .profile-identity {
   padding: var(--space-xl) var(--space-lg);
