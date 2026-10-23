@@ -1146,9 +1146,361 @@ for label in "${LINK_DEMO_LABELS[@]}"; do
 done
 echo "  [ok] link button demo removed (HTML and CSS)"
 
-echo "Serving command: python3 -m http.server 3412 --directory ."
-echo "Manual verification: open http://localhost:3412 in a mobile viewport (390×844) and a desktop viewport (1280×800)."
+echo "Accessibility checks:"
+
+# 1. Document language and zoomable viewport
+if grep -qF '<html lang="es">' index.html; then
+  :
+else
+  fail 'index.html must declare <html lang="es">'
+fi
+
+VIEWPORT_TAG=$(grep -oE '<meta name="viewport" content="[^"]*"' index.html || true)
+if [ -z "$VIEWPORT_TAG" ]; then
+  fail "index.html is missing the viewport meta tag"
+fi
+if printf '%s\n' "$VIEWPORT_TAG" | grep -qF 'width=device-width'; then
+  :
+else
+  fail "index.html viewport must declare width=device-width"
+fi
+if printf '%s\n' "$VIEWPORT_TAG" | grep -qE 'user-scalable[[:space:]]*=[[:space:]]*no|maximum-scale'; then
+  fail "index.html must not disable zoom (user-scalable=no or maximum-scale)"
+fi
+echo "  [ok] accessible document language and zoomable viewport"
+
+# 2. Language of parts and avatar alt
+if grep -qF '<p class="profile-identity__tagline" lang="en">Software Engineer &amp; Speaker &amp; Builder</p>' index.html; then
+  echo '  [ok] tagline language of parts (lang="en")'
+else
+  fail 'index.html tagline must declare lang="en" (WCAG 3.1.2)'
+fi
+
+AVATAR_TAG=$(awk '
+  /<img/ { in_img = 1 }
+  in_img { print }
+  in_img && />/ { exit }
+' index.html)
+
+if printf '%s\n' "$AVATAR_TAG" | grep -qF 'class="profile-avatar"' \
+  && printf '%s\n' "$AVATAR_TAG" | grep -qE 'alt="[^"]+"'; then
+  echo "  [ok] avatar alt is descriptive and non-empty"
+else
+  fail "index.html profile avatar must keep a non-empty alt"
+fi
+
+# 3. Real controls: 9 anchors (7 link buttons + 2 footer links; the temporary demo was removed)
+ANCHOR_TAGS=$(grep -oE '<a[[:space:]][^>]*>' index.html || true)
+anchor_total=$(printf '%s\n' "$ANCHOR_TAGS" | grep -cE '<a[[:space:]]' || true)
+link_button_total=$(grep -oE '<a[^>]*class="link-button( [^"]*)?"' index.html | wc -l | tr -d ' ')
+footer_link_total=$(grep -oE '<a[^>]*class="page-footer__link"' index.html | wc -l | tr -d ' ')
+
+if [ "$anchor_total" -ne 9 ]; then
+  fail "index.html must contain exactly 9 anchor controls (found $anchor_total)"
+fi
+if [ "$link_button_total" -ne 7 ]; then
+  fail "index.html must contain exactly 7 link-button anchors (found $link_button_total)"
+fi
+if [ "$footer_link_total" -ne 2 ]; then
+  fail "index.html must contain exactly 2 page-footer link anchors (found $footer_link_total)"
+fi
+
+link_button_class_total=$(grep -oE 'class="link-button( |")' index.html | wc -l | tr -d ' ')
+footer_link_class_total=$(grep -oE 'class="page-footer__link( |")' index.html | wc -l | tr -d ' ')
+if [ "$link_button_class_total" -ne "$link_button_total" ]; then
+  fail "a non-anchor element uses class link-button (or an anchor duplicates the class)"
+fi
+if [ "$footer_link_class_total" -ne "$footer_link_total" ]; then
+  fail "a non-anchor element uses class page-footer__link (or an anchor duplicates the class)"
+fi
+
+missing_href=0
+while IFS= read -r anchor; do
+  [ -n "$anchor" ] || continue
+  if printf '%s\n' "$anchor" | grep -qE '(^|[[:space:]])href="[^"]+"'; then
+    :
+  else
+    echo "FAILED - anchor without a non-empty href: $anchor" >&2
+    missing_href=$((missing_href + 1))
+  fi
+done <<< "$ANCHOR_TAGS"
+if [ "$missing_href" -gt 0 ]; then
+  fail "accessibility control contract is missing $missing_href of $anchor_total anchors with a non-empty href"
+fi
+
+if grep -qE 'role="button"' index.html; then
+  fail 'index.html must not use role="button"; controls must be real anchors'
+fi
+if grep -qE 'on(click|keydown|keypress)[[:space:]]*=' index.html; then
+  fail "index.html must not use inline event handlers for controls"
+fi
+if grep -qE '(^|[[:space:]])href="(#)?"' index.html; then
+  fail 'index.html must not use href="#" or href=""'
+fi
+echo "  [ok] 9 real anchor controls (7 link buttons + 2 footer links)"
+
+# 4. Decorative icons
+SVG_TAGS=$(grep -oE '<svg[^>]*>' index.html || true)
+svg_total=0
+svg_bad=0
+while IFS= read -r svg_tag; do
+  [ -n "$svg_tag" ] || continue
+  svg_total=$((svg_total + 1))
+  case "$svg_tag" in
+    *aria-hidden=\"true\"*)
+      ;;
+    *)
+      echo "FAILED - SVG is missing aria-hidden=\"true\": $svg_tag" >&2
+      svg_bad=$((svg_bad + 1))
+      ;;
+  esac
+  case "$svg_tag" in
+    *focusable=\"false\"*)
+      ;;
+    *)
+      echo "FAILED - SVG is missing focusable=\"false\": $svg_tag" >&2
+      svg_bad=$((svg_bad + 1))
+      ;;
+  esac
+done <<< "$SVG_TAGS"
+
+if [ "$svg_total" -ne 7 ]; then
+  fail "index.html must contain exactly 7 decorative SVG icons (found $svg_total)"
+fi
+if [ "$svg_bad" -gt 0 ]; then
+  fail "accessibility SVG contract is missing $svg_bad required attributes"
+fi
+if grep -qE '<span class="page-footer__separator"[^>]*aria-hidden="true"' index.html; then
+  echo "  [ok] decorative icons and footer separator are hidden from assistive technology"
+else
+  fail 'the page footer separator must keep aria-hidden="true"'
+fi
+
+# 5. Visible focus
+LINK_FOCUS_RULE=$(awk '
+  /^[[:space:]]*\.link-button:focus-visible[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+FOOTER_FOCUS_RULE=$(awk '
+  /^[[:space:]]*\.page-footer__link:focus-visible[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -n "$LINK_FOCUS_RULE" ] \
+  && printf '%s\n' "$LINK_FOCUS_RULE" | grep -qF 'outline: 2px solid var(--color-accent);' \
+  && printf '%s\n' "$LINK_FOCUS_RULE" | grep -qF 'outline-offset: 2px;'; then
+  :
+else
+  fail 'styles.css .link-button:focus-visible must declare outline: 2px solid var(--color-accent); and outline-offset: 2px;'
+fi
+
+if [ -n "$FOOTER_FOCUS_RULE" ] \
+  && printf '%s\n' "$FOOTER_FOCUS_RULE" | grep -qF 'outline: 2px solid var(--color-accent);' \
+  && printf '%s\n' "$FOOTER_FOCUS_RULE" | grep -qF 'outline-offset: 2px;'; then
+  :
+else
+  fail 'styles.css .page-footer__link:focus-visible must declare outline: 2px solid var(--color-accent); and outline-offset: 2px;'
+fi
+
+if grep -qE 'outline:[[:space:]]*(none|0)[[:space:]]*;' styles.css; then
+  fail "styles.css must not remove focus outlines with outline: none/0"
+fi
+echo "  [ok] visible focus contract"
+
+# 6. Reduced motion
+REDUCED_MOTION_BLOCK=$(awk '
+  /@media \(prefers-reduced-motion: reduce\)/ { in_block = 1 }
+  in_block { print }
+  in_block && /^}/ { exit }
+' styles.css)
+
+if [ -n "$REDUCED_MOTION_BLOCK" ] \
+  && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF '.link-button' \
+  && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF 'transition: none;' \
+  && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF 'transform: none;'; then
+  echo "  [ok] reduced motion contract"
+else
+  fail 'styles.css reduced-motion block must set transition: none; and transform: none; for .link-button'
+fi
+
+# 7. Contrast: pinned tokens plus calculated WCAG ratios
+token_value() {
+  awk -v token="$1" '
+    $0 ~ "^[[:space:]]*" token "[[:space:]]*:" {
+      value = $0
+      sub(/^[^:]*:[[:space:]]*/, "", value)
+      sub(/[[:space:]]*;.*/, "", value)
+      print value
+      exit
+    }
+  ' styles.css
+}
+
+CONTRAST_TOKENS=(
+  '--color-gradient-1|#5a67d1'
+  '--color-gradient-2|#645fcc'
+  '--color-gradient-3|#705aca'
+  '--color-gradient-4|#8055c8'
+  '--color-gradient-5|#9252c5'
+  '--color-on-surface-variant|#6b7280'
+)
+contrast_token_total=${#CONTRAST_TOKENS[@]}
+contrast_token_present=0
+contrast_token_missing=0
+for entry in "${CONTRAST_TOKENS[@]}"; do
+  token=${entry%%|*}
+  expected=${entry#*|}
+  actual=$(token_value "$token")
+  if [ "$actual" = "$expected" ]; then
+    contrast_token_present=$((contrast_token_present + 1))
+  else
+    echo "FAILED - styles.css token $token must be $expected (found ${actual:-missing})" >&2
+    contrast_token_missing=$((contrast_token_missing + 1))
+  fi
+done
+
+if [ "$contrast_token_missing" -gt 0 ]; then
+  fail "accessibility contrast tokens are missing $contrast_token_missing of $contrast_token_total required values"
+fi
+echo "  [ok] accessibility contrast token values ($contrast_token_present/$contrast_token_total)"
+
+ON_PRIMARY=$(token_value --color-on-primary)
+SURFACE=$(token_value --color-surface)
+ON_SURFACE=$(token_value --color-on-surface)
+ON_SURFACE_VARIANT=$(token_value --color-on-surface-variant)
+ACCENT=$(token_value --color-accent)
+GRADIENT_1=$(token_value --color-gradient-1)
+GRADIENT_2=$(token_value --color-gradient-2)
+GRADIENT_3=$(token_value --color-gradient-3)
+GRADIENT_4=$(token_value --color-gradient-4)
+GRADIENT_5=$(token_value --color-gradient-5)
+
+if ! CONTRAST_REPORT=$(awk \
+  -v on_primary="$ON_PRIMARY" \
+  -v surface="$SURFACE" \
+  -v on_surface="$ON_SURFACE" \
+  -v on_variant="$ON_SURFACE_VARIANT" \
+  -v accent="$ACCENT" \
+  -v g1="$GRADIENT_1" \
+  -v g2="$GRADIENT_2" \
+  -v g3="$GRADIENT_3" \
+  -v g4="$GRADIENT_4" \
+  -v g5="$GRADIENT_5" '
+  function hexval(c) {
+    return index("0123456789abcdef", tolower(c)) - 1
+  }
+  function parse_hex(h,   i) {
+    h = tolower(h)
+    sub(/^#/, "", h)
+    P_R = hexval(substr(h, 1, 1)) * 16 + hexval(substr(h, 2, 1))
+    P_G = hexval(substr(h, 3, 1)) * 16 + hexval(substr(h, 4, 1))
+    P_B = hexval(substr(h, 5, 1)) * 16 + hexval(substr(h, 6, 1))
+  }
+  function linear(c) {
+    c = c / 255
+    if (c <= 0.04045) return c / 12.92
+    return ((c + 0.055) / 1.055) ^ 2.4
+  }
+  function luminance(r, g, b) {
+    return 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b)
+  }
+  function contrast(fg, bg, lighten,   fr, fgc, fb, br, bgc, bb, l1, l2, tmp) {
+    parse_hex(fg)
+    fr = P_R; fgc = P_G; fb = P_B
+    parse_hex(bg)
+    br = P_R; bgc = P_G; bb = P_B
+    if (lighten) {
+      br = int(br * 1.03 + 0.5); if (br > 255) br = 255
+      bgc = int(bgc * 1.03 + 0.5); if (bgc > 255) bgc = 255
+      bb = int(bb * 1.03 + 0.5); if (bb > 255) bb = 255
+    }
+    l1 = luminance(fr, fgc, fb)
+    l2 = luminance(br, bgc, bb)
+    if (l1 < l2) { tmp = l1; l1 = l2; l2 = tmp }
+    return (l1 + 0.05) / (l2 + 0.05)
+  }
+  function check(label, fg, bg, lighten,   r) {
+    r = contrast(fg, bg, lighten)
+    printf "  contrast %s = %.3f:1\n", label, r
+    if (r < 4.5) {
+      printf "FAILED - %s contrast %.3f:1 is below 4.5:1\n", label, r > "/dev/stderr"
+      failed++
+    } else {
+      passed++
+    }
+  }
+  BEGIN {
+    passed = 0
+    failed = 0
+    gradients[1] = g1
+    gradients[2] = g2
+    gradients[3] = g3
+    gradients[4] = g4
+    gradients[5] = g5
+    for (i = 1; i <= 5; i++) {
+      check("white on gradient-" i " (rest)", on_primary, gradients[i], 0)
+      check("white on gradient-" i " (hover/focus)", on_primary, gradients[i], 1)
+    }
+    check("on-surface-variant on surface", on_variant, surface, 0)
+    check("accent on surface", accent, surface, 0)
+    check("on-surface on surface", on_surface, surface, 0)
+    if (failed > 0 || passed != 13) exit 1
+  }
+'); then
+  printf '%s\n' "$CONTRAST_REPORT"
+  echo "Harness status: FAILED - accessibility contrast contract is below 4.5:1 (see failed ratios above)" >&2
+  exit 1
+fi
+
+printf '%s\n' "$CONTRAST_REPORT"
+echo "  [ok] accessibility contrast contract (13/13)"
+
+# 8. Link button contrast wiring
+if printf '%s\n' "$LINK_BUTTON_RULE" | grep -qF 'color: var(--color-on-primary);' \
+  && printf '%s\n' "$LINK_BUTTON_RULE" | grep -qF 'background: var(--link-button-bg);'; then
+  :
+else
+  fail 'styles.css .link-button must use color: var(--color-on-primary); and background: var(--link-button-bg);'
+fi
+
+gradient_wiring_missing=0
+for gradient in 1 2 3 4 5; do
+  gradient_rule=$(awk -v selector=".link-button--gradient-$gradient" '
+    $1 == selector && $2 == "{" { in_rule = 1 }
+    in_rule { print }
+    in_rule && /}/ { exit }
+  ' styles.css)
+  if printf '%s\n' "$gradient_rule" | grep -qF -- "--link-button-bg: var(--color-gradient-$gradient);"; then
+    :
+  else
+    echo "FAILED - .link-button--gradient-$gradient must assign --link-button-bg: var(--color-gradient-$gradient);" >&2
+    gradient_wiring_missing=$((gradient_wiring_missing + 1))
+  fi
+done
+if [ "$gradient_wiring_missing" -gt 0 ]; then
+  fail "accessibility link button wiring is missing $gradient_wiring_missing of 5 gradient assignments"
+fi
+
+LINK_HOVER_RULE=$(awk '
+  /^[[:space:]]*\.link-button:hover[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -n "$LINK_HOVER_RULE" ] \
+  && printf '%s\n' "$LINK_HOVER_RULE" | grep -qF 'filter: brightness(1.03);' \
+  && printf '%s\n' "$LINK_FOCUS_RULE" | grep -qF 'filter: brightness(1.03);'; then
+  echo "  [ok] link button contrast wiring"
+else
+  fail 'styles.css .link-button hover/focus must retain filter: brightness(1.03);'
+fi
+
+echo "Serving command: python3 -m http.server 3413 --directory ."
+echo "Manual verification: open http://localhost:3413 in a mobile viewport (390×844) and a desktop viewport (1280×800)."
 
 if [ "${RUN_SERVE_COMMAND:-0}" = "1" ]; then
-  exec python3 -m http.server 3412 --directory .
+  exec python3 -m http.server 3413 --directory .
 fi
