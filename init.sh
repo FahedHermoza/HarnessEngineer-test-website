@@ -192,9 +192,66 @@ else
   fail "styles.css is missing the card width contract min(400px, calc(100vw - 2rem))"
 fi
 
-echo "Serving command: python3 -m http.server 3101 --directory ."
-echo "Manual verification: open http://localhost:3101 in a mobile viewport (320/375/768px)."
+echo "Profile checks:"
+
+if grep -qF 'class="profile-avatar"' index.html \
+  && grep -qF 'src="assets/avatar.jpg"' index.html \
+  && grep -qF 'alt="Retrato de Fahed Hermoza"' index.html; then
+  echo "  [ok] profile avatar markup"
+else
+  fail "index.html is missing the profile avatar markup (class=\"profile-avatar\", src=\"assets/avatar.jpg\" or alt=\"Retrato de Fahed Hermoza\")"
+fi
+
+if [ -f "assets/avatar.jpg" ] && [ -s "assets/avatar.jpg" ]; then
+  echo "  [ok] avatar asset exists"
+else
+  fail "assets/avatar.jpg is missing or empty"
+fi
+
+PROFILE_AVATAR_RULE=$(awk '
+  /^[[:space:]]*\.profile-avatar[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -z "$PROFILE_AVATAR_RULE" ]; then
+  fail "styles.css is missing the .profile-avatar base rule"
+fi
+echo "  [ok] .profile-avatar base rule exists"
+
+PROFILE_AVATAR_CONTRACT=(
+  'width: 88px;'
+  'height: 88px;'
+  'border-radius: var(--radius-full);'
+  'object-fit: cover;'
+  'box-shadow: 0 0 0 3px var(--color-surface);'
+)
+
+profile_contract_total=${#PROFILE_AVATAR_CONTRACT[@]}
+profile_contract_present=0
+profile_contract_missing=0
+for declaration in "${PROFILE_AVATAR_CONTRACT[@]}"; do
+  case "$PROFILE_AVATAR_RULE" in
+    *"$declaration"*)
+      profile_contract_present=$((profile_contract_present + 1))
+      ;;
+    *)
+      echo "FAILED - .profile-avatar base rule missing declaration: $declaration" >&2
+      profile_contract_missing=$((profile_contract_missing + 1))
+      ;;
+  esac
+done
+
+if [ "$profile_contract_missing" -gt 0 ]; then
+  echo "Harness status: FAILED - profile avatar contract is missing $profile_contract_missing of $profile_contract_total required declarations" >&2
+  exit 1
+fi
+
+echo "  [ok] profile avatar contract ($profile_contract_present/$profile_contract_total)"
+
+echo "Serving command: python3 -m http.server 3201 --directory ."
+echo "Manual verification: open http://localhost:3201 in a mobile viewport (320/375/768px)."
 
 if [ "${RUN_SERVE_COMMAND:-0}" = "1" ]; then
-  exec python3 -m http.server 3101 --directory .
+  exec python3 -m http.server 3201 --directory .
 fi

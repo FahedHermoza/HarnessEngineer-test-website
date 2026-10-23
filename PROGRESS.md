@@ -2,14 +2,14 @@
 
 ## Current Verified State
 
-- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/devexpert-project-worktrees/link-button-component` (worktree de la PR #8 con `demo/seed` fusionado).
-- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, tokens de `styles.css`, markup `.page`/`.card`, contrato de ancho y contrato CSS del botón de Enlace; no arranca servidor por defecto).
-- Standard verification path: `./init.sh` sale `0` + `python3 -m http.server 3101 --directory .` y verificación en navegador móvil/escritorio.
-- Current status: `static-bootstrap`, `design-tokens`, `page-shell` y `link-button-component` en `accepted`.
-- Current next ready feature: `profile-avatar`, `profile-identity`, `page-footer` y `open-graph-metadata` (dependen de `page-shell`, ya `accepted`).
+- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/devexpert-project-worktrees/profile-avatar` (worktree/rama `feature/profile-avatar`, puerto local 3201).
+- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, tokens de `styles.css`, markup `.page`/`.card`, contrato de ancho, contrato CSS del botón de Enlace y markup/asset/contrato del avatar; no arranca servidor por defecto).
+- Standard verification path: `./init.sh` sale `0` + `python3 -m http.server 3201 --directory .` y verificación en navegador móvil (390×844) y escritorio (1280×800).
+- Current status: `static-bootstrap`, `design-tokens`, `page-shell`, `link-button-component` y `profile-avatar` en `accepted`.
+- Current next ready feature: `profile-identity`, `avatar-fallback`, `page-footer` y `open-graph-metadata` (dependen de features ya `accepted`).
 - Current blocker: none
 - Inherited risk: etiquetas blancas sobre los cinco tonos miden 3.86–4.13:1 (AA 4.5:1 no cumplido); debe resolverlo o aceptarlo `accessibility-baseline`.
-- Last verified at: 2026-10-23 (fusión de `demo/seed` en `feature/link-button-component`; `./init.sh` y navegador 390×844/1280×800, ver Session 009)
+- Last verified at: 2026-10-23 (`profile-avatar`: validator `accept`, gate, casos negativos y navegador 390×844/1280×800, ver Session 011)
 
 ## Session Log
 
@@ -132,3 +132,26 @@
 - Files or artifacts updated: `index.html`, `styles.css`, `init.sh`, `PROGRESS.md`, `feature_list.json`.
 - Known risk or unresolved issue: la demo temporal `[data-demo="link-button"]` sigue en el HTML y debe retirarse al integrar las features de enlaces; contraste 3.86–4.13:1 heredado a `accessibility-baseline`.
 - Next best step: push de la rama y revisión de la PR #8 (sin merge).
+
+### Session 010
+
+- Date: 2026-10-23
+- Goal: implement feature `profile-avatar` (spec `docs/specs/profile-avatar.md`) in worktree `profile-avatar`.
+- Completed: `index.html` añade `<header class="profile">` con `<img class="profile-avatar" src="assets/avatar.jpg" alt="Retrato de Fahed Hermoza" width="88" height="88">` dentro de `.card` y antes de la demo temporal (que queda intacta); `styles.css` añade `.profile` (flex column, `align-items:center`, `padding-block:var(--space-xl)`) y `.profile-avatar` (`display:block`, 88×88, `border-radius:var(--radius-full)`, `object-fit:cover`, `box-shadow:0 0 0 3px var(--color-surface)`) sin tocar `:root` (51 tokens), `body`, `.page`, `.card`, `.link-button` ni `[data-demo]`; `init.sh` añade `Profile checks:` (markup, asset no vacío, regla base `.profile-avatar` extraída con `awk` y contrato de 5 declaraciones) y sugiere/arranca el servidor en 3201. `assets/avatar.jpg` no se modificó (JPEG 460×460). Sin dependencias, JS ni archivos nuevos de producto.
+- Verification run: `bash -n init.sh` → OK. `./init.sh` → `bootstrapped`, bootstrap 3/3, tokens 51/51, `.link-button` 6/6, reduced-motion, page shell 3/3, `Profile checks:` `[ok] profile avatar markup`, `[ok] avatar asset exists`, `[ok] .profile-avatar base rule exists`, `[ok] profile avatar contract (5/5)`, comando en 3201, exit 0, sin servidor. 7 casos negativos en copias temporales fuera del repo (clase renombrada, `alt` vaciado, regla renombrada a `.profile-avatar__broken`, sin `object-fit`, sin `box-shadow`, asset eliminado, asset vaciado) → todos exit 1 con stderr del check correspondiente y sin listener en 3201; copias eliminadas y repo intacto.
+- Browser (servidor único `python3 -m http.server 3201 --directory .`, puerto libre antes y después; recarga ignorando caché): `curl -sI` → `/` 200 `text/html`, `/styles.css` 200 `text/css`, `/assets/avatar.jpg` 200 `image/jpeg`; log sin 404 ni `/favicon.ico`. **390×844**: avatar `complete=true`, `naturalWidth/Height=460`, rect 88×88 en x=151, centro 195 = centro de la tarjeta (x=16, ancho 358), `display:block`, `object-fit:cover`, `border-radius:9999px`, `box-shadow:rgb(255, 255, 255) 0px 0px 0px 3px`; `.profile` flex/center con 36px de padding arriba y abajo; `scrollWidth=clientWidth=390`; consola 0 mensajes; 5 peticiones 200 sin fallos; nombre accesible `Retrato de Fahed Hermoza`. **1280×800**: tarjeta 400px en x=440 (centro 640, alto 522), avatar 88×88 en x=596 centrado, mismo contrato y halo, completamente visible; `scrollWidth=clientWidth=1280`; consola 0 mensajes; 5 peticiones 200 sin fallos.
+- Evidence captured: outputs above; `feature_list.json` `profile-avatar` en `passing` con evidencia; captura de pantalla guardada en el directorio temporal pero no interpretable por el modelo (evidencia principal: `getBoundingClientRect()`/`getComputedStyle()` y árbol de accesibilidad).
+- Files or artifacts updated: `index.html`, `styles.css`, `init.sh`, `feature_list.json`, `PROGRESS.md`. `docs/validations/profile-avatar.md` queda para el validator.
+- Known risk or unresolved issue: sin harness E2E (añadirlo introduciría dependencias prohibidas); la demo temporal sigue pendiente de retirada en las features de enlaces; contraste 3.86–4.13:1 heredado a `accessibility-baseline`.
+- Next best step: validación independiente de `profile-avatar` (`feature-validator`). No commitear hasta que el orquestador persista la aceptación.
+
+### Session 011
+
+- Date: 2026-10-23
+- Goal: independently validate feature `profile-avatar` (`feature-flow`, role `validator`) and persist acceptance in worktree `profile-avatar`.
+- Completed: validator `feature-validator` returned `accept`; `feature_list.json` moved `profile-avatar` from `passing` to `accepted` with validator evidence; validation record created at `docs/validations/profile-avatar.md`.
+- Verification run: `bash -n init.sh` OK; `./init.sh` → `bootstrapped` + bootstrap 3/3 + tokens 51/51 + componente 6/6 + page shell 3/3 + `Profile checks:` `[ok] profile avatar markup`, `[ok] avatar asset exists`, `[ok] .profile-avatar base rule exists`, `[ok] profile avatar contract (5/5)`, exit 0, sin servidor; casos negativos independientes (sin `object-fit`, sin `box-shadow`, regla renombrada, `alt` vacío, asset eliminado y vaciado) → exit 1 con stderr y sin listener en 3201; `assets/avatar.jpg` byte-idéntico a `HEAD` (`c2ff862d…`, JPEG 460×460, 45029 bytes); servidor propio en 3201 (detenido, puerto libre) → `/` 200 `text/html`, `/styles.css` 200 `text/css`, `/assets/avatar.jpg` 200 `image/jpeg`, log sin 404 ni `/favicon.ico`; 390×844 y 1280×800 con avatar 88×88 centrado, `object-fit:cover`, `border-radius:9999px`, `box-shadow:rgb(255, 255, 255) 0px 0px 0px 3px`, sin scroll horizontal, consola 0 mensajes, 5 peticiones 200 y nombre accesible `Retrato de Fahed Hermoza`.
+- Evidence captured: `docs/validations/profile-avatar.md`; acceptance entry appended in `feature_list.json`.
+- Files or artifacts updated: `feature_list.json`, `PROGRESS.md`, `docs/validations/profile-avatar.md`.
+- Known risk or unresolved issue: none blocking; 4 notas Low no bloqueantes del validator (gate textual, el gate no verifica la posición dentro de `.card`, pista de viewports manuales, sin interpretación de screenshots). La demo temporal sigue pendiente de retirada en las features de enlaces; contraste 3.86–4.13:1 heredado a `accessibility-baseline`.
+- Next best step: commit `profile-avatar` (Conventional Commit, sin push) y planificar/implementar `profile-identity`, ahora dependency-ready.
