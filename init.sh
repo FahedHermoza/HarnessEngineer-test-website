@@ -513,7 +513,7 @@ fi
 echo "Link checks:"
 
 if grep -qF 'class="links"' index.html \
-  && grep -qF 'class="link-button"' index.html \
+  && grep -qE 'class="link-button[^"]*"' index.html \
   && grep -qF '<span class="link-button__label">Celular</span>' index.html; then
   echo "  [ok] celular link markup"
 else
@@ -711,12 +711,12 @@ LINKS_BLOCK=$(awk '
 ' index.html)
 
 if printf '%s\n' "$LINKS_BLOCK" | grep -qF 'href="https://www.facebook.com/fahed19"' \
-  && printf '%s\n' "$LINKS_BLOCK" | grep -qF 'class="link-button link-button--gradient-1"' \
+  && printf '%s\n' "$LINKS_BLOCK" | grep -qF 'class="link-button link-button--gradient-2"' \
   && printf '%s\n' "$LINKS_BLOCK" | grep -qF '<span class="link-button__label">Facebook</span>' \
   && printf '%s\n' "$LINKS_BLOCK" | grep -qF 'aria-label="Facebook de Fahed Hermoza"'; then
   echo "  [ok] facebook link markup"
 else
-  fail "index.html is missing the Facebook link markup (href, .link-button--gradient-1, visible label or accessible name)"
+  fail "index.html is missing the Facebook link markup (href, .link-button--gradient-2, visible label or accessible name)"
 fi
 
 if printf '%s\n' "$LINKS_BLOCK" | grep -qF 'class="link-button__icon"' \
@@ -778,7 +778,7 @@ fi
 
 echo "LinkedIn link checks:"
 
-if printf '%s\n' "$LINKS_BLOCK" | grep -qE '<a[^>]*class="link-button"[^>]*href="https://www\.linkedin\.com/in/fahedhermoza/"'; then
+if printf '%s\n' "$LINKS_BLOCK" | grep -qE '<a[^>]*class="link-button[^"]*"[^>]*href="https://www\.linkedin\.com/in/fahedhermoza/"'; then
   echo "  [ok] LinkedIn link destination"
 else
   fail "index.html is missing the LinkedIn link destination https://www.linkedin.com/in/fahedhermoza/"
@@ -806,7 +806,7 @@ fi
 echo "Link Correo checks:"
 
 LINK_CORREO_ANCHOR=$(awk '
-  /^[[:space:]]*<a class="link-button" href="mailto:fahedhermoza@gmail\.com" aria-label="Correo a fahedhermoza@gmail\.com">$/ { in_anchor = 1 }
+  /<a[^>]*href="mailto:fahedhermoza@gmail\.com"/ { in_anchor = 1 }
   in_anchor { print }
   in_anchor && /<\/a>/ { exit }
 ' index.html)
@@ -816,7 +816,7 @@ if [ -z "$LINK_CORREO_ANCHOR" ]; then
 fi
 
 LINK_CORREO_CONTRACT=(
-  'class="link-button"'
+  'class="link-button link-button--gradient-4-5"'
   'href="mailto:fahedhermoza@gmail.com"'
   'aria-label="Correo a fahedhermoza@gmail.com"'
   '<span class="link-button__label">Correo</span>'
@@ -931,15 +931,15 @@ INSTAGRAM_LINK_BLOCK=$(awk '
 ' index.html)
 
 case "$INSTAGRAM_LINK_BLOCK" in
-  *link-button--gradient-*)
-    fail "the Instagram Enlace must not use a link-button--gradient-* modifier (tone assignment belongs to links-order-gradient)"
+  *'class="link-button link-button--gradient-1"'*)
+    echo "  [ok] Instagram Enlace uses gradient-1"
     ;;
   *)
-    echo "  [ok] Instagram Enlace uses the component base tone"
+    fail "the Instagram Enlace must use class=\"link-button link-button--gradient-1\""
     ;;
 esac
 
-if printf '%s\n' "$INSTAGRAM_LINK_BLOCK" | grep -qF 'class="link-button"'; then
+if printf '%s\n' "$INSTAGRAM_LINK_BLOCK" | grep -qE 'class="link-button[^"]*"'; then
   echo "  [ok] Instagram Enlace markup"
 else
   fail "index.html is missing the Instagram Enlace markup"
@@ -1008,9 +1008,7 @@ case "$LINKS_RULE" in
 esac
 
 if grep -qF 'data-demo="link-button"' index.html; then
-  echo "  [ok] link button demo preserved"
-else
-  fail "index.html is missing the temporary link button demo [data-demo=\"link-button\"] (must be preserved in this feature)"
+  fail "index.html still contains the temporary link button demo [data-demo=\"link-button\"]"
 fi
 
 LINK_DEMO_LABELS=(
@@ -1022,12 +1020,10 @@ LINK_DEMO_LABELS=(
 )
 for label in "${LINK_DEMO_LABELS[@]}"; do
   if grep -qF -- "$label" index.html; then
-    :
-  else
-    fail "index.html is missing the temporary link button demo label: $label"
+    fail "index.html still contains the temporary link button demo label: $label"
   fi
 done
-echo "  [ok] link button demo labels preserved (5/5)"
+echo "  [ok] link button demo removed"
 
 echo "WhatsApp link checks:"
 
@@ -1080,9 +1076,79 @@ fi
 
 echo "  [ok] whatsapp icon contract ($whatsapp_icon_present/$whatsapp_icon_total)"
 
-echo "Serving command: python3 -m http.server 3301 --directory ."
-echo "Manual verification: open http://localhost:3301 in a mobile viewport (390×844) and a desktop viewport (1280×800)."
+echo "Order and gradient checks:"
+
+LINK_ANCHOR_COUNT=$(printf '%s\n' "$LINKS_BLOCK" | grep -oE '<a[[:space:]]' | wc -l | tr -d '[:space:]')
+if [ "$LINK_ANCHOR_COUNT" -eq 7 ]; then
+  echo "  [ok] links anchors (7/7)"
+else
+  fail "the links navigation must contain exactly 7 anchors; found $LINK_ANCHOR_COUNT"
+fi
+
+LINK_LABELS=$(printf '%s\n' "$LINKS_BLOCK" \
+  | grep -oE '<span class="link-button__label">[^<]+</span>' \
+  | sed -E 's/^.*>([^<]+)<.*$/\1/' | paste -sd '|' -) || true
+EXPECTED_LINK_LABELS='Instagram|Facebook|WhatsApp|LinkedIn|Portafolio|Correo|Celular'
+if [ "$LINK_LABELS" = "$EXPECTED_LINK_LABELS" ]; then
+  echo "  [ok] links order (7/7)"
+else
+  fail "links order mismatch: expected $EXPECTED_LINK_LABELS, found ${LINK_LABELS:-<none>}"
+fi
+
+LINK_CLASSES=$(printf '%s\n' "$LINKS_BLOCK" \
+  | grep -oE '<a[^>]*class="link-button[^"]*"' \
+  | sed -E 's/^.*class="([^"]+)".*$/\1/' | paste -sd '|' -) || true
+EXPECTED_LINK_CLASSES='link-button link-button--gradient-1|link-button link-button--gradient-2|link-button link-button--gradient-3|link-button link-button--gradient-3-4|link-button link-button--gradient-4|link-button link-button--gradient-4-5|link-button link-button--gradient-5'
+if [ "$LINK_CLASSES" = "$EXPECTED_LINK_CLASSES" ]; then
+  echo "  [ok] links tone progression (7/7)"
+else
+  fail "links tone progression mismatch: expected $EXPECTED_LINK_CLASSES, found ${LINK_CLASSES:-<none>}"
+fi
+
+LINK_INTERPOLATION_RULES=(
+  'color-mix(in srgb, var(--color-gradient-3), var(--color-gradient-4))'
+  'color-mix(in srgb, var(--color-gradient-4), var(--color-gradient-5))'
+)
+interpolation_total=${#LINK_INTERPOLATION_RULES[@]}
+interpolation_present=0
+interpolation_missing=0
+for expression in "${LINK_INTERPOLATION_RULES[@]}"; do
+  if grep -qF -- "$expression" styles.css; then
+    interpolation_present=$((interpolation_present + 1))
+  else
+    echo "FAILED - styles.css missing interpolated tone expression: $expression" >&2
+    interpolation_missing=$((interpolation_missing + 1))
+  fi
+done
+if [ "$interpolation_missing" -gt 0 ]; then
+  fail "interpolated tone rules are missing $interpolation_missing of $interpolation_total required expressions"
+fi
+echo "  [ok] interpolated tone rules ($interpolation_present/$interpolation_total)"
+
+if grep -qF '@supports (color: color-mix(in srgb, red, blue))' styles.css; then
+  echo "  [ok] color-mix support guard"
+else
+  fail "styles.css is missing the @supports (color: color-mix(in srgb, red, blue)) guard"
+fi
+
+if grep -qF 'data-demo="link-button"' index.html || grep -qF 'data-demo="link-button"' styles.css; then
+  fail "temporary link button demo marker [data-demo=\"link-button\"] is still present"
+fi
+
+if grep -qF '#link-button-demo' index.html || grep -qF '#link-button-demo' styles.css; then
+  fail "temporary link button demo id #link-button-demo is still present"
+fi
+
+for label in "${LINK_DEMO_LABELS[@]}"; do
+  if grep -qF -- "$label" index.html; then
+    fail "temporary link button demo label is still present: $label"
+  fi
+done
+echo "  [ok] link button demo removed (HTML and CSS)"
+
+echo "Serving command: python3 -m http.server 3412 --directory ."
+echo "Manual verification: open http://localhost:3412 in a mobile viewport (390×844) and a desktop viewport (1280×800)."
 
 if [ "${RUN_SERVE_COMMAND:-0}" = "1" ]; then
-  exec python3 -m http.server 3301 --directory .
+  exec python3 -m http.server 3412 --directory .
 fi
