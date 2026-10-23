@@ -249,6 +249,118 @@ fi
 
 echo "  [ok] profile avatar contract ($profile_contract_present/$profile_contract_total)"
 
+echo "Page footer checks:"
+
+if grep -qF '<footer class="page-footer">' index.html && grep -qF 'class="page-footer__link"' index.html; then
+  echo "  [ok] page footer markup"
+else
+  fail "index.html is missing the page footer markup"
+fi
+
+if grep -qF 'href="mailto:fahedhermoza@gmail.com"' index.html; then
+  :
+else
+  fail "index.html is missing the page footer email destination mailto:fahedhermoza@gmail.com"
+fi
+
+if grep -qF 'href="https://www.instagram.com/fahedhermoza/"' index.html; then
+  :
+else
+  fail "index.html is missing the page footer handle destination https://www.instagram.com/fahedhermoza/"
+fi
+
+echo "  [ok] page footer destinations"
+
+PAGE_FOOTER_RULE=$(awk '
+  /^[[:space:]]*\.page-footer[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -z "$PAGE_FOOTER_RULE" ]; then
+  fail "styles.css is missing the .page-footer base rule"
+fi
+
+PAGE_FOOTER_CONTRACT=(
+  'border-top: 1px solid var(--color-border);'
+  'text-align: center;'
+  'padding: var(--space-lg);'
+  'font-size: var(--text-body-md-font-size);'
+  'color: var(--color-on-surface);'
+)
+
+footer_total=${#PAGE_FOOTER_CONTRACT[@]}
+footer_present=0
+footer_missing=0
+for declaration in "${PAGE_FOOTER_CONTRACT[@]}"; do
+  case "$PAGE_FOOTER_RULE" in
+    *"$declaration"*)
+      footer_present=$((footer_present + 1))
+      ;;
+    *)
+      echo "FAILED - .page-footer base rule missing declaration: $declaration" >&2
+      footer_missing=$((footer_missing + 1))
+      ;;
+  esac
+done
+
+if [ "$footer_missing" -gt 0 ]; then
+  echo "Harness status: FAILED - page footer contract is missing $footer_missing of $footer_total required declarations" >&2
+  exit 1
+fi
+
+echo "  [ok] page footer contract ($footer_present/$footer_total)"
+
+PAGE_FOOTER_LINK_RULE=$(awk '
+  /^[[:space:]]*\.page-footer__link[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -z "$PAGE_FOOTER_LINK_RULE" ]; then
+  fail "styles.css is missing the .page-footer__link base rule"
+fi
+
+PAGE_FOOTER_LINK_CONTRACT=(
+  'color: var(--color-accent);'
+  'text-decoration: underline;'
+  'text-underline-offset: 2px;'
+)
+
+link_total=${#PAGE_FOOTER_LINK_CONTRACT[@]}
+link_present=0
+link_missing=0
+for declaration in "${PAGE_FOOTER_LINK_CONTRACT[@]}"; do
+  case "$PAGE_FOOTER_LINK_RULE" in
+    *"$declaration"*)
+      link_present=$((link_present + 1))
+      ;;
+    *)
+      echo "FAILED - .page-footer__link base rule missing declaration: $declaration" >&2
+      link_missing=$((link_missing + 1))
+      ;;
+  esac
+done
+
+if [ "$link_missing" -gt 0 ]; then
+  echo "Harness status: FAILED - page footer link accent is missing $link_missing of $link_total required declarations" >&2
+  exit 1
+fi
+
+echo "  [ok] page footer link accent"
+
+PAGE_FOOTER_FOCUS_RULE=$(awk '
+  /^[[:space:]]*\.page-footer__link:focus-visible[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -n "$PAGE_FOOTER_FOCUS_RULE" ] && printf '%s\n' "$PAGE_FOOTER_FOCUS_RULE" | grep -qF 'outline: 2px solid var(--color-accent);'; then
+  echo "  [ok] page footer focus-visible"
+else
+  fail "styles.css is missing the page footer focus-visible outline: 2px solid var(--color-accent);"
+fi
+
 echo "Serving command: python3 -m http.server 3201 --directory ."
 echo "Manual verification: open http://localhost:3201 in a mobile viewport (320/375/768px)."
 
