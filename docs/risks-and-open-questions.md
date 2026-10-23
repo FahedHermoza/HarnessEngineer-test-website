@@ -29,6 +29,7 @@
 
 ## Risks
 
+- **Contraste de etiquetas de Enlace (heredado):** blanco `#ffffff` sobre `gradient-1`…`gradient-5` mide 3.86, 4.10, 4.13, 4.09 y 3.91 a 1 (medido el 2026-10-23, implementación de `link-button-component`), por debajo del mínimo AA 4.5:1 para `button-label` (11px/800). No se corrige en `link-button-component` para no inventar colores fuera de la paleta ni alterar la escala tipográfica; `accessibility-baseline` debe resolverlo (ajustar tokens/tamaño de etiqueta) o aceptarlo explícitamente.
 - **Enlaces que envejecen:** URLs de redes o portafolio pueden cambiar; nadie lo detecta automáticamente.
 - **Dependencia de Google Fonts:** una caída o bloqueo degrada la tipografía (mitigado con fallback).
 - **Avatar no disponible:** sin `assets/avatar.jpg` la página se ve incompleta (mitigado con iniciales).
