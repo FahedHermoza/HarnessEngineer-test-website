@@ -595,6 +595,50 @@ else
   fail "LinkedIn icon must declare aria-hidden=\"true\" and focusable=\"false\""
 fi
 
+echo "Link Correo checks:"
+
+LINK_CORREO_ANCHOR=$(awk '
+  /^[[:space:]]*<a class="link-button" href="mailto:fahedhermoza@gmail\.com" aria-label="Correo a fahedhermoza@gmail\.com">$/ { in_anchor = 1 }
+  in_anchor { print }
+  in_anchor && /<\/a>/ { exit }
+' index.html)
+
+if [ -z "$LINK_CORREO_ANCHOR" ]; then
+  fail "index.html is missing the link Correo anchor"
+fi
+
+LINK_CORREO_CONTRACT=(
+  'class="link-button"'
+  'href="mailto:fahedhermoza@gmail.com"'
+  'aria-label="Correo a fahedhermoza@gmail.com"'
+  '<span class="link-button__label">Correo</span>'
+  'class="link-button__icon"'
+  'aria-hidden="true"'
+  'focusable="false"'
+)
+
+correo_total=${#LINK_CORREO_CONTRACT[@]}
+correo_present=0
+correo_missing=0
+for entry in "${LINK_CORREO_CONTRACT[@]}"; do
+  case "$LINK_CORREO_ANCHOR" in
+    *"$entry"*)
+      correo_present=$((correo_present + 1))
+      ;;
+    *)
+      echo "FAILED - link Correo anchor missing: $entry" >&2
+      correo_missing=$((correo_missing + 1))
+      ;;
+  esac
+done
+
+if [ "$correo_missing" -gt 0 ]; then
+  echo "Harness status: FAILED - link Correo contract is missing $correo_missing of $correo_total required items" >&2
+  exit 1
+fi
+
+echo "  [ok] link Correo contract ($correo_present/$correo_total)"
+
 echo "Sharing metadata checks:"
 
 SHARING_METADATA_CONTRACT=(
