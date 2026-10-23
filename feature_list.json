@@ -48,13 +48,24 @@
     "title": "Lienzo y tarjeta flotante centrada",
     "user_visible_behavior": "Se ve una tarjeta blanca flotante sobre el fondo `#f7f9ff`, centrada y con ancho máximo de 380–420px en escritorio y `calc(100vw - 2rem)` en móvil, con los márgenes seguros de DESIGN.md.",
     "depends_on": ["design-tokens"],
-    "status": "not_started",
+    "status": "accepted",
     "verification": [
       "Abrir la página en 320px, 375px, 768px y escritorio y confirmar ausencia de scroll horizontal.",
       "Confirmar visualmente el ancho máximo de la tarjeta y su centrado vertical/horizontal en escritorio."
     ],
-    "evidence": [],
-    "notes": "DESIGN.md: layout, shapes, responsive baseline."
+    "evidence": [
+      "`index.html` ahora contiene `<main class=\"page\"><article class=\"card\"></article></main>`; no se añadió contenido de Perfil, Enlaces, vCard ni Pie.",
+      "`styles.css` añade el reset universal `*, *::before, *::after { box-sizing: border-box; }` y las reglas `.page` (flex column, `align-items:center`, `min-height:100vh`/`100dvh`, `padding: var(--space-margin) var(--space-gutter)`) y `.card` (`flex-shrink:0`, `width:min(400px, calc(100vw - 2rem))`, `max-width:100%`, `min-height:20rem`, `margin-block:auto`, superficie, borde 1px `rgba(0,0,0,0.04)`, `border-radius: var(--radius-xl)` y sombra literal de DESIGN.md). `:root` (51 tokens) y `body` no se modificaron.",
+      "`bash -n init.sh` → OK. `./init.sh` → `Harness status: bootstrapped (static site detected)`, checks previos `[ok]`, `[ok] page shell markup`, `[ok] page shell styles`, `[ok] card width contract`, comando de servido en 3101, exit 0 y sin arrancar servidor.",
+      "Casos negativos en copias temporales (repo intacto): quitar `class=\"card\"` → stderr `Harness status: FAILED - index.html is missing class=\"page\" or class=\"card\"`, exit 1; renombrar `.card` → stderr `Harness status: FAILED - styles.css is missing the .page or .card rule`, exit 1; sustituir el contrato de ancho → stderr `Harness status: FAILED - styles.css is missing the card width contract min(400px, calc(100vw - 2rem))`, exit 1. Puerto 3101 sin listener tras los tres casos; copias temporales eliminadas.",
+      "Servido con `python3 -m http.server 3101 --directory .`: `curl -sI /` → 200 `text/html`, `curl -sI /styles.css` → 200 `text/css`; Google Fonts css2 → 200. Navegador (Chrome DevTools, viewport 390×844): consola sin mensajes, red solo con `/`, `styles.css` y la hoja de Google Fonts (sin fallos).",
+      "Geometría con `getBoundingClientRect()` (1280×800): tarjeta 400×320, `x=440`, `y=240`, espacio superior/inferior 216/216; (768×800): 400px, `x=184`, `y=240`, 216/216; (390×844): 358px, `x=16`, `y=262`, 238/238; (375×844): 343px, `x=16`, `y=262`, 238/238; (320×844): 288px, `x=16`, `y=262`, 238/238. `documentElement.scrollWidth == clientWidth` (1280, 768, 390, 375, 320) y `body.scrollWidth == clientWidth`; sin scroll horizontal.",
+      "Estilos computados de `.card` (390 y 1280): `background-color: rgb(255, 255, 255)`, `border-radius: 12px`, `border-top-width: 1px`, `border-top-color: rgba(0, 0, 0, 0.04)`, `box-shadow: rgba(25, 30, 48, 0.08) 0px 18px 45px -10px, rgba(25, 30, 48, 0.03) 0px 8px 16px -6px`; `body` conserva `rgb(247, 249, 255)`.",
+      "Tarjeta más alta que el viewport (override temporal `.card { min-height: 1200px !important }`, 390×600, retirado después): altura 1200px, `top=24` con `scrollTop=0` (no recortada), `scrollHeight=1248` > `clientHeight=600`, scroll hasta el fondo alcanza `bottom=576`, `scrollWidth == clientWidth == 390`.",
+      "Nota: el servidor registró un `404 /favicon.ico` automático del navegador en la primera carga; no aparece en la lista de red de DevTools y el favicon es non-goal explícito del spec. No se añadieron frameworks, JS, dependencias, archivos nuevos ni tokens.",
+      "Validación independiente (`feature-validator`, 2026-10-23): verdict `accept`. Reprodujo `bash -n init.sh` y `./init.sh` (exit 0, 3 checks del shell `[ok]`, sin servidor), los 3 casos negativos (exit 1 con stderr correcto, sin listener), servido 3101 (`/` 200 `text/html`, `/styles.css` 200 `text/css`, Google Fonts 200), navegador 390×844 y 1280×800 sin errores de consola ni peticiones fallidas de la página, geometría 320/375/390/768/1280 con anchos 288/343/358/400/400px, `x` 16/16/16/184/440, centrado vertical y sin scroll horizontal, computed styles exactos (blanco, radio 12px, borde y sombra de DESIGN.md), y escenario de tarjeta alta a 390×600 sin recorte superior (`top=24` en `scrollTop=0`). Confirmó alcance (tarjeta vacía, sin contenido de otras features), `:root`/`body` intactos y ausencia de frameworks/JS/dependencias/tokens nuevos. El `404 /favicon.ico` no se contó como fallo de la feature por ser non-goal y no formar parte de las peticiones de la página. Notas Low: gate por `grep` textual y evidencia «sin archivos nuevos» referida a producto (el spec es artefacto de planificación). Registro: `docs/validations/page-shell.md`."
+    ],
+    "notes": "DESIGN.md: layout, shapes, responsive baseline. `min-height: 20rem` es un piso provisional de visibilidad para la tarjeta vacía, no un token; el contenido futuro lo superará."
   },
   {
     "id": "profile-avatar",
