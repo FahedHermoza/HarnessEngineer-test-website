@@ -8,7 +8,7 @@
 
 ## Implementation-Time Questions
 
-- Formato de WhatsApp: `https://wa.me/51955116562` frente a `https://api.whatsapp.com/send?phone=51955116562`.
+- **Resuelto (2026-10-23, `link-whatsapp`):** el formato de WhatsApp es `https://wa.me/51955116562`; se descarta `api.whatsapp.com`. El handoff real a la app no se puede automatizar en este repositorio: queda como comprobación manual pendiente en un dispositivo y no bloquea el contrato de markup.
 - vCard: archivo `.vcf` estático frente a `data:text/vcard` generado en cliente; definir nombre de archivo y codificación.
 - Fuente: precarga (`preload`) y fallback para evitar salto de texto (FOUT).
 - `og-image`: dimensiones fijadas en 1200×630 JPEG (`og:image:width/height/type`); quedan abiertos el texto/contenido visual y la herramienta de generación (el agente no puede generar imágenes).
@@ -38,6 +38,7 @@
 - **Avatar no disponible:** sin `assets/avatar.jpg` la página se ve incompleta (mitigado con iniciales).
 - **Vista previa deficiente o sin imagen:** sin `assets/og-image.jpg` válida (y sin URL absoluta tras el despliegue) el enlace compartido se ve pobre aunque las etiquetas sean correctas. Mitigación actual: comentario HTML de provisionalidad y `[warn]` no bloqueantes en `init.sh`; cierre en `deploy-cloudflare-pages`.
 - **vCard inconsistente:** diferencias de comportamiento entre iOS y Android.
+- **Handoff de WhatsApp no verificado:** un `href` correcto no demuestra que el dispositivo abra la app o muestre la página intermedia de `wa.me`. La comprobación final requiere un teléfono real; se mantiene como pendiente manual y no se cuenta como fallo del harness.
 
 ## Research Tasks
 

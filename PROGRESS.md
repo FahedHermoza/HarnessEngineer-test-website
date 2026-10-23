@@ -2,15 +2,15 @@
 
 ## Current Verified State
 
-- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/DevExpert-1` (rama `feature/link-facebook` rebaseada sobre `demo/seed`).
-- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, tokens de `styles.css`, markup `.page`/`.card`, contrato de ancho, contrato CSS del botón de Enlace, avatar, pie, identidad, Enlaces reales de Instagram/Facebook y metadatos de compartición 14/14; no arranca servidor por defecto).
+- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/DevExpert-1` (rama `feature/link-whatsapp` rebaseada sobre `demo/seed`).
+- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, tokens de `styles.css`, markup `.page`/`.card`, contrato de ancho, contrato CSS del botón de Enlace, avatar, pie, identidad, Enlaces reales de Instagram/Facebook/WhatsApp y metadatos de compartición 14/14; no arranca servidor por defecto).
 - Standard verification path: `./init.sh` sale `0` + `python3 -m http.server 3201 --directory .` y verificación en navegador móvil (390×844) y escritorio (1280×800).
-- Current status: `static-bootstrap`, `design-tokens`, `page-shell`, `link-button-component`, `profile-avatar`, `page-footer`, `profile-identity`, `open-graph-metadata`, `link-instagram` y `link-facebook` en `accepted`.
-- Current next ready feature: `avatar-fallback` (depende de `profile-avatar`) y los cinco Enlaces restantes (dependen de `link-button-component`).
+- Current status: `static-bootstrap`, `design-tokens`, `page-shell`, `link-button-component`, `profile-avatar`, `page-footer`, `profile-identity`, `open-graph-metadata`, `link-instagram`, `link-facebook` y `link-whatsapp` en `accepted`.
+- Current next ready feature: `avatar-fallback` (depende de `profile-avatar`) y los cuatro Enlaces restantes (dependen de `link-button-component`).
 - Current blocker (diferido): `assets/og-image.jpg` (JPEG 1200×630) ausente y URL pública final de Cloudflare Pages indefinida. Por eso `og:image`/`twitter:image` son relativas provisionales y `og:url`/canonical están omitidos; el unfurl real se cierra en `deploy-cloudflare-pages`. No bloquea el contrato de metadatos ya aceptado.
 - Current deferred work: la demo temporal `[data-demo="link-button"]` se conserva a propósito; su retirada junto con su CSS se difiere a `links-order-gradient`.
-- Inherited risk: etiquetas blancas sobre los cinco tonos miden 3.86–4.13:1 y la Tagline `#717886` sobre blanco mide ≈4.43:1 (AA 4.5:1 no cumplido en ambos casos); debe resolverlos o aceptarlos `accessibility-baseline`. El pie sí cumple AA (13.04:1 base, 5.15:1 enlaces).
-- Last verified at: 2026-10-23 (`link-facebook` rebaseada sobre `demo/seed` con `link-instagram` y separación vertical de Enlaces; `./init.sh` y navegador 390×844/1280×800, ver Sessions 023–024)
+- Inherited risk: etiquetas blancas sobre los cinco tonos miden 3.86–4.13:1 y la Tagline `#717886` sobre blanco mide ≈4.43:1 (AA 4.5:1 no cumplido en ambos casos); debe resolverlos o aceptarlos `accessibility-baseline`. El pie sí cumple AA (13.04:1 base, 5.15:1 enlaces). El handoff real de WhatsApp a la app solo se comprueba manualmente en un dispositivo.
+- Last verified at: 2026-10-23 (`link-whatsapp` rebaseada sobre `demo/seed` con `link-instagram` y `link-facebook`; `./init.sh` y navegador 390×844/1280×800, ver Session 027)
 
 ## Session Log
 
@@ -326,3 +326,38 @@
 - Files or artifacts updated: `styles.css`, `init.sh`, `feature_list.json`, `PROGRESS.md`.
 - Known risk or unresolved issue: el orden y la progresión de tonos siguen perteneciendo a `links-order-gradient`; esta corrección solo adelanta el `gap`.
 - Next best step: commit y push a la PR #25.
+### Session 025 — link-whatsapp
+
+- Date: 2026-10-23
+- Goal: implement feature `link-whatsapp` (spec `docs/specs/link-whatsapp.md`) in worktree `link-whatsapp`.
+- Completed: `index.html` añade `<section id="links" class="links" aria-label="Enlaces">` entre `header.profile-identity` y la demo, con un `<a>` real `class="link-button link-button--gradient-1"`, `href="https://wa.me/51955116562"`, `aria-label="WhatsApp"`, etiqueta visible `WhatsApp` y SVG inline de WhatsApp 18×18 (`fill="currentColor"`, `aria-hidden="true"`, `focusable="false"`). `styles.css` añade solo `.links` (flex column, `gap: var(--space-sm)`, `padding: 0 var(--space-gutter)`, `margin: 0`, `box-sizing: border-box`) antes del bloque de demo, que queda idéntico. `init.sh` añade `Link checks:` (markup, etiqueta visible, icono 6/6 extraído con `awk`, regla `.links` y contrato 4/4) y actualiza el puerto sugerido/`RUN_SERVE_COMMAND` de 3201 a 3303 (el repo estaba realmente en 3201; se sigue la instrucción de la tarea); sin tocar checks previos ni arrancar servidor por defecto.
+- Verification run: `bash -n init.sh` OK; `./init.sh` exit `0` sin servidor, con bootstrap 3/3, tokens 51/51, componente 6/6 + reduced motion, page shell 3/3, avatar 5/5, pie 5/5, identidad 2/2 + 5/5 + 5/5 + 4/4, metadatos 14/14 (+ 3 `[warn]` esperados) y `[ok] whatsapp link markup`, `[ok] whatsapp link label`, `[ok] whatsapp icon contract (6/6)`, `[ok] .links base rule exists`, `[ok] links section contract (4/4)`; comando 3303. Cinco casos negativos en copias temporales fuera del repo (eliminadas, sin listener): `href` a `api.whatsapp.com`, sin `aria-label`, etiqueta `Whatsapp`, SVG sin `aria-hidden` y `.links` sin `gap` → todos exit `1` con stderr del check correspondiente.
+- Browser (servidor único `python3 -m http.server 3303 --directory .`, PID 81396, detenido; 3303 libre): `curl -sI` → `/` 200 `text/html`, `/styles.css` 200 `text/css`, `/assets/avatar.jpg` 200 `image/jpeg`; log sin `/favicon.ico` ni 4xx/5xx. **390×844** → consola 0 mensajes; red 5/5 200 (`/`, Google Fonts CSS, `styles.css`, `assets/avatar.jpg`, WOFF2), sin `/favicon.ico`; `scrollWidth=clientWidth=390`; tarjeta 358×817 en x=16, `.links` 356×48 en x=17 (gap 12px, padding 16px), Enlace 324×48 en x=33, fondo `rgb(104, 118, 240)`, radio 6px, padding 20px, 11px/800, tracking 1.98px, uppercase, icono 18×18 con fill blanco computado, `href`/`aria-label` exactos y `Tab` → outline `rgb(88, 92, 229) solid 2px` offset 2px + transform/sombra de foco; árbol de accesibilidad `link "WhatsApp"`; demo con 5 botones y 5 `href="#link-button-demo"`; total `.link-button` = 6.
+- **1280×800** → consola 0 mensajes; red 5/5 200, sin `/favicon.ico`; sin scroll horizontal (`scrollWidth=clientWidth=1265`). La barra vertical de 15px reduce el cliente a 1265 y desplaza el Enlace a x=449.5 en vez de los 457 del spec; se comprobó ocultando `.links` en runtime que el documento sigue midiendo 817px de alto y la barra es preexistente, no causada por esta feature (ancho del Enlace 366px correcto). Hover real → `matrix(1, 0, 0, 1, 0, -1.5)`, sombra hover, `brightness(1.03)`, 0.18s ease; `Tab` → outline `2px solid rgb(88, 92, 229)` offset 2px; demo con 5 botones intacta.
+- Scope guard: `:root` 51 tokens; 6 `.link-button` (1 real + 5 demo); demo HTML/CSS byte-idénticos a `HEAD`; regla base y modificadores idénticos; 0 `<script>`, sin `package.json`, `node_modules`, frameworks, bundlers ni dependencias; sin `target`, `nth-child` ni `order` en `.links`; `assets/avatar.jpg` con SHA-256 sin cambios; `git diff --check` OK.
+- Evidence captured: salidas anteriores; `feature_list.json` `link-whatsapp` en `passing` con evidencia; `docs/risks-and-open-questions.md` actualizado (formato `wa.me` resuelto y handoff manual).
+- Files or artifacts updated: `index.html`, `styles.css`, `init.sh`, `feature_list.json`, `PROGRESS.md`, `docs/risks-and-open-questions.md`.
+- Known risk or unresolved issue: el handoff real a la app WhatsApp no se puede verificar sin un dispositivo; queda pendiente manual y no bloquea el contrato de markup. Persisten los riesgos heredados de contraste y la demo temporal; `links-order-gradient` decidirá el tono final.
+- Next best step: validación independiente de `link-whatsapp` (`feature-validator`). No commitear hasta que el orquestador persista la aceptación.
+
+### Session 026 — link-whatsapp
+
+- Date: 2026-10-23
+- Goal: independently validate feature `link-whatsapp` (`feature-flow`, role `validator`) and persist acceptance.
+- Completed: validator `feature-validator` returned `accept` with no Critical/High/Medium findings; `feature_list.json` moved `link-whatsapp` from `passing` to `accepted` with validator evidence; validation record created at `docs/validations/link-whatsapp.md`. Only this feature's artifacts changed.
+- Verification run: `bash -n init.sh` OK; `./init.sh` exit 0 without a server, preserving all prior checks and adding `[ok] whatsapp link markup`, `[ok] whatsapp link label`, `[ok] whatsapp icon contract (6/6)`, `[ok] .links base rule exists`, `[ok] links section contract (4/4)`; five independent negative cases (href to `api.whatsapp.com`, missing `aria-label`, visible label `Whatsapp`, SVG without `aria-hidden`, `.links` without `gap`) → exit 1 with correct stderr and no listener. Browser on own port 3303 (stopped; port free): 390×844 → console 0 messages, 5/5 successful requests without `/favicon.ico`, no horizontal scroll, real link 324×48 at x=33 with exact `href`/`aria-label`, white 18×18 inline icon, focus outline `rgb(88, 92, 229) solid 2px` offset 2px, demo intact with 5 anchors and total `.link-button` = 6. 1280×800 → console 0 messages, 5/5 successful requests, no horizontal scroll, link 366×48 at x=449.5 (pre-existing 15px scrollbar), same contract, demo intact.
+- Scope guard: 51 tokens, no `<script>`, no `package.json`/framework/bundler/dependency, no `target`/`nth-child`/ordering in `.links`, demo HTML+CSS byte-identical to `HEAD`, `.link-button` and modifiers unchanged, `assets/avatar.jpg` unchanged.
+- Evidence captured: `docs/validations/link-whatsapp.md`; acceptance entry appended in `feature_list.json`.
+- Files or artifacts updated: `feature_list.json`, `PROGRESS.md`, `docs/validations/link-whatsapp.md`.
+- Known risk or unresolved issue: Low notes only — desktop x geometry differs from the spec assumption due to a pre-existing scrollbar, harness checks are textual, and the real WhatsApp app handoff still requires a physical device. Inherited contrast risk and temporary demo remain for later features.
+- Next best step: stage only this feature's files and create one Conventional Commit (`feat: complete link-whatsapp`); do not push. The external orchestrator publishes.
+
+### Session 027 — rebase de link-whatsapp
+
+- Date: 2026-10-23
+- Goal: rebasear `feature/link-whatsapp` sobre `demo/seed` tras el merge de #25 (`link-facebook`) para habilitar “Rebase and merge”.
+- Completed: `git rebase origin/demo/seed` (base `0140e16`); conflictos en `index.html`, `styles.css`, `init.sh` y `PROGRESS.md`. El `<nav class="links">` conserva Instagram y Facebook y añade WhatsApp; se eliminó la regla duplicada de `.links` de la rama y se mantiene la base (`space-lg` + `gap:var(--space-sm)`); `init.sh` conserva los checks de Instagram/Facebook y añade los de WhatsApp; `PROGRESS.md` conserva todas las sesiones.
+- Verification run: `bash -n init.sh` OK; `./init.sh` exit 0 con todos los checks, incluido WhatsApp. Navegador 390×844 y 1280×800: 0 mensajes de consola, 5/5 peticiones 200, sin `/favicon.ico`, sin scroll horizontal; tres Enlaces reales con separación de 12px, demo intacta y pie último hijo.
+- Files or artifacts updated: `index.html`, `styles.css`, `init.sh`, `PROGRESS.md`.
+- Known risk or unresolved issue: el padding de `.links` queda en `space-lg` (base) en lugar de `space-gutter` de la rama; los cuatro Enlaces restantes tocarán los mismos archivos y necesitarán rebase tras cada merge.
+- Next best step: force-push de la rama y “Rebase and merge” de la PR #26.
