@@ -92,6 +92,12 @@ components:
     rounded: '{rounded.md}'
     textColor: '{colors.on-primary}'
     font: '{typography.button-label}'
+  save-contact:
+    height: 48px
+    rounded: '{rounded.md}'
+    backgroundColor: '{colors.surface-container-low}'
+    textColor: '{colors.primary}'
+    font: '{typography.button-label}'
   avatar:
     size: 88px
     rounded: '{rounded.full}'
@@ -174,7 +180,7 @@ Familia única **Plus Jakarta Sans**, con pila de respaldo del sistema (`system-
 
 - **Perfil:** avatar circular 88×88 con `object-fit: cover` y halo blanco; nombre en `headline-lg` a 1.25rem del avatar; handle y tagline debajo.
 - **Botón de Enlace:** ancho completo, alto 48px, padding horizontal 1.25rem, flexbox `space-between` (etiqueta mayúsculas a la izquierda, icono SVG 18px a la derecha), fondo del degradado, sombra `0 2px 6px rgba(108,114,234,0.15)`. Hover/focus: `translateY(-1.5px)`, sombra `0 8px 18px rgba(108,114,234,0.28)`, `filter: brightness(1.03)`. Transición 180ms ease.
-- **Guardar contacto:** misma forma que un Enlace, tratamiento neutro; dispara la descarga de la vCard.
+- **Guardar contacto:** misma forma que un Enlace (`width: 100%`, 48px, padding horizontal 1.25rem, radio `rounded.md`, flexbox `space-between`, etiqueta `button-label` en mayúsculas e icono SVG 18px a la derecha), pero fuera de la rampa: fondo `#f1f4fa` (`surface-container-low`) y texto/icono `#484dc4` (`primary`). Sombra base `0 2px 6px rgba(25,30,48,0.08)`; hover/focus `translateY(-1.5px)`, sombra `0 8px 18px rgba(25,30,48,0.12)`, `filter: brightness(1.03)` y outline de acento 2px/offset 2px. Dispara la descarga de `assets/fahedhermoza.vcf` con un `<a download>`, sin JavaScript. Se separa del último Enlace con `space-sm` (12px) y del pie con el margen propio del pie.
 - **Pie:** borde superior `1px #ebeef2`, texto centrado, correo y handle con enlaces acentuados.
 
 ## Core Screens
@@ -214,6 +220,7 @@ cinco tonos y el token de texto secundario. Ratios calculados con la fórmula WC
 | `--color-gradient-4` | `#8055c8` | 5.184:1 | 4.920:1 |
 | `--color-gradient-5` | `#9252c5` | 4.958:1 | 4.743:1 |
 | `--color-on-surface-variant` | `#6b7280` | 4.834:1 sobre `#ffffff` | n/a |
+| `--color-primary` sobre `--color-surface-container-low` | `#484dc4` / `#f1f4fa` | 6.082:1 | 6.456:1 |
 
 - El pie no cambia: `--color-on-surface` (`#2d3139`, 13.044:1) y `--color-accent`
   (`#585ce5`, 5.151:1) ya cumplen AA.
@@ -234,7 +241,7 @@ cinco tonos y el token de texto secundario. Ratios calculados con la fórmula WC
 
 ## Open Design Questions
 
-- Tratamiento final del botón "Guardar contacto" (neutro vs dentro del degradado).
+- ~~Tratamiento final del botón "Guardar contacto" (neutro vs dentro del degradado).~~ **Resuelto (2026-10-23, `save-contact-vcard`):** misma forma que un Enlace con tratamiento neutro `#f1f4fa`/`#484dc4`, fuera de la rampa, entre los Enlaces y el pie.
 - ~~Cómo se repite/extiende el degradado de 5 tonos para 8 botones.~~ **Resuelto (2026-10-23, `links-order-gradient`):** los 7 Enlaces usan los cinco tonos más dos intermedios 50/50; "Guardar contacto" queda neutro y fuera de la rampa.
 - Diseño definitivo de `assets/og-image.jpg`.
 - ¿Se necesita favicon y `theme-color`? (fuera del MVP por ahora).
