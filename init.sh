@@ -540,6 +540,34 @@ else
   fail "styles.css is missing the links container gap: var(--space-sm); with flex-direction: column;"
 fi
 
+echo "Portfolio link checks:"
+
+if printf '%s\n' "$LINKS_BLOCK" | grep -qF 'href="https://fahedhermoza.github.io/"' \
+  && printf '%s\n' "$LINKS_BLOCK" | grep -qF '>Portafolio<'; then
+  echo "  [ok] portfolio link markup"
+else
+  fail "index.html is missing the portfolio link markup (href or Portafolio label)"
+fi
+
+PORTFOLIO_ANCHOR=$(awk '
+  /href="https:\/\/fahedhermoza\.github\.io\/"/ { in_anchor = 1 }
+  in_anchor { print }
+  in_anchor && /<\/a>/ { exit }
+' index.html)
+
+if [ -z "$PORTFOLIO_ANCHOR" ]; then
+  fail "index.html is missing the portfolio anchor block"
+fi
+
+if printf '%s\n' "$PORTFOLIO_ANCHOR" | grep -qF 'class="link-button__icon"' \
+  && printf '%s\n' "$PORTFOLIO_ANCHOR" | grep -qF 'aria-hidden="true"' \
+  && printf '%s\n' "$PORTFOLIO_ANCHOR" | grep -qF 'focusable="false"' \
+  && printf '%s\n' "$PORTFOLIO_ANCHOR" | grep -qF '<path d="M9 18l6-6-6-6"/>'; then
+  echo "  [ok] portfolio link icon"
+else
+  fail "index.html is missing the decorative portfolio link icon"
+fi
+
 echo "Sharing metadata checks:"
 
 SHARING_METADATA_CONTRACT=(
@@ -632,11 +660,10 @@ case "$INSTAGRAM_LINK_BLOCK" in
     ;;
 esac
 
-instagram_link_count=$(printf '%s\n' "$LINKS_BLOCK" | grep -o 'class="link-button"' | wc -l || true)
-if [ "$instagram_link_count" -eq 1 ]; then
+if printf '%s\n' "$INSTAGRAM_LINK_BLOCK" | grep -qF 'class="link-button"'; then
   echo "  [ok] Instagram Enlace markup"
 else
-  fail "index.html must contain exactly one class=\"link-button\" Enlace inside the links navigation (found $instagram_link_count)"
+  fail "index.html is missing the Instagram Enlace markup"
 fi
 
 if printf '%s\n' "$LINKS_BLOCK" | grep -qF 'href="https://www.instagram.com/fahedhermoza/"'; then
