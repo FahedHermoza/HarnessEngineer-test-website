@@ -361,6 +361,133 @@ else
   fail "styles.css is missing the page footer focus-visible outline: 2px solid var(--color-accent);"
 fi
 
+echo "Profile identity checks:"
+
+if grep -qF 'class="profile-identity"' index.html; then
+  echo "  [ok] profile identity markup"
+else
+  fail "index.html is missing class=\"profile-identity\""
+fi
+
+if grep -qF '<h1 class="profile-identity__name">Fahed Hermoza</h1>' index.html; then
+  echo "  [ok] profile name heading"
+else
+  fail "index.html is missing the profile name heading"
+fi
+
+PROFILE_IDENTITY_TEXTS=(
+  '>Fahed Hermoza<'
+  '>@fahedhermoza<'
+  '>Software Engineer &amp; Speaker &amp; Builder<'
+)
+for text in "${PROFILE_IDENTITY_TEXTS[@]}"; do
+  if grep -qF -- "$text" index.html; then
+    echo "  [ok] profile identity text: $text"
+  else
+    fail "index.html is missing profile identity text: $text"
+  fi
+done
+
+PROFILE_IDENTITY_RULE=$(awk '
+  /^[[:space:]]*\.profile-identity[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+PROFILE_IDENTITY_NAME_RULE=$(awk '
+  /^[[:space:]]*\.profile-identity__name[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+PROFILE_IDENTITY_HANDLE_RULE=$(awk '
+  /^[[:space:]]*\.profile-identity__handle[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+PROFILE_IDENTITY_TAGLINE_RULE=$(awk '
+  /^[[:space:]]*\.profile-identity__tagline[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+PROFILE_IDENTITY_RULES=(
+  ".profile-identity:$PROFILE_IDENTITY_RULE"
+  ".profile-identity__name:$PROFILE_IDENTITY_NAME_RULE"
+  ".profile-identity__handle:$PROFILE_IDENTITY_HANDLE_RULE"
+  ".profile-identity__tagline:$PROFILE_IDENTITY_TAGLINE_RULE"
+)
+for entry in "${PROFILE_IDENTITY_RULES[@]}"; do
+  selector=${entry%%:*}
+  rule=${entry#*:}
+  if [ -z "$rule" ]; then
+    fail "styles.css is missing the $selector rule"
+  fi
+  echo "  [ok] $selector rule exists"
+done
+
+check_profile_rule_contract() {
+  local selector="$1"
+  local rule="$2"
+  shift 2
+  local total=$#
+  local present=0
+  local missing=0
+  local declaration
+
+  for declaration in "$@"; do
+    case "$rule" in
+      *"$declaration"*)
+        present=$((present + 1))
+        ;;
+      *)
+        echo "FAILED - $selector rule missing declaration: $declaration" >&2
+        missing=$((missing + 1))
+        ;;
+    esac
+  done
+
+  if [ "$missing" -gt 0 ]; then
+    fail "$selector contract is missing $missing of $total required declarations"
+  fi
+
+  echo "  [ok] $selector contract ($present/$total)"
+}
+
+check_profile_rule_contract ".profile-identity" "$PROFILE_IDENTITY_RULE" \
+  'padding: var(--space-xl) var(--space-lg);' \
+  'text-align: center;'
+
+check_profile_rule_contract ".profile-identity__name" "$PROFILE_IDENTITY_NAME_RULE" \
+  'font-size: var(--text-headline-lg-font-size);' \
+  'font-weight: var(--text-headline-lg-font-weight);' \
+  'line-height: var(--text-headline-lg-line-height);' \
+  'letter-spacing: var(--text-headline-lg-letter-spacing);' \
+  'color: var(--color-on-surface);'
+
+check_profile_rule_contract ".profile-identity__handle" "$PROFILE_IDENTITY_HANDLE_RULE" \
+  'font-size: var(--text-headline-lg-font-size);' \
+  'font-weight: var(--text-headline-lg-font-weight);' \
+  'line-height: var(--text-headline-lg-line-height);' \
+  'letter-spacing: var(--text-headline-lg-letter-spacing);' \
+  'color: var(--color-on-surface-variant);'
+
+check_profile_rule_contract ".profile-identity__tagline" "$PROFILE_IDENTITY_TAGLINE_RULE" \
+  'font-size: var(--text-body-md-font-size);' \
+  'font-weight: var(--text-body-md-font-weight);' \
+  'line-height: var(--text-body-md-line-height);' \
+  'color: var(--color-on-surface-variant);'
+
+case "$PROFILE_IDENTITY_TAGLINE_RULE" in
+  *letter-spacing*)
+    fail ".profile-identity__tagline must not declare letter-spacing"
+    ;;
+  *)
+    echo "  [ok] .profile-identity__tagline omits letter-spacing"
+    ;;
+esac
+
 echo "Serving command: python3 -m http.server 3201 --directory ."
 echo "Manual verification: open http://localhost:3201 in a mobile viewport (320/375/768px)."
 
