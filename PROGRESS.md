@@ -2,15 +2,15 @@
 
 ## Current Verified State
 
-- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/DevExpert-1` (rama `feature/link-whatsapp` rebaseada sobre `demo/seed`).
-- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, tokens de `styles.css`, markup `.page`/`.card`, contrato de ancho, contrato CSS del botón de Enlace, avatar, pie, identidad, Enlaces reales de Instagram/Facebook/WhatsApp y metadatos de compartición 14/14; no arranca servidor por defecto).
+- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/DevExpert-1` (rama `feature/link-portafolio` rebaseada sobre `demo/seed`).
+- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, tokens de `styles.css`, markup `.page`/`.card`, contrato de ancho, contrato CSS del botón de Enlace, avatar, pie, identidad, Enlaces reales de Instagram/Facebook/WhatsApp/Portafolio y metadatos de compartición 14/14; no arranca servidor por defecto).
 - Standard verification path: `./init.sh` sale `0` + `python3 -m http.server 3201 --directory .` y verificación en navegador móvil (390×844) y escritorio (1280×800).
-- Current status: `static-bootstrap`, `design-tokens`, `page-shell`, `link-button-component`, `profile-avatar`, `page-footer`, `profile-identity`, `open-graph-metadata`, `link-instagram`, `link-facebook` y `link-whatsapp` en `accepted`.
-- Current next ready feature: `avatar-fallback` (depende de `profile-avatar`) y los cuatro Enlaces restantes (dependen de `link-button-component`).
+- Current status: `static-bootstrap`, `design-tokens`, `page-shell`, `link-button-component`, `profile-avatar`, `page-footer`, `profile-identity`, `open-graph-metadata`, `link-instagram`, `link-facebook`, `link-whatsapp` y `link-portafolio` en `accepted`.
+- Current next ready feature: `avatar-fallback` (depende de `profile-avatar`) y los tres Enlaces restantes (dependen de `link-button-component`).
 - Current blocker (diferido): `assets/og-image.jpg` (JPEG 1200×630) ausente y URL pública final de Cloudflare Pages indefinida. Por eso `og:image`/`twitter:image` son relativas provisionales y `og:url`/canonical están omitidos; el unfurl real se cierra en `deploy-cloudflare-pages`. No bloquea el contrato de metadatos ya aceptado.
 - Current deferred work: la demo temporal `[data-demo="link-button"]` se conserva a propósito; su retirada junto con su CSS se difiere a `links-order-gradient`.
 - Inherited risk: etiquetas blancas sobre los cinco tonos miden 3.86–4.13:1 y la Tagline `#717886` sobre blanco mide ≈4.43:1 (AA 4.5:1 no cumplido en ambos casos); debe resolverlos o aceptarlos `accessibility-baseline`. El pie sí cumple AA (13.04:1 base, 5.15:1 enlaces). El handoff real de WhatsApp a la app solo se comprueba manualmente en un dispositivo.
-- Last verified at: 2026-10-23 (`link-whatsapp` rebaseada sobre `demo/seed` con `link-instagram` y `link-facebook`; `./init.sh` y navegador 390×844/1280×800, ver Session 027)
+- Last verified at: 2026-10-23 (`link-portafolio` rebaseada sobre `demo/seed` con `link-instagram`, `link-facebook` y `link-whatsapp`; `./init.sh` y navegador 390×844/1280×800, ver Session 030)
 
 ## Session Log
 
@@ -361,3 +361,36 @@
 - Files or artifacts updated: `index.html`, `styles.css`, `init.sh`, `PROGRESS.md`.
 - Known risk or unresolved issue: el padding de `.links` queda en `space-lg` (base) en lugar de `space-gutter` de la rama; los cuatro Enlaces restantes tocarán los mismos archivos y necesitarán rebase tras cada merge.
 - Next best step: force-push de la rama y “Rebase and merge” de la PR #26.
+### Session 028 — link-portafolio
+
+- Date: 2026-10-23
+- Goal: implement feature `link-portafolio` (spec `docs/specs/link-portafolio.md`) in worktree `link-portafolio`.
+- Completed: `index.html` inserta `<nav class="links" aria-label="Enlaces">` entre `.profile-identity` y la demo temporal, con un único `<a class="link-button" href="https://fahedhermoza.github.io/">`, `<span class="link-button__label">Portafolio</span>` y el SVG chevron inline 18×18 decorativo (`aria-hidden="true"`, `focusable="false"`), sin `aria-label` redundante, `target`, `rel`, modificador de degradado ni JS. `styles.css` añade solo la regla `.links` (`display:flex`, `flex-direction:column`, `gap:var(--space-sm)`, `padding:0 var(--space-lg)`). `init.sh` añade `Portfolio link checks:` (contenedor, markup, icono y contrato `.links` 4/4) conservando todos los checks previos y sin arrancar servidor. `feature_list.json` pasa `link-portafolio` a `passing` con evidencia; `PROGRESS.md` actualizado.
+- Verification run: `bash -n init.sh` → OK. `./init.sh` → `Harness status: bootstrapped (static site detected)`, bootstrap 3/3, tokens 51/51, componente 6/6 + reduced motion, page shell 3/3, avatar 5/5, pie 5/5, identidad y `[ok] portfolio link container`, `[ok] portfolio link markup`, `[ok] portfolio link icon`, `[ok] links container contract (4/4)`, exit `0`, sin servidor. Cuatro casos negativos en copias temporales fuera del repo (URL cambiada, etiqueta cambiada, `gap` eliminado, `aria-hidden` alterado) → exit `1` con `FAILED - ...` en stderr y sin listener; copias eliminadas.
+- Browser (servidor único `python3 -m http.server 3005 --directory .`, PID 78048, detenido al terminar; puerto 3005 libre; recargas frescas ignorando caché): **390×844** → consola 0 mensajes; 5 peticiones 200 (`/`, Google Fonts CSS, `styles.css`, `avatar.jpg`, WOFF2), sin `/favicon.ico`; `scrollWidth=clientWidth=390`; tarjeta 358×817 en x=16; `nav.links` 356×48 en x=17 (`gap:12px`, `padding:0px 24px`, `aria-label="Enlaces"`); ancla 308×48 en x=41 (ancho esperado ≈308), etiqueta a la izquierda (x=61) e icono 18×18 a la derecha (x=311), radio 6px, `space-between`, 11px/800, tracking 1.98px, uppercase, `rgb(104,118,240)`; árbol de accesibilidad `navigation "Enlaces"` + `link "PORTAFOLIO"` (texto visible `Portafolio`, uppercase del componente) con URL `https://fahedhermoza.github.io/`; `Tab` → `:focus-visible=true` outline `rgb(88,92,229) solid 2px` offset 2px; `Enter` navegó al portafolio; demo intacta (5 botones, primero 324×48 x=33) y pie último hijo. **1280×800** → consola 0 mensajes; 5 peticiones 200, sin `/favicon.ico`; `scrollWidth=clientWidth=1265` (scrollbar vertical); tarjeta 400×817 centrada (x=432.5), ancla 350×48 centrada (x=457.5); hover real `matrix(1, 0, 0, 1, 0, -1.5)` + sombra hover + `brightness(1.03)`; reduced motion `transition-property:none`, `transition-duration:0s`, `transform:none`; foco visible; demo y pie intactos. **320×844 (extra)** → sin scroll horizontal, ancla 238×48, etiqueta/icono caben, consola 0 y 5 peticiones 200. `curl -sI https://fahedhermoza.github.io/` → HTTP/2 200.
+- Scope guard: demo HTML y CSS `[data-demo="link-button"]` idénticos a `HEAD` (`cmp`), `:root` 51 tokens, `body`/`.page`/`.card`/`.link-button` sin cambios, 0 `<script>`, sin `package.json`, frameworks, bundlers, dependencias ni assets nuevos; `git diff --check` OK.
+- Files or artifacts updated: `index.html`, `styles.css`, `init.sh`, `feature_list.json`, `PROGRESS.md`, `docs/specs/link-portafolio.md`.
+- Known risk or unresolved issue: el nombre accesible se expone como `PORTAFOLIO` por `text-transform:uppercase` heredado del componente aceptado (el texto fuente es `Portafolio`); sin bloqueo. Contraste 3.86–4.13:1 de `.link-button` sigue heredado a `accessibility-baseline`; la demo temporal de Enlaces permanece para features posteriores.
+- Next best step: validación independiente de `link-portafolio` (`feature-validator`). No commitear ni push hasta que el orquestador persista la aceptación.
+
+### Session 029 — link-portafolio
+
+- Date: 2026-10-23
+- Goal: validar independientemente `link-portafolio` (`feature-flow`, rol `validator`) en el worktree `link-portafolio` y persistir la aceptación.
+- Completed: validator `feature-validator` devolvió `accept` sin hallazgos Critical/High/Medium; `feature_list.json` movió `link-portafolio` de `passing` a `accepted` con evidencia de aceptación; registro creado en `docs/validations/link-portafolio.md`; commit `feat: complete link-portafolio` creado por el orquestador (sin push).
+- Verification run: `bash -n init.sh` exit `0`; `./init.sh` exit `0` sin arrancar servidor con todos los checks previos `[ok]` más `[ok] portfolio link container`, `[ok] portfolio link markup`, `[ok] portfolio link icon` y `[ok] links container contract (4/4)`; cuatro casos negativos independientes en copias temporales fuera del repo (href cambiado, etiqueta cambiada, `gap` eliminado, SVG `aria-hidden="false"`) → exit `1` con stderr correcto y sin listener.
+- Browser evidence (servidor propio del validator `python3 -m http.server 3305 --directory .`, detenido; puerto 3305 cerrado): **390×844** → consola 0 mensajes, 5/5 peticiones 2xx/3xx (`/`, Google Fonts CSS, `styles.css`, `avatar.jpg`, WOFF2), sin `/favicon.ico`, ancla 308×48 con etiqueta a la izquierda e icono 18×18 a la derecha, `scrollWidth=clientWidth=390`, demo de 5 botones intacta y pie último hijo; árbol de accesibilidad `navigation "Enlaces"` + `link "PORTAFOLIO"` → `https://fahedhermoza.github.io/`; `Tab` → outline `solid 2px rgb(88, 92, 229)` offset 2px; `Enter` navegó al portafolio; `curl -sI` HTTP/2 200. **1280×800** → consola 0 mensajes, 5/5 peticiones exitosas sin favicon, ancla 350×48 centrada y sin scroll horizontal; hover y reduced motion conforme al componente aceptado. **320×844 (extra)** → sin overflow ni solapamiento, consola/red limpias.
+- Evidence captured: `docs/validations/link-portafolio.md`; entrada de aceptación en `feature_list.json`; nota Low no bloqueante de que la implementación se auto-verificó en 3005 y el validator reprodujo todo en el puerto requerido 3305.
+- Files or artifacts updated: `feature_list.json`, `PROGRESS.md`, `docs/validations/link-portafolio.md`, `docs/specs/link-portafolio.md`.
+- Known risk or unresolved issue: contraste 3.86–4.13:1 de `.link-button` heredado a `accessibility-baseline`; la demo temporal de Enlaces permanece para features posteriores; `assets/og-image.jpg` y URL pública siguen diferidos a `deploy-cloudflare-pages`.
+- Next best step: seleccionar la siguiente feature dependency-ready (`avatar-fallback` por orden) y ejecutar el rol requerido; no se inicia dentro de esta sesión.
+
+### Session 030 — rebase de link-portafolio
+
+- Date: 2026-10-23
+- Goal: rebasear `feature/link-portafolio` sobre `demo/seed` tras el merge de #26 (`link-whatsapp`) para habilitar “Rebase and merge”.
+- Completed: `git rebase origin/demo/seed` (base `3162396`); conflictos en `index.html`, `styles.css`, `init.sh` y `PROGRESS.md`. El `<nav class="links">` conserva Instagram, Facebook y WhatsApp y añade Portafolio; se eliminó la regla `.links` duplicada y se mantiene la base; `init.sh` conserva los checks previos y añade los de Portafolio; se ajustó el check de Instagram para no exigir que sea el único `class="link-button"` del nav. `PROGRESS.md` conserva todas las sesiones.
+- Verification run: `bash -n init.sh` OK; `./init.sh` exit 0 con todos los checks, incluido Portafolio. Navegador 390×844 y 1280×800: 0 mensajes de consola, 5/5 peticiones 200, sin `/favicon.ico`, sin scroll horizontal; cuatro Enlaces reales con separación de 12px, demo intacta y pie último hijo.
+- Files or artifacts updated: `index.html`, `styles.css`, `init.sh`, `PROGRESS.md`.
+- Known risk or unresolved issue: los tres Enlaces restantes tocarán los mismos archivos y necesitarán rebase tras cada merge; contraste AA hereditario.
+- Next best step: force-push de la rama y “Rebase and merge” de la PR #27.
