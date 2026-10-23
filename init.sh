@@ -122,9 +122,29 @@ fi
 
 echo "  [ok] design tokens present ($present_tokens/$total_tokens)"
 
-echo "Serving command: python3 -m http.server 8080 --directory ."
-echo "Manual verification: open http://localhost:8080 in a mobile viewport (320/375/768px)."
+echo "Page shell checks:"
+
+if grep -q 'class="page"' index.html && grep -q 'class="card"' index.html; then
+  echo "  [ok] page shell markup"
+else
+  fail "index.html is missing class=\"page\" or class=\"card\""
+fi
+
+if grep -qE '^\.page[[:space:]]*\{' styles.css && grep -qE '^\.card[[:space:]]*\{' styles.css; then
+  echo "  [ok] page shell styles"
+else
+  fail "styles.css is missing the .page or .card rule"
+fi
+
+if grep -qF 'min(400px, calc(100vw - 2rem))' styles.css; then
+  echo "  [ok] card width contract"
+else
+  fail "styles.css is missing the card width contract min(400px, calc(100vw - 2rem))"
+fi
+
+echo "Serving command: python3 -m http.server 3101 --directory ."
+echo "Manual verification: open http://localhost:3101 in a mobile viewport (320/375/768px)."
 
 if [ "${RUN_SERVE_COMMAND:-0}" = "1" ]; then
-  exec python3 -m http.server 8080 --directory .
+  exec python3 -m http.server 3101 --directory .
 fi
