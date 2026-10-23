@@ -147,6 +147,14 @@ body {
   line-height: var(--text-body-md-line-height);
 }
 
+/* Components — Links list (DESIGN.md > layout, spacing) */
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: 0 var(--space-lg);
+}
+
 /* Components — Link button (DESIGN.md > components/button-link) */
 .link-button {
   --link-button-bg: var(--color-gradient-1);
@@ -234,14 +242,6 @@ body {
   .link-button:focus-visible {
     transform: none;
   }
-}
-
-/* Links — Contenedor de Enlaces reales. El orden, el gap y la progresión del degradado pertenecen a links-order-gradient. */
-.links {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  padding: 0 var(--space-lg);
 }
 
 /* Components — Page footer (DESIGN.md > components/pie) */
