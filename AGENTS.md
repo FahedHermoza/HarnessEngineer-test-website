@@ -29,6 +29,7 @@ Antes de escribir código:
 - No cambiar silenciosamente las reglas de verificación durante la implementación.
 - Actualizar los artefactos durables del repo en lugar de depender de resúmenes de chat.
 - No introducir frameworks, bundlers ni dependencias nuevas sin justificarlo (ver `docs/technical-discovery.md`).
+- Toda feature con UI se valida también en navegador, en móvil (390×844) y escritorio (1280×800), sin errores de consola ni peticiones fallidas, antes de aceptarla.
 
 ## Required Artifacts
 
@@ -41,6 +42,7 @@ Antes de escribir código:
 Una feature está terminada solo cuando todo lo siguiente es cierto:
 
 - el comportamiento objetivo está implementado,
+- la validación en navegador (móvil 390×844 y escritorio 1280×800) se ejecutó sin errores de consola ni peticiones fallidas,
 - la verificación requerida realmente se ejecutó,
 - la evidencia quedó registrada en `feature_list.json` o `PROGRESS.md`,
 - el repositorio sigue siendo reiniciable desde `./init.sh`,
