@@ -2,14 +2,16 @@
 
 ## Blocking Next Phase
 
-- **URL pública final:** falta definir el proyecto/dominio en Cloudflare Pages. Se necesita para `canonical` y `og:url`. Posición provisional: usar la URL que entregue Cloudflare Pages y actualizarla antes de grabar la Tarjeta NFC.
+- **Imagen social `assets/og-image.jpg`:** el repositorio solo contiene `assets/avatar.jpg`; la imagen JPEG 1200×630 no existe ni puede generarse con las herramientas del agente. `open-graph-metadata` implementó y verificó el contrato de etiquetas, pero esta pendiente bloquea la vista previa real. No se creó, reutilizó ni sustituyó ningún binario; debe producirla una persona/herramienta externa coherente con Nombre/Handle/Tagline y la paleta de `DESIGN.md`.
+- **URL pública final:** falta definir el proyecto/dominio en Cloudflare Pages. Se necesita para `canonical` y `og:url`; hasta entonces ambos se omiten en `index.html` (sin inventar dominios). Posición provisional: usar la URL que entregue Cloudflare Pages y actualizarla antes de grabar la Tarjeta NFC.
+- **Vista previa real sin validar:** `og:image`/`twitter:image` usan la ruta relativa provisional `assets/og-image.jpg`; los crawlers sociales suelen exigir URLs absolutas. Al publicar, `deploy-cloudflare-pages` debe absolutizar ambas imágenes, añadir `og:url`/canonical con la URL final y comprobar el unfurl real (WhatsApp/Facebook). Un HTML correcto no prueba por sí solo la vista previa.
 
 ## Implementation-Time Questions
 
 - Formato de WhatsApp: `https://wa.me/51955116562` frente a `https://api.whatsapp.com/send?phone=51955116562`.
 - vCard: archivo `.vcf` estático frente a `data:text/vcard` generado en cliente; definir nombre de archivo y codificación.
 - Fuente: precarga (`preload`) y fallback para evitar salto de texto (FOUT).
-- `og-image`: dimensiones exactas, texto y herramienta de generación (el agente no puede generar imágenes).
+- `og-image`: dimensiones fijadas en 1200×630 JPEG (`og:image:width/height/type`); quedan abiertos el texto/contenido visual y la herramienta de generación (el agente no puede generar imágenes).
 - Comportamiento de `tel:` y `mailto:` según app por defecto del dispositivo.
 
 ## Later / Not MVP
@@ -34,7 +36,7 @@
 - **Enlaces que envejecen:** URLs de redes o portafolio pueden cambiar; nadie lo detecta automáticamente.
 - **Dependencia de Google Fonts:** una caída o bloqueo degrada la tipografía (mitigado con fallback).
 - **Avatar no disponible:** sin `assets/avatar.jpg` la página se ve incompleta (mitigado con iniciales).
-- **Vista previa deficiente:** sin `og-image` válida, el enlace compartido se ve pobre.
+- **Vista previa deficiente o sin imagen:** sin `assets/og-image.jpg` válida (y sin URL absoluta tras el despliegue) el enlace compartido se ve pobre aunque las etiquetas sean correctas. Mitigación actual: comentario HTML de provisionalidad y `[warn]` no bloqueantes en `init.sh`; cierre en `deploy-cloudflare-pages`.
 - **vCard inconsistente:** diferencias de comportamiento entre iOS y Android.
 
 ## Research Tasks

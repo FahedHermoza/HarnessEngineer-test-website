@@ -488,6 +488,64 @@ case "$PROFILE_IDENTITY_TAGLINE_RULE" in
     ;;
 esac
 
+echo "Sharing metadata checks:"
+
+SHARING_METADATA_CONTRACT=(
+  'og:title|<meta property="og:title" content="[^"]+"'
+  'og:description|<meta property="og:description" content="[^"]+"'
+  'og:type|<meta property="og:type" content="profile"'
+  'og:site_name|<meta property="og:site_name" content="[^"]+"'
+  'og:image|<meta property="og:image" content="([^"]*/)?assets/og-image\.jpg"'
+  'og:image:type|<meta property="og:image:type" content="image/jpeg"'
+  'og:image:width|<meta property="og:image:width" content="1200"'
+  'og:image:height|<meta property="og:image:height" content="630"'
+  'og:image:alt|<meta property="og:image:alt" content="[^"]+"'
+  'twitter:card|<meta name="twitter:card" content="summary_large_image"'
+  'twitter:title|<meta name="twitter:title" content="[^"]+"'
+  'twitter:description|<meta name="twitter:description" content="[^"]+"'
+  'twitter:image|<meta name="twitter:image" content="([^"]*/)?assets/og-image\.jpg"'
+  'twitter:image:alt|<meta name="twitter:image:alt" content="[^"]+"'
+)
+
+sharing_total=${#SHARING_METADATA_CONTRACT[@]}
+sharing_present=0
+sharing_missing=0
+for entry in "${SHARING_METADATA_CONTRACT[@]}"; do
+  sharing_key="${entry%%|*}"
+  sharing_pattern="${entry#*|}"
+  if grep -qE -- "$sharing_pattern" index.html; then
+    sharing_present=$((sharing_present + 1))
+  else
+    echo "FAILED - index.html is missing sharing metadata tag: $sharing_key" >&2
+    sharing_missing=$((sharing_missing + 1))
+  fi
+done
+
+if [ "$sharing_missing" -gt 0 ]; then
+  echo "Harness status: FAILED - sharing metadata contract is missing $sharing_missing of $sharing_total required tags" >&2
+  exit 1
+fi
+
+echo "  [ok] sharing metadata contract ($sharing_present/$sharing_total)"
+
+if [ -f "assets/og-image.jpg" ]; then
+  echo "  [ok] assets/og-image.jpg exists"
+else
+  echo "  [warn] assets/og-image.jpg is missing (link preview image blocker; produce it with an external tool)"
+fi
+
+if grep -qE '<meta property="og:image" content="https?://' index.html && grep -qE '<meta name="twitter:image" content="https?://' index.html; then
+  echo "  [ok] og:image/twitter:image use an absolute path"
+else
+  echo "  [warn] og:image/twitter:image use a relative path (must be absolute after deploy)"
+fi
+
+if grep -q 'property="og:url"' index.html && grep -q 'rel="canonical"' index.html; then
+  echo "  [ok] og:url and canonical declared"
+else
+  echo "  [warn] og:url/canonical pending public URL (deploy-cloudflare-pages)"
+fi
+
 echo "Serving command: python3 -m http.server 3201 --directory ."
 echo "Manual verification: open http://localhost:3201 in a mobile viewport (320/375/768px)."
 

@@ -2,14 +2,14 @@
 
 ## Current Verified State
 
-- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/DevExpert-1` (rama `feature/profile-identity` rebaseada sobre `demo/seed`).
-- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, tokens de `styles.css`, markup `.page`/`.card`, contrato de ancho, contrato CSS del botón de Enlace, avatar, pie e identidad; no arranca servidor por defecto).
+- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/DevExpert-1` (rama `feature/open-graph-metadata` rebaseada sobre `demo/seed`).
+- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, tokens de `styles.css`, markup `.page`/`.card`, contrato de ancho, contrato CSS del botón de Enlace, avatar, pie, identidad y contrato de metadatos de compartición 14/14; no arranca servidor por defecto).
 - Standard verification path: `./init.sh` sale `0` + `python3 -m http.server 3201 --directory .` y verificación en navegador móvil (390×844) y escritorio (1280×800).
-- Current status: `static-bootstrap`, `design-tokens`, `page-shell`, `link-button-component`, `profile-avatar`, `page-footer` y `profile-identity` en `accepted`.
-- Current next ready feature: `avatar-fallback` y `open-graph-metadata` (dependen de features ya `accepted`). Los siete Enlaces quedan listos tras `link-button-component`.
-- Current blocker: none
+- Current status: `static-bootstrap`, `design-tokens`, `page-shell`, `link-button-component`, `profile-avatar`, `page-footer`, `profile-identity` y `open-graph-metadata` en `accepted`.
+- Current next ready feature: `avatar-fallback` (depende de `profile-avatar`) y los siete Enlaces (dependen de `link-button-component`).
+- Current blocker (diferido): `assets/og-image.jpg` (JPEG 1200×630) ausente y URL pública final de Cloudflare Pages indefinida. Por eso `og:image`/`twitter:image` son relativas provisionales y `og:url`/canonical están omitidos; el unfurl real se cierra en `deploy-cloudflare-pages`. No bloquea el contrato de metadatos ya aceptado.
 - Inherited risk: etiquetas blancas sobre los cinco tonos miden 3.86–4.13:1 y la Tagline `#717886` sobre blanco mide ≈4.43:1 (AA 4.5:1 no cumplido en ambos casos); debe resolverlos o aceptarlos `accessibility-baseline`. El pie sí cumple AA (13.04:1 base, 5.15:1 enlaces).
-- Last verified at: 2026-10-23 (`profile-identity` rebaseada sobre `demo/seed` con `profile-avatar` y `page-footer`; `./init.sh` y navegador 390×844/1280×800, ver Session 015)
+- Last verified at: 2026-10-23 (`open-graph-metadata` rebaseada sobre `demo/seed` con avatar, pie e identidad; `./init.sh` y navegador 390×844/1280×800, ver Session 018)
 
 ## Session Log
 
@@ -225,3 +225,36 @@
 - Files or artifacts updated: `index.html`, `styles.css`, `init.sh`, `feature_list.json`, `PROGRESS.md`.
 - Known risk or unresolved issue: `open-graph-metadata` (#16) toca los mismos archivos y volverá a necesitar rebase tras el merge de esta PR.
 - Next best step: force-push de la rama y “Rebase and merge” de la PR #15.
+### Session 016 — open-graph-metadata
+
+- Date: 2026-10-23
+- Goal: implement feature `open-graph-metadata` (spec `docs/specs/open-graph-metadata.md`).
+- Completed: `index.html` `<head>` añade 14 etiquetas Open Graph/Twitter Card (`og:title`, `og:description`, `og:type=profile`, `og:site_name`, `og:image`/`twitter:image=assets/og-image.jpg`, `og:image:type=image/jpeg`, `og:image:width=1200`, `og:image:height=630`, `og:image:alt`, `twitter:card=summary_large_image`, `twitter:title`, `twitter:description`, `twitter:image:alt`) más un comentario de provisionalidad; sin `og:url`, canonical, dominios inventados, `meta description`, JS ni imagen `<img>`. `init.sh` añade `Sharing metadata checks:` con contrato bloqueante 14/14, mensajes de clave faltante en stderr y tres avisos no bloqueantes (asset ausente, imagen relativa, URL/canonical pendientes). No se tocaron `styles.css`, `DESIGN.md`, tokens ni binarios.
+- Verification run: `bash -n init.sh` → OK; `./init.sh` → bootstrap 3/3, tokens 51/51, componente 6/6, reduced motion, page shell 3/3, `[ok] sharing metadata contract (14/14)` + 3 `[warn]`, exit 0, sin servidor. Casos negativos en copias temporales fuera del repo (repo intacto, copias eliminadas): sin `og:type`, sin `twitter:card` y `og:image:width=1000` → exit 1 con `FAILED - index.html is missing sharing metadata tag: <clave>` + `missing 1 of 14 required tags`, sin servidor. Estático con `python3 -m http.server 3204 --directory .` (3101 ya estaba ocupado por un proceso ajeno preexistente, PID 49259 de las 12:44; el servidor de esta sesión se detuvo y 3204 quedó libre): `/` 200 `text/html`, `styles.css` 200 `text/css`, `/assets/og-image.jpg` 404; 14 etiquetas servidas y ausencia de `og:url`/canonical/`example.com`.
+- Browser evidence: 390×844 → consola 0 mensajes; 4 peticiones 200 (`/`, Google Fonts CSS, `styles.css`, WOFF2), sin `og-image` ni favicon; `.card` 358×362 en x=16, y=241; `scrollWidth=clientWidth=390`; metadatos leídos (`og:title` = título, `og:type=profile`, `og:image=assets/og-image.jpg`, 1200×630, `twitter:card=summary_large_image`), `og:url`/canonical `null`, 0 `<script>`. 1280×800 → consola 0 mensajes; 4 peticiones 200, sin `og-image` ni favicon; `.card` 400×362 en x=440, y=219, fondo blanco y radio 12px; `scrollWidth=clientWidth=1280`; `og:url`/canonical `null`, 0 `<script>`.
+- Evidence captured: outputs above; `feature_list.json` `open-graph-metadata` en `passing` (no `accepted`) con bloqueo explícito; nota en `docs/risks-and-open-questions.md`.
+- Files or artifacts updated: `index.html`, `init.sh`, `feature_list.json`, `PROGRESS.md`, `docs/risks-and-open-questions.md`.
+- Known risk or unresolved issue: **bloqueo externo** — `assets/og-image.jpg` 1200×630 no existe y no se generó/sustituyó; la URL pública final tampoco está definida, así que `og:url`/canonical se omiten y las imágenes quedan relativas (los crawlers suelen exigir absolutas). `assets/` conserva solo `avatar.jpg` (SHA-256 sin cambios). El unfurl real (WhatsApp/Facebook) no se puede verificar hasta publicar; se cierra en `deploy-cloudflare-pages`. No hay harness E2E (añadirlo introduciría dependencias prohibidas).
+- Next best step: validación independiente de `open-graph-metadata` (`feature-validator`). No commitear; no marcar `accepted` mientras falten imagen y URL pública.
+
+### Session 017 — open-graph-metadata
+
+- Date: 2026-10-23
+- Goal: independently validate feature `open-graph-metadata` (`feature-flow`, role `validator`) and persist acceptance.
+- Completed: validator `feature-validator` returned `accept` with no Critical/High/Medium findings; `feature_list.json` moved `open-graph-metadata` from `passing` to `accepted` with validator evidence; validation record created at `docs/validations/open-graph-metadata.md`. Scope accepted: metadata markup contract + `init.sh` gate + no regression; real unfurl (image, absolute URLs, `og:url`/canonical, WhatsApp/Facebook preview) explicitly deferred to `deploy-cloudflare-pages`.
+- Verification run: `bash -n init.sh` OK; `./init.sh` exit 0 with bootstrap 3/3, tokens 51/51, component 6/6, reduced motion, page shell 3/3, `[ok] sharing metadata contract (14/14)` and 3 expected `[warn]`, no server; independent negative cases (no `og:type`, no `twitter:card`, no `og:image:alt`, no `og:image`, `og:image:width=1000`) → exit 1 with the missing key in stderr; future absolute image URL → exit 0; broken metadata + `RUN_SERVE_COMMAND=1` → exit 1 without a listener. Static server on 3204 (own process, stopped; pre-existing 3101 listener PID 49259 untouched): `/` 200 `text/html`, `styles.css` 200 `text/css`, `/assets/og-image.jpg` 404 known blocker; exactly 14 tags and no `og:url`, canonical, `meta description`, JSON-LD, `example.com`, `theme-color` or `og:audio/video`.
+- Browser evidence: 390×844 → console 0 messages, 4 requests all 200 (`/`, Google Fonts CSS, `styles.css`, WOFF2), no `og-image`, no `/favicon.ico`; `.card` 358×362 at x=16, `scrollWidth=clientWidth=390`. 1280×800 → console 0 messages, 4 requests all 200, no `og-image`/favicon; `.card` 400×362 at x=440, `scrollWidth=clientWidth=1280`. Runtime readback: `og:title === document.title`, `og:type=profile`, `og:image=assets/og-image.jpg`, 1200×630, `twitter:card=summary_large_image`, descriptions render `&`, `og:url`/canonical `null`, 0 `<script>`. No changes to `styles.css`, `DESIGN.md`, tokens, visible content or binaries; `assets/` still only `avatar.jpg` with unchanged SHA-256.
+- Evidence captured: `docs/validations/open-graph-metadata.md`; acceptance entry appended in `feature_list.json`.
+- Files or artifacts updated: `feature_list.json`, `PROGRESS.md`, `docs/validations/open-graph-metadata.md`.
+- Known risk or unresolved issue: external blockers remain for the real unfurl — `assets/og-image.jpg` 1200×630 must be produced externally, `og:image`/`twitter:image` must become absolute, and `og:url`/canonical must be added with the final Cloudflare Pages URL in `deploy-cloudflare-pages`. Two non-blocking Low notes: presence-based gate over the whole document, and sandbox prevented deleting validation temp copies outside the repo.
+- Next best step: stage only this feature's files and create one Conventional Commit (`feat: complete open-graph-metadata`); do not push.
+
+### Session 018 — rebase de open-graph-metadata
+
+- Date: 2026-10-23
+- Goal: rebasear `feature/open-graph-metadata` sobre `demo/seed` tras los merges de `profile-avatar` (#13), `page-footer` (#14) y `profile-identity` (#15) para habilitar “Rebase and merge”.
+- Completed: `git rebase origin/demo/seed` (base `1b62666`); conflictos en `init.sh`, `feature_list.json` y `PROGRESS.md`. `init.sh` conserva los checks de avatar/pie/identidad y añade `Sharing metadata checks:`; `feature_list.json` mantiene todas las features previas en `accepted` y `open-graph-metadata` en `accepted`; `index.html` y `docs/risks-and-open-questions.md` se auto-fusionaron.
+- Verification run: `bash -n init.sh` OK; `./init.sh` exit 0 con bootstrap 3/3, tokens 51/51, componente 6/6, page shell 3/3, avatar 5/5, pie 5/5, identidad 2/2 + 5/5 + 5/5 + 4/4 y metadatos 14/14 (+ avisos esperados). Navegador 390×844 y 1280×800: 0 mensajes de consola, 5/5 peticiones 200 (incluye `assets/avatar.jpg`), sin `/favicon.ico`, sin scroll horizontal; metadatos presentes, `og:url`/canonical omitidos por URL pública indefinida.
+- Files or artifacts updated: `index.html`, `init.sh`, `feature_list.json`, `PROGRESS.md`.
+- Known risk or unresolved issue: `assets/og-image.jpg` ausente y URL pública indefinida; unfurl real diferido a `deploy-cloudflare-pages`.
+- Next best step: force-push de la rama y “Rebase and merge” de la PR #16.
