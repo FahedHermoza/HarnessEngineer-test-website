@@ -1778,9 +1778,169 @@ else
   fail 'styles.css .link-button hover/focus must retain filter: brightness(1.03);'
 fi
 
-echo "Serving command: python3 -m http.server 3413 --directory ."
-echo "Manual verification: open http://localhost:3413 in a mobile viewport (390×844) and a desktop viewport (1280×800)."
+echo "Responsive checks:"
+
+# 1. Universal border-box: padding and borders must not add to declared widths.
+UNIVERSAL_RULE=$(awk '
+  /^\*,[[:space:]]*$/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /^}/ { exit }
+' styles.css)
+
+if printf '%s\n' "$UNIVERSAL_RULE" | grep -qF 'box-sizing: border-box;'; then
+  echo "  [ok] universal border-box"
+else
+  fail 'styles.css must keep *, *::before, *::after { box-sizing: border-box; }'
+fi
+
+# 2. Page gutter: the calc(100vw - 2rem) card formula assumes this gutter.
+PAGE_RULE=$(awk '
+  /^[[:space:]]*\.page[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /^}/ { exit }
+' styles.css)
+
+if printf '%s\n' "$PAGE_RULE" | grep -qE '^[[:space:]]*padding:.*var\(--space-gutter\)'; then
+  echo "  [ok] page gutter uses var(--space-gutter)"
+else
+  fail 'styles.css .page must keep a padding declaration using var(--space-gutter)'
+fi
+
+# 3. Card cap: prevents 100vw plus the page gutter from overflowing with a classic scrollbar.
+CARD_RULE=$(awk '
+  /^[[:space:]]*\.card[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /^}/ { exit }
+' styles.css)
+
+if printf '%s\n' "$CARD_RULE" | grep -qF 'max-width: 100%;'; then
+  echo "  [ok] card max-width guard"
+else
+  fail 'styles.css .card must keep max-width: 100%;'
+fi
+
+# 4. Label shrink guard: safe shrinking at 320px; the runtime proves the ellipsis never triggers.
+LABEL_RULE=$(awk '
+  /^[[:space:]]*\.link-button__label[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /^}/ { exit }
+' styles.css)
+
+LABEL_DECLARATIONS=(
+  'min-width: 0;'
+  'overflow: hidden;'
+  'white-space: nowrap;'
+  'text-overflow: ellipsis;'
+)
+label_present=0
+label_missing=0
+for declaration in "${LABEL_DECLARATIONS[@]}"; do
+  if printf '%s\n' "$LABEL_RULE" | grep -qF -- "$declaration"; then
+    label_present=$((label_present + 1))
+  else
+    echo "FAILED - .link-button__label rule missing declaration: $declaration" >&2
+    label_missing=$((label_missing + 1))
+  fi
+done
+if [ "$label_missing" -gt 0 ]; then
+  fail ".link-button__label contract is missing $label_missing of ${#LABEL_DECLARATIONS[@]} required declarations"
+fi
+echo "  [ok] link label shrink guard ($label_present/${#LABEL_DECLARATIONS[@]})"
+
+# 5. Never mask horizontal overflow: fix the layout instead.
+BODY_OR_PAGE_RULES=$(awk '
+  /^(html|body|\.page)[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /^}/ { in_rule = 0 }
+' styles.css)
+
+if grep -qE '^[[:space:]]*overflow-x:[[:space:]]*(hidden|clip)' styles.css \
+  || printf '%s\n' "$BODY_OR_PAGE_RULES" | grep -qE 'overflow(-x)?:[[:space:]]*(hidden|clip)' \
+  || grep -qE '^[[:space:]]*width:[[:space:]]*100vw[[:space:]]*;' styles.css; then
+  fail 'styles.css must not mask horizontal overflow (overflow-x hidden/clip, body/page masking or width: 100vw)'
+fi
+echo "  [ok] no horizontal overflow masking or 100vw widths"
+
+# 6. Width breakpoint inventory: DESIGN.md audit frontiers only (360px / 480px / 736px).
+WIDTH_BREAKPOINTS=$(grep -oE '\((min|max)-width:[[:space:]]*[0-9]+px' styles.css \
+  | grep -oE '[0-9]+px' | sort -u || true)
+
+if [ -z "$WIDTH_BREAKPOINTS" ]; then
+  echo "  [ok] no width breakpoints; fluid layout covers 320-1280"
+else
+  breakpoint_bad=0
+  while IFS= read -r breakpoint; do
+    [ -n "$breakpoint" ] || continue
+    case "$breakpoint" in
+      360px|480px|736px)
+        ;;
+      *)
+        echo "FAILED - width breakpoint $breakpoint is outside the DESIGN.md set (360px/480px/736px)" >&2
+        breakpoint_bad=$((breakpoint_bad + 1))
+        ;;
+    esac
+  done <<< "$WIDTH_BREAKPOINTS"
+  if [ "$breakpoint_bad" -gt 0 ]; then
+    fail "styles.css uses $breakpoint_bad width breakpoint value(s) outside 360px/480px/736px"
+  fi
+  echo "  [ok] width breakpoints within 360px/480px/736px"
+fi
+
+# 7. Future width breakpoints must not shrink link-button tap targets below 44px.
+WIDTH_MEDIA_BLOCKS=$(awk '
+  {
+    line = $0
+    if (!in_media && line ~ /@media[^{]*\((min|max)-width[[:space:]]*:/) {
+      in_media = 1
+      depth = 0
+    }
+    if (in_media) {
+      print
+      opens = gsub(/\{/, "{", line)
+      closes = gsub(/\}/, "}", line)
+      depth += opens - closes
+      if (depth <= 0 && line ~ /\}/) {
+        in_media = 0
+      }
+    }
+  }
+' styles.css)
+
+if TAP_VIOLATIONS=$(printf '%s\n' "$WIDTH_MEDIA_BLOCKS" | awk '
+  {
+    line = $0
+    if (!in_button && line ~ /\.link-button/ && line ~ /\{/) {
+      in_button = 1
+    }
+    if (in_button) {
+      if (match(line, /height:[[:space:]]*[0-9]+px/)) {
+        value = substr(line, RSTART, RLENGTH)
+        sub(/height:[[:space:]]*/, "", value)
+        sub(/px$/, "", value)
+        if (value + 0 < 44) {
+          printf "FAILED - width breakpoint declares .link-button height %spx (<44px)\n", value
+          failed++
+        }
+      }
+      if (line ~ /\}/) {
+        in_button = 0
+      }
+    }
+  }
+  END { if (failed > 0) exit 1 }
+'); then
+  :
+else
+  printf '%s\n' "$TAP_VIOLATIONS" >&2
+  fail 'width breakpoints must keep .link-button height >= 44px'
+fi
+echo "  [ok] width breakpoints keep link button tap targets >=44px (none today)"
+
+echo "  [ok] responsive contract (fluid card, full-width 48px buttons, shrink-safe labels)"
+
+echo "Serving command: python3 -m http.server 3502 --directory ."
+echo "Manual verification: 320×844, 360×844, 375×844, 390×844, 480×844, 736×800, 768×800 and 1280×800."
 
 if [ "${RUN_SERVE_COMMAND:-0}" = "1" ]; then
-  exec python3 -m http.server 3413 --directory .
+  exec python3 -m http.server 3502 --directory .
 fi

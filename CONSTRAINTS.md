@@ -46,3 +46,31 @@ its `Accessibility checks:`.
 
 The two inline footer links are shorter than 44px; they stay covered by the WCAG 2.5.8
 inline/link-in-text exception. Re-evaluate that exception if the footer layout changes.
+
+## Responsive Baseline
+
+These rules are durable: the Tarjeta must render complete and without horizontal scroll across
+the 320–1280px range. `./init.sh` enforces the checkable subset in `Responsive checks:`; do not
+remove, weaken or reorder it.
+
+- **MUST** keep `documentElement.scrollWidth === clientWidth` and
+  `body.scrollWidth === clientWidth` at every audited width (320, 360, 375, 390, 480, 736, 768
+  and 1280 CSS px), with only vertical overflow when content is taller than the viewport.
+- **MUST** keep the single fluid card formula `width: min(400px, calc(100vw - 2rem))` with
+  `max-width: 100%`, inside `.page` padding using `var(--space-gutter)` (16px per side) and the
+  universal `box-sizing: border-box`.
+- **MUST** keep every Enlace full width with `height: 48px` and
+  `min(rect.width, rect.height) >= 44px` at every audited width; keep labels untruncated by
+  preserving the `.link-button__label` shrink guard (`min-width: 0`, `overflow: hidden`,
+  `white-space: nowrap`, `text-overflow: ellipsis`).
+- **MUST NOT** mask horizontal overflow with `overflow-x: hidden/clip`, `overflow: hidden/clip`
+  on `html`/`body`/`.page`, or a `width: 100vw` element. Fix the layout instead. The ellipsis
+  `overflow: hidden` on `.link-button__label` is intentional and excluded from this rule.
+- **MUST NOT** add width breakpoints outside the `DESIGN.md` audit set `360px`, `480px` and
+  `736px`; if a future width breakpoint touches `.link-button`, its declared `height` must stay
+  at or above 44px.
+- **MUST** re-run the eight-width browser matrix and the `Responsive checks:` gate after any
+  change to layout, typography, card width, Enlace button or footer; the runtime proof cannot
+  be replaced by static grep alone.
+- The two inline footer links stay under the WCAG 2.5.8 inline/link-in-text exception; do not
+  evaluate them against the 44×44 target unless the footer layout changes.

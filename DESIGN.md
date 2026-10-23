@@ -192,10 +192,42 @@ Una sola vista: la Tarjeta digital. Estados:
 
 ## Responsive Baseline
 
-- Mobile-first; sin scroll horizontal desde 320px.
-- Botones a ancho completo en todos los tamaños.
-- Áreas táctiles de al menos 44×44px (los botones de 48px cumplen).
-- Ajustes de tamaño tipográfico y márgenes en breakpoints ~736px, ~480px y ~360px, siguiendo la escala del template.
+Estado verificado (2026-10-23, feature `responsive-baseline`): el layout fluido cubre todo el
+rango 320–1280px **sin media queries de ancho**. Los valores ~736 / ~480 / ~360px de este
+documento se conservan como **fronteras de auditoría**, no como ramas de implementación.
+
+- Mobile-first; sin scroll horizontal desde 320px hasta 1280px
+  (`documentElement.scrollWidth === clientWidth` y `body.scrollWidth === clientWidth`).
+- Fórmula única de tarjeta: `width: min(400px, calc(100vw - 2rem))` con `max-width: 100%`,
+  dentro de `.page` con gutter `var(--space-gutter)` (16px por lado). Hasta 431px de ancho útil
+  la tarjeta ocupa el ancho menos 32px; desde 432px se capa en 400px.
+- Botones a ancho completo en todos los tamaños: `width: 100%`, `height: 48px` y
+  `box-sizing: border-box`; áreas táctiles de al menos 44×44px (los siete Enlaces miden 48px
+  de alto).
+- Guard de etiquetas: `.link-button__label` conserva `min-width: 0`, `overflow: hidden`,
+  `white-space: nowrap` y `text-overflow: ellipsis`; en la matriz medida la ellipsis no se
+  activa (238px disponibles a 320px para etiquetas de ≤95px).
+- No se usa `overflow-x: hidden/clip` ni `width: 100vw` como parche: el overflow se corrige,
+  no se enmascara. `./init.sh` contiene `Responsive checks:` con siete invariantes.
+
+Mediciones clave (Chrome DevTools, servidor único en 3502, recarga fresca):
+
+| Viewport | clientWidth | Tarjeta w×h (x) | Botón w×h | Etiquetas truncadas |
+| --- | --- | --- | --- | --- |
+| 320×844 | 320 | 288×861 (16) | 238×48 | 0 |
+| 360×844 | 360 | 328×861 (16) | 278×48 | 0 |
+| 375×844 | 375 | 343×841 (16) | 293×48 | 0 |
+| 390×844 | 390 | 358×841 (16) | 308×48 | 0 |
+| 480×844 | 480 | 400×841 (40) | 350×48 | 0 |
+| 736×800 | 721 | 400×841 (160.5) | 350×48 | 0 |
+| 768×800 | 753 | 400×841 (176.5) | 350×48 | 0 |
+| 1280×800 | 1265 | 400×841 (432.5) | 350×48 | 0 |
+
+A 320–360px el texto del pie ocupa dos líneas y la tarjeta crece a 861px; a 375px o más ocupa
+una línea. En los ocho anchos no hay elementos fuera del viewport, el alto extra produce solo
+scroll vertical, la consola queda en 0 mensajes y la red sirve documento, CSS, avatar y fuentes
+sin `/favicon.ico` ni fallos. La prueba de "sin scroll horizontal" es runtime (ver
+`docs/risks-and-open-questions.md`).
 
 ## Accessibility Baseline
 

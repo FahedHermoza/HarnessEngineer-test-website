@@ -66,22 +66,34 @@ No aplica. Página pública, sin roles, sin permisos, sin datos de usuario.
   (`transition: none`/`transform: none`) y un contraste calculado de 15 comprobaciones
   (cinco tonos en reposo y con `brightness(1.03)`, Tagline/Handle, enlaces y texto del pie,
   y el neutro `#484dc4`/`#f1f4fa` en reposo y con brillo) con la fórmula WCAG 2.x.
-- Servido manual: `python3 -m http.server 3413 --directory .` (no se arranca por defecto;
-  `RUN_SERVE_COMMAND=1` lo inicia). Validación visual en 390×844 y 1280×800.
+- `Responsive checks:` (después de accesibilidad): `box-sizing: border-box` universal, gutter
+  de `.page` con `var(--space-gutter)`, `max-width: 100%` de `.card`, guard 4/4 de
+  `.link-button__label`, ausencia de `overflow-x` como máscara o de `width: 100vw`,
+  breakpoints de ancho solo en el set `360px`/`480px`/`736px` y altura ≥44px de `.link-button`
+  dentro de cualquier media query de ancho.
+- Servido manual: `python3 -m http.server 3502 --directory .` (no se arranca por defecto;
+  `RUN_SERVE_COMMAND=1` lo inicia).
+- Matriz responsive de ocho anchos con recarga fresca: 320×844, 360×844, 375×844, 390×844
+  (DPR 3), 480×844, 736×800, 768×800 y 1280×800 (emulación móvil/táctil ≤480, desktop ≥736).
+  Medir `scrollWidth` contra `clientWidth` (en escritorio la barra clásica reduce `clientWidth`
+  a 721/753/1265 aunque `innerWidth` sea 736/768/1280), áreas táctiles ≥44×44, etiquetas sin
+  truncar, consola 0 y red sin fallos.
 - Pruebas negativas del gate en copias temporales fuera del repositorio: token de contraste
   revertido, SVG sin `aria-hidden`, `alt` vacío, sin foco, `prefers-reduced-motion` roto,
-  control no real y zoom deshabilitado deben salir con código 1 sin listener. Para la
-  vCard: asset ausente, LF en vez de CRLF, URL/fecha alterada, `href`/`download` cambiados,
-  botón fuera de posición, foco eliminado, reduced motion sin `.save-contact-button` y
-  token neutro alterado también deben fallar sin arrancar servidor.
+  control no real, zoom deshabilitado y las siete mutaciones responsive (`border-box`,
+  `max-width`, gutter, label guard, `overflow-x`, breakpoint fuera del set, botón <44px)
+  deben salir con código 1 sin listener. Para la vCard: asset ausente, LF en vez de CRLF,
+  URL alterada, `href`/`download` cambiados, botón fuera de posición, foco eliminado,
+  reduced motion sin `.save-contact-button` y token neutro alterado también deben fallar
+  sin arrancar servidor.
 - Verificación manual del `.vcf`: `curl -sI http://localhost:3501/assets/fahedhermoza.vcf`
   debe devolver 200 con contenido no vacío; `od -c`/`file` debe confirmar CRLF y ausencia
-  de BOM. La importación real en iOS/Android sigue siendo una prueba manual de dispositivo.
-- Lighthouse móvil de accesibilidad sobre `http://localhost:3413` (device `mobile`,
+  de BOM. El puerto 3501 se usó solo para la sesión de la vCard; el hint estándar es 3502.
+  La importación real en iOS/Android sigue siendo una prueba manual de dispositivo.
+- Lighthouse móvil de accesibilidad sobre `http://localhost:3502` (device `mobile`,
   navigation): objetivo ≥95 y sin auditorías `critical`/`serious`. Es una comprobación manual,
   no forma parte de `init.sh`; repetirla tras cambios visuales o de contraste.
 - Pruebas manuales en iOS y Android de cada Enlace y de la vCard.
-- Viewports 320 / 375 / 768 px y escritorio.
 - Validador de Open Graph (p. ej. depurador de enlaces) tras el despliegue.
 - Comprobación de enlaces con un chequeador simple antes de publicar.
 - No existe harness E2E persistente (`package.json`, Playwright/Cypress): añadirlo
