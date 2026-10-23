@@ -112,6 +112,41 @@ body {
   box-shadow: 0 0 0 3px var(--color-surface);
 }
 
+/* Profile — Identity (DESIGN.md > typography, colors, components/profile) */
+.profile-identity {
+  padding: var(--space-xl) var(--space-lg);
+  text-align: center;
+}
+
+.profile-identity__name {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-family: var(--font-family-base);
+  font-size: var(--text-headline-lg-font-size);
+  font-weight: var(--text-headline-lg-font-weight);
+  line-height: var(--text-headline-lg-line-height);
+  letter-spacing: var(--text-headline-lg-letter-spacing);
+}
+
+.profile-identity__handle {
+  margin: var(--space-xs) 0 0;
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-family-base);
+  font-size: var(--text-headline-lg-font-size);
+  font-weight: var(--text-headline-lg-font-weight);
+  line-height: var(--text-headline-lg-line-height);
+  letter-spacing: var(--text-headline-lg-letter-spacing);
+}
+
+.profile-identity__tagline {
+  margin: var(--space-sm) 0 0;
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-family-base);
+  font-size: var(--text-body-md-font-size);
+  font-weight: var(--text-body-md-font-weight);
+  line-height: var(--text-body-md-line-height);
+}
+
 /* Components — Link button (DESIGN.md > components/button-link) */
 .link-button {
   --link-button-bg: var(--color-gradient-1);
