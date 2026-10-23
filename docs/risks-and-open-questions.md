@@ -9,7 +9,12 @@
 ## Implementation-Time Questions
 
 - **Resuelto (2026-10-23, `link-whatsapp`):** el formato de WhatsApp es `https://wa.me/51955116562`; se descarta `api.whatsapp.com`. El handoff real a la app no se puede automatizar en este repositorio: queda como comprobación manual pendiente en un dispositivo y no bloquea el contrato de markup.
-- vCard: archivo `.vcf` estático frente a `data:text/vcard` generado en cliente; definir nombre de archivo y codificación.
+- **Resuelto (2026-10-23, `save-contact-vcard`):** la Contacto se sirve como
+  `assets/fahedhermoza.vcf` estático (VCARD 3.0, UTF-8 sin BOM, CRLF-only, ≤4096 bytes) y
+  se descarga con `<a href="assets/fahedhermoza.vcf" download="fahedhermoza.vcf">`. Se
+  descarta `data:text/vcard` (Android bloquea la navegación `data:` de nivel superior e
+  iOS es inconsistente) y Blob (exigiría JavaScript). El gate valida el asset byte a byte
+  y su coherencia con los cinco Enlaces, el teléfono y el correo.
 - Fuente: precarga (`preload`) y fallback para evitar salto de texto (FOUT).
 - `og-image`: dimensiones fijadas en 1200×630 JPEG (`og:image:width/height/type`); quedan abiertos el texto/contenido visual y la herramienta de generación (el agente no puede generar imágenes).
 - Comportamiento de `tel:` y `mailto:` según app por defecto del dispositivo.
@@ -39,11 +44,20 @@
 - **Dependencia de Google Fonts:** una caída o bloqueo degrada la tipografía (mitigado con fallback).
 - **Avatar no disponible:** sin `assets/avatar.jpg` la página se ve incompleta (mitigado con iniciales).
 - **Vista previa deficiente o sin imagen:** sin `assets/og-image.jpg` válida (y sin URL absoluta tras el despliegue) el enlace compartido se ve pobre aunque las etiquetas sean correctas. Mitigación actual: comentario HTML de provisionalidad y `[warn]` no bloqueantes en `init.sh`; cierre en `deploy-cloudflare-pages`.
-- **vCard inconsistente:** diferencias de comportamiento entre iOS y Android.
+- **vCard: importación real pendiente y MIME variable:** el mecanismo ya está cerrado en
+  un `.vcf` estático, pero la importación en la agenda de iOS y Android no se puede probar
+  en este entorno. Queda como comprobación manual de dispositivo (no fabricar el resultado):
+  un 200 y un `Content-Type` correcto no demuestran que la agenda importe nombre, teléfono,
+  correo y Enlaces. `python3 -m http.server` sirve `text/x-vcard`; Cloudflare Pages podría
+  usar `text/vcard` u `octet-stream` porque no hay `_headers` en el MVP. Mitigación:
+  `download` + extensión `.vcf`; reevaluar cabeceras en `deploy-cloudflare-pages`.
+  Algunas versiones de iOS guardan en Archivos y otras muestran vista previa; ambas
+  cumplen «ofrece/descarga».
 - **Handoff de WhatsApp no verificado:** un `href` correcto no demuestra que el dispositivo abra la app o muestre la página intermedia de `wa.me`. La comprobación final requiere un teléfono real; se mantiene como pendiente manual y no se cuenta como fallo del harness.
 
 ## Research Tasks
 
-- Confirmar el comportamiento real de descarga de vCard en iOS y Android actuales.
+- Confirmar el comportamiento real de descarga/importación de la vCard en iOS y Android
+  actuales (pendiente manual; no ejecutado en este entorno).
 - Verificar límites de caché y rutas de assets en Cloudflare Pages.
 - Definir herramienta para generar `assets/og-image.jpg` 1200×630.

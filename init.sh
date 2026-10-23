@@ -1146,6 +1146,270 @@ for label in "${LINK_DEMO_LABELS[@]}"; do
 done
 echo "  [ok] link button demo removed (HTML and CSS)"
 
+echo "Save contact checks:"
+
+VCF_FILE="assets/fahedhermoza.vcf"
+
+if [ ! -f "$VCF_FILE" ] || [ ! -s "$VCF_FILE" ]; then
+  fail "assets/fahedhermoza.vcf is missing or empty"
+fi
+
+VCF_SIZE=$(wc -c < "$VCF_FILE" | tr -d ' ')
+if [ "$VCF_SIZE" -gt 4096 ]; then
+  fail "assets/fahedhermoza.vcf must be at most 4096 bytes (found $VCF_SIZE)"
+fi
+
+if ! python3 - "$VCF_FILE" <<'PY'
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+
+def bad(message):
+    print(f"FAILED - assets/fahedhermoza.vcf {message}", file=sys.stderr)
+    sys.exit(1)
+
+data = path.read_bytes()
+if data.startswith(b"\xef\xbb\xbf"):
+    bad("must not start with a UTF-8 BOM")
+try:
+    text = data.decode("utf-8")
+except UnicodeDecodeError:
+    bad("must be valid UTF-8")
+
+without_crlf = text.replace("\r\n", "")
+if "\r" in without_crlf or "\n" in without_crlf:
+    bad("must use CRLF line endings only")
+if not text.endswith("\r\n"):
+    bad("must end with CRLF after END:VCARD")
+
+expected = [
+    "BEGIN:VCARD",
+    "VERSION:3.0",
+    "N:Hermoza;Fahed;;;",
+    "FN:Fahed Hermoza",
+    "TITLE:Software Engineer & Speaker & Builder",
+    "TEL;TYPE=CELL:+51955116562",
+    "EMAIL;TYPE=INTERNET:fahedhermoza@gmail.com",
+    "URL:https://www.instagram.com/fahedhermoza/",
+    "URL:https://www.facebook.com/fahed19",
+    "URL:https://wa.me/51955116562",
+    "URL:https://www.linkedin.com/in/fahedhermoza/",
+    "URL:https://fahedhermoza.github.io/",
+    "END:VCARD",
+]
+lines = text.split("\r\n")[:-1]
+for line in expected:
+    if line not in lines:
+        bad(f"is missing canonical line: {line}")
+if lines != expected:
+    bad("must contain the canonical VCARD 3.0 lines in the exact order")
+if len([line for line in lines if line.startswith("URL:")]) != 5:
+    bad("must contain exactly five URL lines")
+PY
+then
+  echo "Harness status: FAILED - assets/fahedhermoza.vcf failed the vCard contract" >&2
+  exit 1
+fi
+echo "  [ok] vCard asset contract (UTF-8, CRLF, VCARD 3.0, canonical fields, ${VCF_SIZE} bytes)"
+
+for url in \
+  "https://www.instagram.com/fahedhermoza/" \
+  "https://www.facebook.com/fahed19" \
+  "https://wa.me/51955116562" \
+  "https://www.linkedin.com/in/fahedhermoza/" \
+  "https://fahedhermoza.github.io/"
+do
+  if grep -qF "URL:$url" "$VCF_FILE" && grep -qF "href=\"$url\"" index.html; then
+    :
+  else
+    fail "vCard URL does not match an index.html href: $url"
+  fi
+done
+
+if ! grep -qF 'TEL;TYPE=CELL:+51955116562' "$VCF_FILE" \
+  || ! grep -qF 'href="tel:+51955116562"' index.html \
+  || ! grep -qF '>Celular<' index.html; then
+  fail "vCard TEL does not match the Celular control"
+fi
+
+if ! grep -qF 'EMAIL;TYPE=INTERNET:fahedhermoza@gmail.com' "$VCF_FILE" \
+  || ! grep -qF 'href="mailto:fahedhermoza@gmail.com"' index.html \
+  || ! grep -qF '>Correo<' index.html; then
+  fail "vCard EMAIL does not match the Correo control"
+fi
+echo "  [ok] vCard URLs, phone and email match the page controls"
+
+save_contact_wrappers=$(grep -oF 'class="save-contact"' index.html | wc -l | tr -d ' ')
+if [ "$save_contact_wrappers" -ne 1 ]; then
+  fail "index.html must contain exactly one .save-contact block (found $save_contact_wrappers)"
+fi
+
+save_contact_anchors=$(grep -oE '<a[^>]*class="save-contact-button"' index.html | wc -l | tr -d ' ')
+if [ "$save_contact_anchors" -ne 1 ]; then
+  fail "index.html must contain exactly one .save-contact-button anchor (found $save_contact_anchors)"
+fi
+
+SAVE_CONTACT_BLOCK=$(awk '
+  /^[[:space:]]*<div class="save-contact">/ { in_block = 1 }
+  in_block { print }
+  in_block && /^[[:space:]]*<\/div>[[:space:]]*$/ { exit }
+' index.html)
+
+if [ -z "$SAVE_CONTACT_BLOCK" ]; then
+  fail "index.html is missing the .save-contact block"
+fi
+
+if ! printf '%s\n' "$SAVE_CONTACT_BLOCK" | grep -qF '<a class="save-contact-button" href="assets/fahedhermoza.vcf" download="fahedhermoza.vcf">'; then
+  fail 'index.html .save-contact-button must use href="assets/fahedhermoza.vcf" and download="fahedhermoza.vcf"'
+fi
+
+if ! printf '%s\n' "$SAVE_CONTACT_BLOCK" | grep -qF '>Guardar contacto<'; then
+  fail 'index.html .save-contact-button must have the "Guardar contacto" label'
+fi
+
+SAVE_CONTACT_ICON_TAG=$(printf '%s\n' "$SAVE_CONTACT_BLOCK" | grep -oE '<svg[^>]*class="save-contact-button__icon"[^>]*>' | head -n 1 || true)
+if [ -z "$SAVE_CONTACT_ICON_TAG" ]; then
+  fail "index.html .save-contact-button is missing its icon"
+fi
+for attribute in 'width="18"' 'height="18"' 'aria-hidden="true"' 'focusable="false"'; do
+  case "$SAVE_CONTACT_ICON_TAG" in
+    *"$attribute"*)
+      ;;
+    *)
+      echo "FAILED - .save-contact-button icon is missing $attribute" >&2
+      fail "save contact icon contract is incomplete"
+      ;;
+  esac
+done
+
+block_anchor_total=$(printf '%s\n' "$SAVE_CONTACT_BLOCK" | grep -cE '<a[[:space:]]' || true)
+if [ "$block_anchor_total" -ne 1 ]; then
+  fail "index.html .save-contact block must contain exactly one anchor (found $block_anchor_total)"
+fi
+
+if grep -qE 'data:text/vcard|<script|new Blob' index.html styles.css; then
+  fail "the save contact control must not use data:text/vcard, <script> or Blob"
+fi
+echo "  [ok] save contact markup, label, icon and static href/download"
+
+nav_close_line=$(grep -nF '</nav>' index.html | head -n 1 | cut -d: -f1 || true)
+save_contact_line=$(grep -nF '<div class="save-contact">' index.html | head -n 1 | cut -d: -f1 || true)
+footer_line=$(grep -nF '<footer class="page-footer">' index.html | head -n 1 | cut -d: -f1 || true)
+
+if [ -z "$nav_close_line" ] || [ -z "$save_contact_line" ] || [ -z "$footer_line" ]; then
+  fail "index.html is missing </nav>, .save-contact or <footer class=\"page-footer\">"
+fi
+if [ "$nav_close_line" -ge "$save_contact_line" ] || [ "$save_contact_line" -ge "$footer_line" ]; then
+  fail 'index.html .save-contact must sit after </nav> and before <footer class="page-footer">'
+fi
+echo "  [ok] save contact sits between the links navigation and the page footer"
+
+SAVE_CONTACT_LAYOUT_RULE=$(awk '
+  /^[[:space:]]*\.save-contact[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -z "$SAVE_CONTACT_LAYOUT_RULE" ]; then
+  fail "styles.css is missing the .save-contact layout rule"
+fi
+if printf '%s\n' "$SAVE_CONTACT_LAYOUT_RULE" | grep -qF 'padding: var(--space-sm) var(--space-lg) 0;'; then
+  echo "  [ok] .save-contact layout rule"
+else
+  fail "styles.css .save-contact must declare padding: var(--space-sm) var(--space-lg) 0;"
+fi
+
+SAVE_CONTACT_RULE=$(awk '
+  /^[[:space:]]*\.save-contact-button[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -z "$SAVE_CONTACT_RULE" ]; then
+  fail "styles.css is missing the .save-contact-button base rule"
+fi
+echo "  [ok] .save-contact-button base rule exists"
+
+SAVE_CONTACT_CONTRACT=(
+  'width: 100%;'
+  'height: 48px;'
+  'padding: 0 1.25rem;'
+  'border-radius: var(--radius-md);'
+  'justify-content: space-between;'
+  'text-transform: uppercase;'
+)
+
+save_contact_contract_total=${#SAVE_CONTACT_CONTRACT[@]}
+save_contact_contract_present=0
+save_contact_contract_missing=0
+for declaration in "${SAVE_CONTACT_CONTRACT[@]}"; do
+  case "$SAVE_CONTACT_RULE" in
+    *"$declaration"*)
+      save_contact_contract_present=$((save_contact_contract_present + 1))
+      ;;
+    *)
+      echo "FAILED - .save-contact-button base rule missing declaration: $declaration" >&2
+      save_contact_contract_missing=$((save_contact_contract_missing + 1))
+      ;;
+  esac
+done
+
+if [ "$save_contact_contract_missing" -gt 0 ]; then
+  fail "save contact button contract is missing $save_contact_contract_missing of $save_contact_contract_total required declarations"
+fi
+echo "  [ok] save contact button shape contract ($save_contact_contract_present/$save_contact_contract_total)"
+
+if printf '%s\n' "$SAVE_CONTACT_RULE" | grep -qF 'background: var(--color-surface-container-low);' \
+  && printf '%s\n' "$SAVE_CONTACT_RULE" | grep -qF 'color: var(--color-primary);'; then
+  echo "  [ok] save contact neutral colors"
+else
+  fail 'styles.css .save-contact-button must use background: var(--color-surface-container-low); and color: var(--color-primary);'
+fi
+
+SAVE_CONTACT_FOCUS_RULE=$(awk '
+  /^[[:space:]]*\.save-contact-button:focus-visible[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -n "$SAVE_CONTACT_FOCUS_RULE" ] \
+  && printf '%s\n' "$SAVE_CONTACT_FOCUS_RULE" | grep -qF 'outline: 2px solid var(--color-accent);' \
+  && printf '%s\n' "$SAVE_CONTACT_FOCUS_RULE" | grep -qF 'outline-offset: 2px;'; then
+  echo "  [ok] save contact focus-visible outline"
+else
+  fail 'styles.css .save-contact-button:focus-visible must declare outline: 2px solid var(--color-accent); and outline-offset: 2px;'
+fi
+
+SAVE_CONTACT_HOVER_RULE=$(awk '
+  /^[[:space:]]*\.save-contact-button:hover[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -n "$SAVE_CONTACT_HOVER_RULE" ] \
+  && printf '%s\n' "$SAVE_CONTACT_HOVER_RULE" | grep -qF 'filter: brightness(1.03);' \
+  && printf '%s\n' "$SAVE_CONTACT_FOCUS_RULE" | grep -qF 'filter: brightness(1.03);'; then
+  echo "  [ok] save contact hover/focus brightness"
+else
+  fail 'styles.css .save-contact-button hover/focus must retain filter: brightness(1.03);'
+fi
+
+SAVE_CONTACT_REDUCED_BLOCK=$(awk '
+  /@media \(prefers-reduced-motion: reduce\)/ { in_block = 1 }
+  in_block { print }
+  in_block && /^}/ { exit }
+' styles.css)
+
+if [ -n "$SAVE_CONTACT_REDUCED_BLOCK" ] \
+  && printf '%s\n' "$SAVE_CONTACT_REDUCED_BLOCK" | grep -qF '.save-contact-button' \
+  && printf '%s\n' "$SAVE_CONTACT_REDUCED_BLOCK" | grep -qF 'transition: none;' \
+  && printf '%s\n' "$SAVE_CONTACT_REDUCED_BLOCK" | grep -qF 'transform: none;'; then
+  echo "  [ok] save contact reduced motion"
+else
+  fail 'styles.css reduced-motion block must set transition: none; and transform: none; for .save-contact-button'
+fi
+
 echo "Accessibility checks:"
 
 # 1. Document language and zoomable viewport
@@ -1189,26 +1453,33 @@ else
   fail "index.html profile avatar must keep a non-empty alt"
 fi
 
-# 3. Real controls: 9 anchors (7 link buttons + 2 footer links; the temporary demo was removed)
+# 3. Real controls: 10 anchors (7 link buttons + 1 save contact button + 2 footer links)
 ANCHOR_TAGS=$(grep -oE '<a[[:space:]][^>]*>' index.html || true)
 anchor_total=$(printf '%s\n' "$ANCHOR_TAGS" | grep -cE '<a[[:space:]]' || true)
 link_button_total=$(grep -oE '<a[^>]*class="link-button( [^"]*)?"' index.html | wc -l | tr -d ' ')
 footer_link_total=$(grep -oE '<a[^>]*class="page-footer__link"' index.html | wc -l | tr -d ' ')
 
-if [ "$anchor_total" -ne 9 ]; then
-  fail "index.html must contain exactly 9 anchor controls (found $anchor_total)"
+if [ "$anchor_total" -ne 10 ]; then
+  fail "index.html must contain exactly 10 anchor controls (found $anchor_total)"
 fi
 if [ "$link_button_total" -ne 7 ]; then
   fail "index.html must contain exactly 7 link-button anchors (found $link_button_total)"
+fi
+if [ "$save_contact_anchors" -ne 1 ]; then
+  fail "index.html must contain exactly 1 save-contact-button anchor (found $save_contact_anchors)"
 fi
 if [ "$footer_link_total" -ne 2 ]; then
   fail "index.html must contain exactly 2 page-footer link anchors (found $footer_link_total)"
 fi
 
 link_button_class_total=$(grep -oE 'class="link-button( |")' index.html | wc -l | tr -d ' ')
+save_contact_class_total=$(grep -oE 'class="save-contact-button( |")' index.html | wc -l | tr -d ' ')
 footer_link_class_total=$(grep -oE 'class="page-footer__link( |")' index.html | wc -l | tr -d ' ')
 if [ "$link_button_class_total" -ne "$link_button_total" ]; then
   fail "a non-anchor element uses class link-button (or an anchor duplicates the class)"
+fi
+if [ "$save_contact_class_total" -ne "$save_contact_anchors" ]; then
+  fail "a non-anchor element uses class save-contact-button (or an anchor duplicates the class)"
 fi
 if [ "$footer_link_class_total" -ne "$footer_link_total" ]; then
   fail "a non-anchor element uses class page-footer__link (or an anchor duplicates the class)"
@@ -1237,7 +1508,7 @@ fi
 if grep -qE '(^|[[:space:]])href="(#)?"' index.html; then
   fail 'index.html must not use href="#" or href=""'
 fi
-echo "  [ok] 9 real anchor controls (7 link buttons + 2 footer links)"
+echo "  [ok] 10 real anchor controls (7 link buttons + 1 save contact button + 2 footer links)"
 
 # 4. Decorative icons
 SVG_TAGS=$(grep -oE '<svg[^>]*>' index.html || true)
@@ -1264,14 +1535,14 @@ while IFS= read -r svg_tag; do
   esac
 done <<< "$SVG_TAGS"
 
-if [ "$svg_total" -ne 7 ]; then
-  fail "index.html must contain exactly 7 decorative SVG icons (found $svg_total)"
+if [ "$svg_total" -ne 8 ]; then
+  fail "index.html must contain exactly 8 decorative SVG icons (found $svg_total)"
 fi
 if [ "$svg_bad" -gt 0 ]; then
   fail "accessibility SVG contract is missing $svg_bad required attributes"
 fi
 if grep -qE '<span class="page-footer__separator"[^>]*aria-hidden="true"' index.html; then
-  echo "  [ok] decorative icons and footer separator are hidden from assistive technology"
+  echo "  [ok] 8 decorative SVG icons and footer separator are hidden from assistive technology"
 else
   fail 'the page footer separator must keep aria-hidden="true"'
 fi
@@ -1319,11 +1590,12 @@ REDUCED_MOTION_BLOCK=$(awk '
 
 if [ -n "$REDUCED_MOTION_BLOCK" ] \
   && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF '.link-button' \
+  && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF '.save-contact-button' \
   && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF 'transition: none;' \
   && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF 'transform: none;'; then
   echo "  [ok] reduced motion contract"
 else
-  fail 'styles.css reduced-motion block must set transition: none; and transform: none; for .link-button'
+  fail 'styles.css reduced-motion block must set transition: none; and transform: none; for .link-button and .save-contact-button'
 fi
 
 # 7. Contrast: pinned tokens plus calculated WCAG ratios
@@ -1346,6 +1618,8 @@ CONTRAST_TOKENS=(
   '--color-gradient-4|#8055c8'
   '--color-gradient-5|#9252c5'
   '--color-on-surface-variant|#6b7280'
+  '--color-primary|#484dc4'
+  '--color-surface-container-low|#f1f4fa'
 )
 contrast_token_total=${#CONTRAST_TOKENS[@]}
 contrast_token_present=0
@@ -1371,6 +1645,8 @@ ON_PRIMARY=$(token_value --color-on-primary)
 SURFACE=$(token_value --color-surface)
 ON_SURFACE=$(token_value --color-on-surface)
 ON_SURFACE_VARIANT=$(token_value --color-on-surface-variant)
+PRIMARY=$(token_value --color-primary)
+SURFACE_CONTAINER_LOW=$(token_value --color-surface-container-low)
 ACCENT=$(token_value --color-accent)
 GRADIENT_1=$(token_value --color-gradient-1)
 GRADIENT_2=$(token_value --color-gradient-2)
@@ -1383,6 +1659,8 @@ if ! CONTRAST_REPORT=$(awk \
   -v surface="$SURFACE" \
   -v on_surface="$ON_SURFACE" \
   -v on_variant="$ON_SURFACE_VARIANT" \
+  -v primary="$PRIMARY" \
+  -v surface_low="$SURFACE_CONTAINER_LOW" \
   -v accent="$ACCENT" \
   -v g1="$GRADIENT_1" \
   -v g2="$GRADIENT_2" \
@@ -1447,7 +1725,9 @@ if ! CONTRAST_REPORT=$(awk \
     check("on-surface-variant on surface", on_variant, surface, 0)
     check("accent on surface", accent, surface, 0)
     check("on-surface on surface", on_surface, surface, 0)
-    if (failed > 0 || passed != 13) exit 1
+    check("primary on surface-container-low (rest)", primary, surface_low, 0)
+    check("primary on surface-container-low (hover/focus)", primary, surface_low, 1)
+    if (failed > 0 || passed != 15) exit 1
   }
 '); then
   printf '%s\n' "$CONTRAST_REPORT"
@@ -1456,7 +1736,7 @@ if ! CONTRAST_REPORT=$(awk \
 fi
 
 printf '%s\n' "$CONTRAST_REPORT"
-echo "  [ok] accessibility contrast contract (13/13)"
+echo "  [ok] accessibility contrast contract (15/15)"
 
 # 8. Link button contrast wiring
 if printf '%s\n' "$LINK_BUTTON_RULE" | grep -qF 'color: var(--color-on-primary);' \
