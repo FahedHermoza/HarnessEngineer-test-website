@@ -21,16 +21,16 @@ colors:
   surface-container-low: '#f1f4fa'
   border: '#ebeef2'
   on-surface: '#2d3139'
-  on-surface-variant: '#717886'
+  on-surface-variant: '#6b7280'
   outline: '#767685'
   primary: '#484dc4'
   on-primary: '#ffffff'
   accent: '#585ce5'
-  gradient-1: '#6876f0'
-  gradient-2: '#736deb'
-  gradient-3: '#8168e8'
-  gradient-4: '#9362e6'
-  gradient-5: '#a85ee2'
+  gradient-1: '#5a67d1'
+  gradient-2: '#645fcc'
+  gradient-3: '#705aca'
+  gradient-4: '#8055c8'
+  gradient-5: '#9252c5'
   error: '#ba1a1a'
 typography:
   headline-lg:
@@ -125,25 +125,25 @@ Minimalismo cálido y etéreo. Mucho aire, geometría refinada, autoridad tipogr
 - **Superficie (tarjeta):** `#ffffff` — contenedor limpio.
 - **Borde / divisores:** `#ebeef2` — reglas finas, sin estructura agresiva.
 - **Texto principal:** `#2d3139` — gris pizarra profundo, no negro puro.
-- **Texto secundario / meta:** `#717886` — para handle, tagline y pie.
+- **Texto secundario / meta:** `#6b7280` — para handle y tagline; el pie usa `#2d3139`.
 - **Acento / enlaces:** `#585ce5`.
 - **Degradado de botones** (secuencia descendente en la pila de Enlaces):
-  1. `#6876f0`
-  2. `#736deb`
-  3. `#8168e8`
-  4. `#9362e6`
-  5. `#a85ee2`
+  1. `#5a67d1`
+  2. `#645fcc`
+  3. `#705aca`
+  4. `#8055c8`
+  5. `#9252c5`
   El texto y el icono de todos los botones van siempre en `#ffffff`.
 
 Con 7 Enlaces, la progresión se resuelve recorriendo los cinco tonos e insertando dos intermedios 50/50 en los saltos mayores (3→4 y 4→5), sin repetir tonos ni superar 14/255 por canal entre botones consecutivos:
 
-1. Instagram — `gradient-1` `#6876f0`
-2. Facebook — `gradient-2` `#736deb`
-3. WhatsApp — `gradient-3` `#8168e8`
-4. LinkedIn — intermedio `gradient-3`/`gradient-4` ≈ `#8a65e7`
-5. Portafolio — `gradient-4` `#9362e6`
-6. Correo — intermedio `gradient-4`/`gradient-5` ≈ `#9e60e4`
-7. Celular — `gradient-5` `#a85ee2`
+1. Instagram — `gradient-1` `#5a67d1`
+2. Facebook — `gradient-2` `#645fcc`
+3. WhatsApp — `gradient-3` `#705aca`
+4. LinkedIn — intermedio `gradient-3`/`gradient-4` ≈ `#7858c9`
+5. Portafolio — `gradient-4` `#8055c8`
+6. Correo — intermedio `gradient-4`/`gradient-5` ≈ `#8954c6`
+7. Celular — `gradient-5` `#9252c5`
 
 Los intermedios se derivan con `color-mix` a partir de los tokens existentes (con fallback al tono inferior). No se añaden colores ni tokens. El botón "Guardar contacto" queda fuera de la rampa con tratamiento neutro (superficie `#f1f4fa` con texto `#484dc4`) para diferenciarse de los Enlaces externos.
 
@@ -152,7 +152,7 @@ Los intermedios se derivan con `color-mix` a partir de los tokens existentes (co
 Familia única **Plus Jakarta Sans**, con pila de respaldo del sistema (`system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`).
 
 - **Nombre / Handle:** `headline-lg`, peso 600, tracking negativo sutil.
-- **Tagline:** `body-md`, color `#717886`.
+- **Tagline:** `body-md`, color `#6b7280`.
 - **Etiquetas de botón:** `button-label` en mayúsculas, tracking `0.18em`, peso 800.
 - **Pie / meta:** `body-sm` o `body-md` con enlaces en `#585ce5` subrayados.
 
@@ -196,8 +196,32 @@ Una sola vista: la Tarjeta digital. Estados:
 - Contraste mínimo AA en texto y etiquetas de botón.
 - Cada botón es un `<a>` real con texto legible; los iconos son decorativos (`aria-hidden`) o con `title`.
 - Foco visible (outline de acento) en todos los elementos interactivos.
-- `alt` descriptivo en el avatar; `lang="es"` en el documento.
+- `alt` descriptivo en el avatar; `lang="es"` en el documento y `lang="en"` en la Tagline inglesa.
 - Respetar `prefers-reduced-motion` desactivando transformaciones y transiciones.
+- Controles reales, sin `role="button"` ni manejadores inline; el viewport no deshabilita el zoom.
+- `./init.sh` incluye un gate de accesibilidad que no debe debilitarse (ver `CONSTRAINTS.md`).
+
+### Contraste AA de la base (remediación 2026-10-23)
+
+Se mantienen las etiquetas e iconos en `#ffffff`; solo se oscurecieron los fondos de los
+cinco tonos y el token de texto secundario. Ratios calculados con la fórmula WCAG 2.x:
+
+| Token | Valor | Blanco en reposo | Blanco con `brightness(1.03)` |
+| --- | --- | --- | --- |
+| `--color-gradient-1` | `#5a67d1` | 4.889:1 | 4.658:1 |
+| `--color-gradient-2` | `#645fcc` | 5.184:1 | 4.936:1 |
+| `--color-gradient-3` | `#705aca` | 5.244:1 | 4.993:1 |
+| `--color-gradient-4` | `#8055c8` | 5.184:1 | 4.920:1 |
+| `--color-gradient-5` | `#9252c5` | 4.958:1 | 4.743:1 |
+| `--color-on-surface-variant` | `#6b7280` | 4.834:1 sobre `#ffffff` | n/a |
+
+- El pie no cambia: `--color-on-surface` (`#2d3139`, 13.044:1) y `--color-accent`
+  (`#585ce5`, 5.151:1) ya cumplen AA.
+- El cambio desplaza cada canal sRGB de los cinco tonos ≈13% hacia abajo, conservando el
+  orden lavanda→violeta y la forma, altura y tipografía del botón.
+- El margen de hover/foco es obligatorio porque `.link-button:hover` y `:focus-visible`
+  aplican `filter: brightness(1.03)`; cualquier token nuevo debe recalcular ambos estados
+  y actualizar el gate de `./init.sh`.
 
 ## Do's and Don'ts
 

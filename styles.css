@@ -5,16 +5,16 @@
   --color-surface-container-low: #f1f4fa;
   --color-border: #ebeef2;
   --color-on-surface: #2d3139;
-  --color-on-surface-variant: #717886;
+  --color-on-surface-variant: #6b7280;
   --color-outline: #767685;
   --color-primary: #484dc4;
   --color-on-primary: #ffffff;
   --color-accent: #585ce5;
-  --color-gradient-1: #6876f0;
-  --color-gradient-2: #736deb;
-  --color-gradient-3: #8168e8;
-  --color-gradient-4: #9362e6;
-  --color-gradient-5: #a85ee2;
+  --color-gradient-1: #5a67d1;
+  --color-gradient-2: #645fcc;
+  --color-gradient-3: #705aca;
+  --color-gradient-4: #8055c8;
+  --color-gradient-5: #9252c5;
   --color-error: #ba1a1a;
 
   /* Typography (DESIGN.md > typography) */
