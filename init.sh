@@ -122,6 +122,56 @@ fi
 
 echo "  [ok] design tokens present ($present_tokens/$total_tokens)"
 
+echo "Component checks:"
+
+LINK_BUTTON_RULE=$(awk '
+  /^[[:space:]]*\.link-button[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -z "$LINK_BUTTON_RULE" ]; then
+  fail "styles.css is missing the .link-button base rule"
+fi
+echo "  [ok] .link-button base rule exists"
+
+LINK_BUTTON_CONTRACT=(
+  'width: 100%;'
+  'height: 48px;'
+  'padding: 0 1.25rem;'
+  'border-radius: var(--radius-md);'
+  'justify-content: space-between;'
+  'text-transform: uppercase;'
+)
+
+contract_total=${#LINK_BUTTON_CONTRACT[@]}
+contract_present=0
+contract_missing=0
+for declaration in "${LINK_BUTTON_CONTRACT[@]}"; do
+  case "$LINK_BUTTON_RULE" in
+    *"$declaration"*)
+      contract_present=$((contract_present + 1))
+      ;;
+    *)
+      echo "FAILED - .link-button base rule missing declaration: $declaration" >&2
+      contract_missing=$((contract_missing + 1))
+      ;;
+  esac
+done
+
+if [ "$contract_missing" -gt 0 ]; then
+  echo "Harness status: FAILED - .link-button component contract is missing $contract_missing of $contract_total required declarations" >&2
+  exit 1
+fi
+
+echo "  [ok] link button component contract ($contract_present/$contract_total)"
+
+if grep -qF '@media (prefers-reduced-motion: reduce)' styles.css; then
+  echo "  [ok] prefers-reduced-motion media query"
+else
+  fail "styles.css is missing @media (prefers-reduced-motion: reduce)"
+fi
+
 echo "Page shell checks:"
 
 if grep -q 'class="page"' index.html && grep -q 'class="card"' index.html; then

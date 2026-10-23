@@ -2,13 +2,14 @@
 
 ## Current Verified State
 
-- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/devexpert-project-worktrees/page-shell`
-- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, tokens de `styles.css`, markup `.page`/`.card` y contrato de ancho; no arranca servidor por defecto).
-- Standard verification path: `./init.sh` sale `0` + `python3 -m http.server 3101 --directory .` (o `RUN_SERVE_COMMAND=1 ./init.sh`) y verificación en navegador.
-- Current status: `page-shell` en `accepted` (validación independiente `accept`, ver Session 007).
-- Current next ready feature: `profile-avatar` (depende de `page-shell`, ahora `accepted`; también listas `profile-identity`, `page-footer` y `open-graph-metadata`).
+- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/devexpert-project-worktrees/link-button-component` (worktree de la PR #8 con `demo/seed` fusionado).
+- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, tokens de `styles.css`, markup `.page`/`.card`, contrato de ancho y contrato CSS del botón de Enlace; no arranca servidor por defecto).
+- Standard verification path: `./init.sh` sale `0` + `python3 -m http.server 3101 --directory .` y verificación en navegador móvil/escritorio.
+- Current status: `static-bootstrap`, `design-tokens`, `page-shell` y `link-button-component` en `accepted`.
+- Current next ready feature: `profile-avatar`, `profile-identity`, `page-footer` y `open-graph-metadata` (dependen de `page-shell`, ya `accepted`).
 - Current blocker: none
-- Last verified at: 2026-10-23 (`page-shell` en `accepted`; gate + navegador 320/375/390/768/1280 y validación independiente, ver Sessions 006–007)
+- Inherited risk: etiquetas blancas sobre los cinco tonos miden 3.86–4.13:1 (AA 4.5:1 no cumplido); debe resolverlo o aceptarlo `accessibility-baseline`.
+- Last verified at: 2026-10-23 (fusión de `demo/seed` en `feature/link-button-component`; `./init.sh` y navegador 390×844/1280×800, ver Session 009)
 
 ## Session Log
 
@@ -71,6 +72,15 @@
 ### Session 006
 
 - Date: 2026-10-23
+- Goal: implement feature `link-button-component` (spec `docs/specs/link-button-component.md`).
+- Completed: `styles.css` añade el componente reutilizable (`display:flex`, ancho completo, 48px, radio 6px, padding 20px, etiqueta uppercase 11px/800 con tracking 0.18em, icono 18×18 a la derecha, variables internas del componente, cinco modificadores de tono, hover bajo `@media (hover: hover)`, `:focus-visible` con outline de acento y `prefers-reduced-motion`) más el CSS temporal `[data-demo="link-button"]`; `index.html` añade la demo temporal de cinco anclas con fragmentos locales; `init.sh` añade `Component checks:` (regla base `.link-button` + 6 declaraciones + media query de movimiento reducido) sin debilitar bootstrap/tokens. `:root` sigue con 51 tokens; sin dependencias, frameworks, bundlers ni JS.
+- Verification run: `bash -n init.sh` OK; `./init.sh` → bootstrap `[ok]` ×3, `[ok] design tokens present (51/51)`, `[ok] .link-button base rule exists`, `[ok] link button component contract (6/6)`, `[ok] prefers-reduced-motion media query`, exit 0, sin servidor. Caso negativo en copia temporal sin `height: 48px;` de `.link-button` → stderr con la declaración faltante + `FAILED - ... missing 1 of 6`, exit 1; copia eliminada. Navegador con único servidor `python3 -m http.server 3102 --directory .` (detenido al terminar): 390×844 → 5 botones de 358×48, wrapper 390, `padding:0px 20px`, radio 6px, `justify-content:space-between`, 11px/800, line-height 16px, tracking 1.98px, uppercase, blanco, icono 18×18 a 20px del borde derecho, `scrollWidth=clientWidth=390`; 1280×800 → wrapper 420 centrado, botón 388×48, hover `matrix(1, 0, 0, 1, 0, -1.5)` + sombra `rgba(108,114,234,0.28) 0px 8px 18px 0px` + `brightness(1.03)` + 0.18s ease, `Tab` → `:focus-visible` con outline `solid 2px rgb(88,92,229)` offset 2px, `Enter` activa el fragmento; reduced motion → `transition-duration:0s`, `transform:none`. **Corrección retroactiva (Session 007):** la afirmación previa "sin errores de consola y sin peticiones 4xx/5xx" era incorrecta; el navegador sí emitía un error de consola por `GET /favicon.ico` → 404 (Chrome pide el icono implícito al no haber `<link rel="icon">`). El resto de valores medidos se reprodujo sin cambios.
+- Evidence captured: valores computados y de red arriba; ratios de contraste 3.86/4.10/4.13/4.09/3.91:1; `feature_list.json` `link-button-component` en `passing` con evidencia; riesgo de contraste en `docs/risks-and-open-questions.md`.
+- Files or artifacts updated: `styles.css`, `index.html`, `init.sh`, `feature_list.json`, `PROGRESS.md`, `docs/risks-and-open-questions.md`.
+- Known risk or unresolved issue: contraste AA de etiquetas blancas sobre los tonos (3.86–4.13:1) heredado a `accessibility-baseline`. La demo `[data-demo="link-button"]` y su CSS son temporales: `page-shell` debe retirarlas al reemplazar `<main>`; se mantienen hasta la aceptación.
+- Next best step: validación independiente de `link-button-component` (`feature-validator`). No commitear hasta que el orquestador persista la aceptación.
+### Session 006 — page-shell
+
 - Goal: implement feature `page-shell` (spec `docs/specs/page-shell.md`).
 - Completed: `index.html` ahora tiene `<main class="page"><article class="card"></article></main>` (tarjeta vacía); `styles.css` añade reset universal `box-sizing`, regla `.page` (flex column, centrado horizontal, `min-height: 100vh`/`100dvh`, padding `var(--space-margin) var(--space-gutter)`) y regla `.card` (ancho `min(400px, calc(100vw - 2rem))`, `max-width: 100%`, piso provisional `min-height: 20rem`, `margin-block: auto`, superficie, borde, radio y sombra de DESIGN.md), sin tocar `:root` ni `body`; `init.sh` añade los checks `page shell markup`, `page shell styles` y `card width contract` y sugiere/arranca el servidor en 3101.
 - Verification run: `bash -n init.sh` → OK; `./init.sh` → `bootstrapped` + checks previos + 3 `[ok]` del shell + comando 3101, exit 0, sin servidor; 3 casos negativos en copias temporales → exit 1 con el mensaje correspondiente en stderr y sin listener en 3101 (copias eliminadas); `python3 -m http.server 3101 --directory .` + `curl -sI` → `/` 200 `text/html`, `/styles.css` 200 `text/css`, Google Fonts 200; Chrome DevTools 390×844 sin mensajes de consola y red solo con `/`, `styles.css` y la hoja de fuentes (sin fallos); geometría 320→288px/x16, 375→343px/x16, 390→358px/x16, 768→400px/x184, 1280→400px/x440, con espacio superior/inferior igual y `scrollWidth == clientWidth` en todos; computed `.card` = fondo blanco, radio 12px, borde 1px `rgba(0,0,0,0.04)`, sombra de DESIGN.md, y `body` en `rgb(247, 249, 255)`; override temporal `.card { min-height: 1200px }` a 390×600 → `top=24` en `scrollTop=0`, scroll hasta el fondo, sin scroll horizontal (override retirado). Servidor de 3101 detenido; puerto libre.
@@ -82,6 +92,28 @@
 ### Session 007
 
 - Date: 2026-10-23
+- Goal: repair `link-button-component` after validator `revise` (brief: implicit `/favicon.ico` 404 console error in both required viewports; durable evidence overstated the browser result).
+- Completed: added `<link rel="icon" href="data:,">` to `index.html` `<head>` so Chrome does not request `/favicon.ico`; no files, JS or dependencies added and `:root` still has 51 tokens. Corrected the overstated evidence in `feature_list.json` (previous console/network entry now records the 404 and points to the post-repair run) and annotated Session 006 in `PROGRESS.md` with the retroactive correction. No other feature work.
+- Verification run: `bash -n init.sh` → OK. `./init.sh` → `Harness status: bootstrapped (static site detected)`, bootstrap `[ok]` ×3, `[ok] design tokens present (51/51)`, `[ok] .link-button base rule exists`, `[ok] link button component contract (6/6)`, `[ok] prefers-reduced-motion media query`, exit `0`, no server started. Negative test (temp copy with `height: 48px;` removed) → stderr `FAILED - .link-button base rule missing declaration: height: 48px;` + `Harness status: FAILED - .link-button component contract is missing 1 of 6 required declarations`, exit `1`; temp copy deleted.
+- Browser (single server `python3 -m http.server 3102 --directory .`, stopped afterwards; fresh navigation ignoring cache in both viewports): **390×844** → 4 requests (`GET /` 200, `styles.css` 304, Google Fonts CSS 200, WOFF2 200), **no `/favicon.ico` request**, console **0 messages**; button 358×48 with `padding:0px 20px`, radius 6px, `space-between`, 11px/800, line-height 16px, tracking 1.98px, uppercase, icon 18×18, `scrollWidth=clientWidth=390`. **1280×800** → 4 requests (`GET /` 200, `styles.css` 200, Google Fonts CSS 200, WOFF2 200), **no `/favicon.ico` request**, console **0 messages**; wrapper 420 centered (`left=430`), button 388×48; hover → `transform:matrix(1, 0, 0, 1, 0, -1.5)`, `box-shadow:rgba(108, 114, 234, 0.28) 0px 8px 18px 0px`, `filter:brightness(1.03)`; `Tab` → `:focus-visible=true`, outline `rgb(88, 92, 229) solid 2px` offset 2px; `Enter` navigated to `#link-button-demo` with no new console messages; `prefers-reduced-motion: reduce` → `transition-duration:0s` and `transform:none` under hover and focus. Server access log contains 0 `favicon` lines.
+- Evidence captured: command outputs above; post-repair browser entry added to `feature_list.json`; Session 006 claim corrected.
+- Files or artifacts updated: `index.html`, `feature_list.json`, `PROGRESS.md`, `docs/specs/link-button-component.md` (note on the icon declaration).
+- Known risk or unresolved issue: contrast AA deviation (3.86–4.13:1) still inherited by `accessibility-baseline`; temporary demo still pending removal in `page-shell`.
+- Next best step: independent re-validation of `link-button-component` (`feature-validator`). Do not commit until the orchestrator persists acceptance.
+
+### Session 008
+
+- Date: 2026-10-23
+- Goal: independently validate feature `link-button-component` (`feature-flow`, role `validator`) after the favicon repair and persist acceptance.
+- Completed: validator `feature-validator` returned `accept` in the full re-validation round (round 1 had returned `revise` for the implicit `/favicon.ico` 404 console error and overstated evidence); `feature_list.json` moved `link-button-component` from `passing` to `accepted` with validator evidence; validation record created at `docs/validations/link-button-component.md`.
+- Verification run: `bash -n init.sh` OK; `./init.sh` → `bootstrapped` + bootstrap 3/3 + tokens 51/51 + `[ok] .link-button base rule exists` + `[ok] link button component contract (6/6)` + `[ok] prefers-reduced-motion media query`, exit 0, sin servidor; caso negativo independiente sin `height: 48px;` → exit 1 con `FAILED - .link-button base rule missing declaration: height: 48px;`; `:root` 51 tokens, sin `<script>`, `package.json`, bundler ni dependencias; `git diff --check` OK; servidor único en 3102 detenido y puerto libre.
+- Browser evidence: 390×844 → 4 peticiones 200 (documento, Google Fonts CSS, `styles.css`, WOFF2), sin `/favicon.ico`, consola 0 mensajes; botón 358×48, padding `0px 20px`, radio 6px, `space-between`, 11px/800, tracking 1.98px, uppercase, icono 18×18, `scrollWidth=clientWidth=390`; 1280×800 → 4 peticiones 200, sin `/favicon.ico`, consola 0 mensajes; wrapper 420 centrado, botón 388×48; hover `matrix(1, 0, 0, 1, 0, -1.5)` + sombra hover + `brightness(1.03)`; `Tab` → outline `rgb(88, 92, 229) solid 2px` offset 2px; `Enter` → `#link-button-demo`; reduced motion → `transition-duration:0s`, `transform:none`; contraste 3.86–4.13:1 registrado como riesgo heredado.
+- Evidence captured: `docs/validations/link-button-component.md`; acceptance entry appended in `feature_list.json`.
+- Files or artifacts updated: `feature_list.json`, `PROGRESS.md`, `docs/validations/link-button-component.md`.
+- Known risk or unresolved issue: contrast AA deviation (3.86–4.13:1) inherited by `accessibility-baseline`; 1 nota Low no bloqueante (evidencia móvil registra `styles.css` 304 frente al 200 de la re-validación con caché bypass; no es una petición fallida). La demo temporal sigue pendiente de retirada en `page-shell`.
+- Next best step: commit `link-button-component` (Conventional Commit, sin push) y planificar/implementar `page-shell` (`feature-spec`/planner), ahora dependency-ready.
+### Session 007 — page-shell
+
 - Goal: independently validate feature `page-shell` (`feature-flow`, role `validator`) and persist acceptance.
 - Completed: validator `feature-validator` returned `accept`; `feature_list.json` moved `page-shell` from `passing` to `accepted` with validator evidence; validation record created at `docs/validations/page-shell.md`.
 - Verification run: `bash -n init.sh` OK; `./init.sh` → `bootstrapped` + checks previos + `[ok] page shell markup` + `[ok] page shell styles` + `[ok] card width contract`, exit 0, sin servidor; 3 casos negativos en copias temporales → exit 1 con stderr correcto y sin listener en 3101; servido en 3101 → `/` 200 `text/html`, `/styles.css` 200 `text/css`, Google Fonts 200; Chrome 390×844 y 1280×800 sin errores de consola ni peticiones fallidas de la página; geometría 320→288px/x16, 375→343px/x16, 390→358px/x16, 768→400px/x184, 1280→400px/x440, centrado vertical y `scrollWidth == clientWidth`; computed `.card` blanco/radio 12px/borde 1px `rgba(0,0,0,0.04)`/sombra de DESIGN.md y `.page` flex con padding 24px/16px; override `.card { min-height: 1200px }` a 390×600 → `top=24` en `scrollTop=0`, scroll hasta el final, sin scroll horizontal (override retirado); servidor detenido y puerto 3101 libre.
@@ -89,3 +121,14 @@
 - Files or artifacts updated: `feature_list.json`, `PROGRESS.md`, `docs/validations/page-shell.md`.
 - Known risk or unresolved issue: none blocking; notas Low no bloqueantes del validator (gate por `grep` textual y matiz de "sin archivos nuevos" referido a producto). El `404 /favicon.ico` automático no se contó como fallo de la feature por ser non-goal y no formar parte de las peticiones de la página.
 - Next best step: commit `page-shell` (Conventional Commit) y planificar/implementar `profile-avatar` (`feature-spec`/planner), ahora dependency-ready.
+
+### Session 009
+
+- Date: 2026-10-23
+- Goal: resolver los conflictos de `feature/link-button-component` tras el merge de la PR #7 (`page-shell`) en `demo/seed` y actualizar la PR #8.
+- Completed: fusión de `origin/demo/seed` en la rama; `index.html` conserva `<main class="page"><article class="card">` y anida la demo temporal dentro de `.card`; `styles.css` conserva `.page`/`.card` y el componente `.link-button`; `init.sh` ejecuta los checks de componente y de page shell; `PROGRESS.md`/`feature_list.json` fusionados con ambas features en `accepted`; la nota de la demo queda actualizada para retirarla al integrar las features de enlaces.
+- Verification run: `bash -n init.sh` OK; `./init.sh` exit 0 con bootstrap 3/3, tokens 51/51, `.link-button` 6/6, reduced-motion y page shell markup/styles/card width; `feature_list.json` JSON válido. Navegador (servidor 3101, detenido al terminar): 390×844 sin mensajes de consola y 4 peticiones 200 (`/`, Google Fonts CSS, `styles.css`, WOFF2), sin `/favicon.ico`; card 358×362 en x=16, botón 324×48 en x=33, radio 6px, uppercase/tracking 1.98px, icono 18×18, sin scroll horizontal. 1280×800 sin mensajes de consola y 4 peticiones 200; card 400×362 centrada (x=440, y=219), botón 366×48, focus outline `rgb(88, 92, 229) solid 2px` offset 2px; reduced motion → `transition-property:none`, `transition-duration:0s`, `transform:none`; sin scroll horizontal.
+- Evidence captured: outputs above; PR #8 actualizada con la fusión.
+- Files or artifacts updated: `index.html`, `styles.css`, `init.sh`, `PROGRESS.md`, `feature_list.json`.
+- Known risk or unresolved issue: la demo temporal `[data-demo="link-button"]` sigue en el HTML y debe retirarse al integrar las features de enlaces; contraste 3.86–4.13:1 heredado a `accessibility-baseline`.
+- Next best step: push de la rama y revisión de la PR #8 (sin merge).

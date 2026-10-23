@@ -94,3 +94,103 @@ body {
     0 18px 45px -10px rgba(25, 30, 48, 0.08),
     0 8px 16px -6px rgba(25, 30, 48, 0.03);
 }
+
+/* Components — Link button (DESIGN.md > components/button-link) */
+.link-button {
+  --link-button-bg: var(--color-gradient-1);
+  --link-button-shadow: 0 2px 6px rgba(108, 114, 234, 0.15);
+  --link-button-shadow-hover: 0 8px 18px rgba(108, 114, 234, 0.28);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  width: 100%;
+  height: 48px;
+  box-sizing: border-box;
+  padding: 0 1.25rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--link-button-bg);
+  color: var(--color-on-primary);
+  font-family: var(--font-family-base);
+  font-size: var(--text-button-label-font-size);
+  font-weight: var(--text-button-label-font-weight);
+  line-height: var(--text-button-label-line-height);
+  letter-spacing: var(--text-button-label-letter-spacing);
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow: var(--link-button-shadow);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.link-button__label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.link-button__icon {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.link-button--gradient-1 {
+  --link-button-bg: var(--color-gradient-1);
+}
+
+.link-button--gradient-2 {
+  --link-button-bg: var(--color-gradient-2);
+}
+
+.link-button--gradient-3 {
+  --link-button-bg: var(--color-gradient-3);
+}
+
+.link-button--gradient-4 {
+  --link-button-bg: var(--color-gradient-4);
+}
+
+.link-button--gradient-5 {
+  --link-button-bg: var(--color-gradient-5);
+}
+
+@media (hover: hover) {
+  .link-button:hover {
+    transform: translateY(-1.5px);
+    box-shadow: var(--link-button-shadow-hover);
+    filter: brightness(1.03);
+  }
+}
+
+.link-button:focus-visible {
+  transform: translateY(-1.5px);
+  box-shadow: var(--link-button-shadow-hover);
+  filter: brightness(1.03);
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-button {
+    transition: none;
+  }
+
+  .link-button:hover,
+  .link-button:focus-visible {
+    transform: none;
+  }
+}
+
+/* Demo temporal de link-button-component. Retirar con page-shell. */
+[data-demo="link-button"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-width: 420px;
+  margin: var(--space-xl) auto;
+  padding: 0 var(--space-gutter);
+  box-sizing: border-box;
+}
