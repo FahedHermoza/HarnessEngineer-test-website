@@ -2,14 +2,14 @@
 
 ## Current Verified State
 
-- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/devexpert-project-worktrees/profile-avatar` (worktree/rama `feature/profile-avatar`, puerto local 3201).
-- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, tokens de `styles.css`, markup `.page`/`.card`, contrato de ancho, contrato CSS del botón de Enlace y markup/asset/contrato del avatar; no arranca servidor por defecto).
+- Repository root: `/Users/fae/Documents/GitHub-World/GitHub/OpenCodeWorld/DevExpert-1` (rama `feature/page-footer` rebaseada sobre `demo/seed`).
+- Standard startup path: `./init.sh` (gate no bloqueante: valida `index.html`, tokens de `styles.css`, markup `.page`/`.card`, contrato de ancho, contrato CSS del botón de Enlace, markup/asset/contrato del avatar y markup/destinos/contratos CSS del pie; no arranca servidor por defecto).
 - Standard verification path: `./init.sh` sale `0` + `python3 -m http.server 3201 --directory .` y verificación en navegador móvil (390×844) y escritorio (1280×800).
-- Current status: `static-bootstrap`, `design-tokens`, `page-shell`, `link-button-component` y `profile-avatar` en `accepted`.
-- Current next ready feature: `profile-identity`, `avatar-fallback`, `page-footer` y `open-graph-metadata` (dependen de features ya `accepted`).
+- Current status: `static-bootstrap`, `design-tokens`, `page-shell`, `link-button-component`, `profile-avatar` y `page-footer` en `accepted`.
+- Current next ready feature: `profile-identity`, `avatar-fallback` y `open-graph-metadata` (dependen de features ya `accepted`).
 - Current blocker: none
-- Inherited risk: etiquetas blancas sobre los cinco tonos miden 3.86–4.13:1 (AA 4.5:1 no cumplido); debe resolverlo o aceptarlo `accessibility-baseline`.
-- Last verified at: 2026-10-23 (`profile-avatar`: validator `accept`, gate, casos negativos y navegador 390×844/1280×800, ver Session 011)
+- Inherited risk: etiquetas blancas sobre los cinco tonos miden 3.86–4.13:1 (AA 4.5:1 no cumplido); debe resolverlo o aceptarlo `accessibility-baseline`. El pie sí cumple AA (13.04:1 base, 5.15:1 enlaces).
+- Last verified at: 2026-10-23 (`page-footer` rebaseada sobre `demo/seed` con `profile-avatar`; `./init.sh` y navegador 390×844/1280×800, ver Session 012)
 
 ## Session Log
 
@@ -133,7 +133,7 @@
 - Known risk or unresolved issue: la demo temporal `[data-demo="link-button"]` sigue en el HTML y debe retirarse al integrar las features de enlaces; contraste 3.86–4.13:1 heredado a `accessibility-baseline`.
 - Next best step: push de la rama y revisión de la PR #8 (sin merge).
 
-### Session 010
+### Session 010 — profile-avatar
 
 - Date: 2026-10-23
 - Goal: implement feature `profile-avatar` (spec `docs/specs/profile-avatar.md`) in worktree `profile-avatar`.
@@ -145,7 +145,7 @@
 - Known risk or unresolved issue: sin harness E2E (añadirlo introduciría dependencias prohibidas); la demo temporal sigue pendiente de retirada en las features de enlaces; contraste 3.86–4.13:1 heredado a `accessibility-baseline`.
 - Next best step: validación independiente de `profile-avatar` (`feature-validator`). No commitear hasta que el orquestador persista la aceptación.
 
-### Session 011
+### Session 011 — profile-avatar
 
 - Date: 2026-10-23
 - Goal: independently validate feature `profile-avatar` (`feature-flow`, role `validator`) and persist acceptance in worktree `profile-avatar`.
@@ -155,3 +155,36 @@
 - Files or artifacts updated: `feature_list.json`, `PROGRESS.md`, `docs/validations/profile-avatar.md`.
 - Known risk or unresolved issue: none blocking; 4 notas Low no bloqueantes del validator (gate textual, el gate no verifica la posición dentro de `.card`, pista de viewports manuales, sin interpretación de screenshots). La demo temporal sigue pendiente de retirada en las features de enlaces; contraste 3.86–4.13:1 heredado a `accessibility-baseline`.
 - Next best step: commit `profile-avatar` (Conventional Commit, sin push) y planificar/implementar `profile-identity`, ahora dependency-ready.
+### Session 010 — page-footer
+
+- Date: 2026-10-23
+- Goal: implement feature `page-footer` (spec `docs/specs/page-footer.md`).
+- Completed: `index.html` añade `<footer class="page-footer">` como último hijo de `article.card`, después de la demo temporal, con `<p class="page-footer__text">`, enlace `mailto:fahedhermoza@gmail.com`, separador `·` `aria-hidden="true"` y enlace al Handle `@fahedhermoza` → `https://www.instagram.com/fahedhermoza/` con `aria-label="@fahedhermoza en Instagram"`. `styles.css` añade la sección del pie antes del bloque de demo (`.page-footer` con `space-lg` de margen/padding, borde superior 1px `--color-border`, `text-align:center`, `body-md`, `--color-on-surface`; `.page-footer__text`; `.page-footer__link` acento/subrayado/offset; `:focus-visible` outline acento 2px offset 2px; `.page-footer__separator` con `space-xs`). `init.sh` añade `Page footer checks:` (markup, destinos, contrato 5/5, acento 3/3, foco) y cambia el puerto sugerido/`RUN_SERVE_COMMAND` de 3101 a 3203 sin debilitar checks previos y sin arrancar servidor por defecto. `:root` sigue con 51 tokens; sin JS, dependencias, assets ni cambios en el page shell, el botón o la demo.
+- Verification run: `bash -n init.sh` → OK. `./init.sh` → `bootstrapped` + bootstrap 3/3 + tokens 51/51 + componente 6/6 + reduced motion + page shell 3/3 + `[ok] page footer markup`, `[ok] page footer destinations`, `[ok] page footer contract (5/5)`, `[ok] page footer link accent`, `[ok] page footer focus-visible`, comando en 3203, exit 0, sin servidor. Seis casos negativos en copias temporales fuera del repo → exit 1 con el stderr esperado en cada uno (markup, email, Handle, `border-top`, acento, outline), sin listener en 3203; copias eliminadas y repo intacto.
+- Browser (servidor único `python3 -m http.server 3203 --directory .`, detenido al terminar; puerto 3203 libre; log sin líneas `favicon`; recargas frescas ignorando caché): **390×844** → consola 0 mensajes, red 4/4 200 (`/`, Google Fonts CSS, `styles.css`, WOFF2), sin `/favicon.ico`, `scrollWidth=clientWidth=390`; pie 356×69 en x=17, último hijo de la tarjeta (`FOOTER.page-footer`), borde 1px `rgb(235,238,242)`, centrado, padding/margin 24px, 13px/20px/400, `rgb(45,49,57)`; enlaces `rgb(88,92,229)` subrayados con offset 2px, destinos/nombres accesibles correctos; `Tab` → `:focus-visible` con outline `rgb(88,92,229) solid 2px` offset 2px. **1280×800** → consola 0 mensajes, red 4/4 200, sin `/favicon.ico`, `scrollWidth=clientWidth=1280`; tarjeta 400px en x=440, pie 398×69 en x=441 (content box), mismos estilos, enlaces en una línea, foco visible en ambos. **320×844 (extra)** → consola 0 mensajes, red 4/4 200, sin `/favicon.ico`, `scrollWidth=clientWidth=320`; pie 286×89, texto en dos líneas, borde/centrado intactos. `prefers-reduced-motion: reduce` → footer/enlaces `transition-duration:0s`; bloque de `.link-button` activo (`transition-property:none`, `transition-duration:0s`).
+- Contrast: `#2d3139` sobre blanco = 13.04:1; `#585ce5` sobre blanco = 5.15:1; ambos AA. `#717886` = 4.44:1 descartado para texto de 13px.
+- Evidence captured: salidas anteriores; `feature_list.json` `page-footer` en `passing` con evidencia; estado verificado de este worktree actualizado.
+- Files or artifacts updated: `index.html`, `styles.css`, `init.sh`, `feature_list.json`, `PROGRESS.md`.
+- Known risk or unresolved issue: destino del Handle asumido como Instagram (el spec lo documenta; cambio de un atributo si el propietario prefiere otro). Enlaces inline <44px de alto: excepción WCAG 2.5.8, reevaluable en `accessibility-baseline`. Riesgo heredado de contraste de `.link-button` sigue abierto.
+- Next best step: validación independiente de `page-footer` (`feature-validator`). No commitear hasta que el orquestador persista la aceptación.
+
+### Session 011 — page-footer
+
+- Date: 2026-10-23
+- Goal: validar independientemente `page-footer` (`feature-flow`, rol `validator`) y persistir la aceptación.
+- Completed: validator `feature-validator` devolvió `accept` sin hallazgos Critical/High/Medium; `feature_list.json` movió `page-footer` de `passing` a `accepted` con evidencia de aceptación; registro creado en `docs/validations/page-footer.md`. Solo se modificaron los artefactos de esta feature; ninguna otra feature cambió de estado.
+- Verification run: `bash -n init.sh` OK; `./init.sh` exit 0 sin servidor con bootstrap 3/3, tokens 51/51, componente 6/6 + reduced motion, page shell 3/3 y los cinco checks del pie; seis casos negativos en copias temporales → exit 1 con stderr correcto y sin listener en 3203. Navegador en 3203 (servidor detenido; puerto libre): 390×844 y 1280×800 con consola 0 mensajes, 4/4 peticiones 200, sin `/favicon.ico`, sin scroll horizontal, pie 356×69/398×69 con borde 1px `rgb(235,238,242)`, centrado, padding/margin 24px, 13px/20px/400 `rgb(45,49,57)`, enlaces `rgb(88,92,229)` subrayados con offset 2px y foco `rgb(88,92,229) solid 2px` offset 2px; 320×844 extra sin scroll horizontal; reduced motion `0s`; contraste 13.04:1 y 5.15:1. `:root` 51 tokens, sin JS/dependencias/assets, page shell y demo intactos; `git diff --check` OK.
+- Evidence captured: `docs/validations/page-footer.md`; entrada de aceptación en `feature_list.json`.
+- Files or artifacts updated: `feature_list.json`, `PROGRESS.md`, `docs/validations/page-footer.md`.
+- Known risk or unresolved issue: notas Low no bloqueantes (matiz de color del pie en DESIGN.md vs AA, enlaces inline <44px deferidos a `accessibility-baseline`, gate textual, destino del Handle asumido como Instagram). Riesgo heredado de contraste de `.link-button` (3.86–4.13:1) sigue abierto para `accessibility-baseline`.
+- Next best step: commit `page-footer` (Conventional Commit, sin push); después planificar `profile-avatar` (`feature-spec`/planner).
+
+### Session 012 — rebase de page-footer
+
+- Date: 2026-10-23
+- Goal: rebasear `feature/page-footer` sobre `demo/seed` tras el merge de `profile-avatar` (PR #13) para habilitar “Rebase and merge”.
+- Completed: `git rebase origin/demo/seed` (base `3eeab3a`); conflictos en `init.sh` y `PROGRESS.md`. `init.sh` combina los checks de avatar y de pie (base + bloque `Page footer checks:`), sin duplicar el arranque del servidor. `PROGRESS.md` combina el estado verificado y conserva las sesiones de ambas features. `index.html`, `styles.css` y `feature_list.json` se auto-fusionaron.
+- Verification run: `bash -n init.sh` OK; `./init.sh` exit 0 con bootstrap 3/3, tokens 51/51, componente 6/6, page shell 3/3, avatar 5/5 y pie 5/5. Navegador 390×844: 0 mensajes de consola, 5/5 peticiones 200 (`/`, Google Fonts CSS, `styles.css`, `assets/avatar.jpg`, WOFF2), sin `/favicon.ico`, sin scroll horizontal; avatar 88×88 en x=151, footer 356×69 con borde 1px `rgb(235,238,242)`, centrado, enlaces `rgb(88,92,229)`. 1280×800: mismas condiciones, avatar 88×88 en x=596, footer 398×69 en x=441, sin scroll horizontal.
+- Files or artifacts updated: `init.sh`, `PROGRESS.md`.
+- Known risk or unresolved issue: las demás PRs abiertas (#15, #16) tocan los mismos archivos y volverán a necesitar rebase después de cada merge.
+- Next best step: force-push de la rama y “Rebase and merge” de la PR #14.
