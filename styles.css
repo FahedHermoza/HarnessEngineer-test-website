@@ -236,6 +236,11 @@ body {
   }
 }
 
+/* Links — Enlaces (DESIGN.md > layout, components/button-link) */
+.links {
+  padding: 0 var(--space-lg);
+}
+
 /* Components — Page footer (DESIGN.md > components/pie) */
 .page-footer {
   margin-top: var(--space-lg);
