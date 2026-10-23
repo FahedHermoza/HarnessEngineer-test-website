@@ -236,8 +236,11 @@ body {
   }
 }
 
-/* Links — Enlaces (DESIGN.md > layout, components/button-link) */
+/* Links — Contenedor de Enlaces reales. El orden, el gap y la progresión del degradado pertenecen a links-order-gradient. */
 .links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
   padding: 0 var(--space-lg);
 }
 
