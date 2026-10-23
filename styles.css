@@ -289,6 +289,64 @@ body {
   outline-offset: 2px;
 }
 
+/* Components — Save contact (DESIGN.md > components/save-contact) */
+.save-contact {
+  padding: var(--space-sm) var(--space-lg) 0;
+}
+
+.save-contact-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  width: 100%;
+  height: 48px;
+  box-sizing: border-box;
+  padding: 0 1.25rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-container-low);
+  color: var(--color-primary);
+  font-family: var(--font-family-base);
+  font-size: var(--text-button-label-font-size);
+  font-weight: var(--text-button-label-font-weight);
+  line-height: var(--text-button-label-line-height);
+  letter-spacing: var(--text-button-label-letter-spacing);
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(25, 30, 48, 0.08);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.save-contact-button__label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.save-contact-button__icon {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+}
+
+@media (hover: hover) {
+  .save-contact-button:hover {
+    transform: translateY(-1.5px);
+    box-shadow: 0 8px 18px rgba(25, 30, 48, 0.12);
+    filter: brightness(1.03);
+  }
+}
+
+.save-contact-button:focus-visible {
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 18px rgba(25, 30, 48, 0.12);
+  filter: brightness(1.03);
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .link-button {
     transition: none;
@@ -296,6 +354,15 @@ body {
 
   .link-button:hover,
   .link-button:focus-visible {
+    transform: none;
+  }
+
+  .save-contact-button {
+    transition: none;
+  }
+
+  .save-contact-button:hover,
+  .save-contact-button:focus-visible {
     transform: none;
   }
 }
