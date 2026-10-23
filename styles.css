@@ -95,6 +95,23 @@ body {
     0 8px 16px -6px rgba(25, 30, 48, 0.03);
 }
 
+/* Components — Profile avatar (DESIGN.md > components.avatar) */
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block: var(--space-xl);
+}
+
+.profile-avatar {
+  display: block;
+  width: 88px;
+  height: 88px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  box-shadow: 0 0 0 3px var(--color-surface);
+}
+
 /* Components — Link button (DESIGN.md > components/button-link) */
 .link-button {
   --link-button-bg: var(--color-gradient-1);
