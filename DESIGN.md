@@ -14,7 +14,7 @@ designAssets:
       status: available
     - path: assets/og-image.jpg
       role: Imagen Open Graph 1200×630
-      status: available (aprobación visual humana pendiente)
+      status: available (aprobada el 2026-10-23)
 colors:
   background: '#f7f9ff'
   surface: '#ffffff'
@@ -113,7 +113,7 @@ components:
 
 - **Carrd Template #93** — `https://0a41b4efa061ab62.demo.carrd.co` — *inspiration only*. Define la estructura base: tarjeta centrada, avatar circular, handle en gris, divisores finos, botones de ancho completo con icono a la derecha. No es fuente de verdad.
 - **`assets/avatar.jpg`** — foto de perfil; ya presente en el repositorio.
-- **`assets/og-image.jpg`** — imagen Open Graph 1200×630. Estado: disponible; composición reproducible documentada abajo y aprobación visual humana pendiente.
+- **`assets/og-image.jpg`** — imagen Open Graph 1200×630. Estado: disponible y aprobada por el propietario el 2026-10-23; composición reproducible documentada abajo.
 
 Autoridad: los tokens, reglas de layout y guía de componentes de este documento son la fuente de verdad cuando el template o las imágenes entren en conflicto.
 
@@ -298,5 +298,5 @@ cinco tonos y el token de texto secundario. Ratios calculados con la fórmula WC
 
 - ~~Tratamiento final del botón "Guardar contacto" (neutro vs dentro del degradado).~~ **Resuelto (2026-10-23, `save-contact-vcard`):** misma forma que un Enlace con tratamiento neutro `#f1f4fa`/`#484dc4`, fuera de la rampa, entre los Enlaces y el pie.
 - ~~Cómo se repite/extiende el degradado de 5 tonos para 8 botones.~~ **Resuelto (2026-10-23, `links-order-gradient`):** los 7 Enlaces usan los cinco tonos más dos intermedios 50/50; "Guardar contacto" queda neutro y fuera de la rampa.
-- ~~Diseño definitivo de `assets/og-image.jpg`.~~ **Resuelto (2026-10-23, `deploy-cloudflare-pages`):** JPEG 1200×630 con la composición de la sección "Open Graph Image"; aprobación visual humana pendiente de confirmar.
+- ~~Diseño definitivo de `assets/og-image.jpg`.~~ **Resuelto (2026-10-23, `deploy-cloudflare-pages`):** JPEG 1200×630 con la composición de la sección "Open Graph Image"; aprobada por el propietario el 2026-10-23.
 - ¿Se necesita favicon y `theme-color`? (fuera del MVP por ahora).

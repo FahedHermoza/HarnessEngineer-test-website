@@ -5,22 +5,27 @@
 - **Resuelto (2026-10-23, `deploy-cloudflare-pages`) — imagen social:** `assets/og-image.jpg`
   existe como JPEG 1200×630 (37 214 bytes, SHA-256 `b7c9b694…a012a2`), distinto del avatar,
   generado con la receta reproducible del spec y validado con `sips`/`file`. La composición
-  usa los tokens de `DESIGN.md`. **Aprobación visual humana pendiente**; el agente no
-  interpreta imágenes y no la declara aprobada.
+  usa los tokens de `DESIGN.md`. **Aprobación visual humana registrada el 2026-10-23** por el
+  propietario; el agente no interpreta imágenes.
 - **Resuelto (2026-10-23) — URL pública:** la plataforma real es **Cloudflare Workers con
   static assets**, no Pages: `https://fahed-hermoza-card.fahedhermoza.workers.dev/`.
   `canonical`, `og:url` y las imágenes absolutas ya están cableados en `index.html` y
   `init.sh` los verifica. El id histórico `deploy-cloudflare-pages` se conserva por
   trazabilidad y no autoriza a crear un proyecto Pages.
-- **Pendiente — redeploy manual y verificación live:** el HTML live actual es el anterior
-  (SHA-256 `145b2028…`) y `/assets/og-image.jpg` sigue en 404 hasta que el propietario
-  redeploye. El método manual (dashboard vs `wrangler`) no está documentado en el repo; no se
-  inventan credenciales ni pipeline. Tras el redeploy hay que repetir el bloque `curl` del
-  spec (5 assets 200, MIME, hashes local/live, `/index.html` 307, `http://` status). Un gate
-  verde no demuestra el redeploy.
+- **Resuelto (2026-10-24) — redeploy manual y verificación live:** el HTML live ya coincide
+  con el local (`55e56730…`) y los cinco paths responden 200 (`/`, `styles.css`, avatar,
+  `og-image` `image/jpeg`, vCard `text/x-vcard`); `/index.html` 307 → `/`, `http://` 200 y los
+  SHA-256 local/remoto coinciden. `cache-control: public, max-age=0, must-revalidate` y
+  `cf-cache-status: HIT` fueron observados. El método manual (dashboard vs `wrangler`) sigue
+  sin documentarse, pero `wrangler.jsonc` es la configuración externa usada por el propietario.
 - **Pendiente — unfurl real:** aunque el HTML y la imagen sean correctos, WhatsApp/Facebook/
   iMessage cachean por URL y aplican políticas propias. Probar con Facebook Sharing Debugger
   y un mensaje de WhatsApp, y registrar el resultado sin afirmar éxito sin observación.
+- **Nota de exposición (2026-10-24) — `wrangler.jsonc`:** su `assets.directory: "."` publica la
+  raíz del repo; `/.git/config`, `/PROGRESS.md`, `/AGENTS.md` y `/docs/...` responden 200. No
+  hay secretos trackeados ni `.env` público, pero cualquier archivo futuro en la raíz quedaría
+  servido automáticamente. Recomendación para el propietario: acotar `assets.directory` a un
+  directorio público o añadir exclusiones; no es un defecto de la feature.
 - **Recomendado — "Always Use HTTPS":** hoy `http://` en la raíz responde 200 sin
   redirección. Es un ajuste de Cloudflare, fuera del repo; se recomienda activarlo, pero no
   bloquea la aceptación.
@@ -70,7 +75,7 @@
 - **Vista previa deficiente o sin imagen (mitigado):** el asset ya existe, es 1200×630 y las
   URLs son absolutas; `init.sh` falla ante asset ausente, no JPEG, dimensiones incorrectas,
   copia del avatar o URL no absoluta. Queda el riesgo de que el cliente social cachee una
-  vista previa antigua o ignore las etiquetas; se comprueba manualmente después del redeploy.
+  vista previa antigua o ignore las etiquetas; la prueba manual de unfurl sigue pendiente.
 - **Caché y redeploy manual:** Cloudflare sirve HTML/assets con `max-age=0,
   must-revalidate`, pero puede devolver `cf-cache-status: HIT`; tras el redeploy hay que
   verificar con cache-busting (`?cb=`) y no confundir una respuesta cacheada con el estado
@@ -90,7 +95,7 @@
   un 200 y un `Content-Type` correcto no demuestran que la agenda importe nombre, teléfono,
   correo y Enlaces. `python3 -m http.server` sirve `text/x-vcard`; Cloudflare Workers podría
   usar `text/vcard` u `octet-stream` porque no hay `_headers` en el MVP. Mitigación:
-  `download` + extensión `.vcf`; reevaluar cabeceras en `deploy-cloudflare-pages`.
+  `download` + extensión `.vcf`; MIME observado en producción el 2026-10-24: `text/x-vcard`.
   Algunas versiones de iOS guardan en Archivos y otras muestran vista previa; ambas
   cumplen «ofrece/descarga».
 - **Handoff de WhatsApp no verificado:** un `href` correcto no demuestra que el dispositivo abra la app o muestre la página intermedia de `wa.me`. La comprobación final requiere un teléfono real; se mantiene como pendiente manual y no se cuenta como fallo del harness.
@@ -99,8 +104,8 @@
 
 - Confirmar el comportamiento real de descarga/importación de la vCard en iOS y Android
   actuales (pendiente manual; no ejecutado en este entorno).
-- Verificar tras el redeploy los límites de caché, MIME y rutas de assets en Cloudflare
-  Workers static assets.
+- Límites de caché, MIME y rutas de assets en Cloudflare Workers static assets: verificados el
+  2026-10-24 (cinco paths 200, `text/x-vcard`, hashes idénticos).
 - ~~Definir herramienta para generar `assets/og-image.jpg` 1200×630.~~ **Resuelto
   (2026-10-23):** receta HTML + Chrome + `sips`/`file`, documentada en el spec y `DESIGN.md`;
-  solo falta la aprobación visual humana.
+  aprobación visual humana registrada el 2026-10-23.

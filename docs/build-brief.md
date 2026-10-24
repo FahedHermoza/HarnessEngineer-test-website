@@ -71,5 +71,6 @@ Criterio de slice: un visitante puede abrir la página desde un teléfono, enten
 - La Tagline se corrigió de "Enginner" a "Engineer".
 - El sistema visual de referencia es `DESIGN.md` ("Serene Bio Card"), inspirado en el Carrd Template #93.
 - La URL pública está definida: `https://fahed-hermoza-card.fahedhermoza.workers.dev/`
-  (Cloudflare Workers static assets, no Pages). El redeploy es manual del propietario y la
-  verificación live/unfurl sigue en `docs/risks-and-open-questions.md`.
+  (Cloudflare Workers static assets, no Pages). El redeploy es manual del propietario; la
+  verificación live se completó el 2026-10-24 y el unfurl real sigue pendiente en
+  `docs/risks-and-open-questions.md`.
