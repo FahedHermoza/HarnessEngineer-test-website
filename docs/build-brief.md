@@ -61,11 +61,15 @@ Criterio de slice: un visitante puede abrir la página desde un teléfono, enten
 - Los siete Enlaces y la vCard funcionan en iOS y Android sin ajustes manuales.
 - La vista previa al compartir muestra título, descripción e imagen.
 - Se ve correctamente sin scroll horizontal en pantallas de 320px.
-- Publicada en Cloudflare Pages desde el repositorio de GitHub.
+- Publicada en **Cloudflare Workers static assets** con HTTPS y accesible en
+  `https://fahed-hermoza-card.fahedhermoza.workers.dev/`, sin build y con el HTML/assets
+  publicados coincidiendo con el repositorio.
 
 ## Notes
 
 - El contenido visible de la página va en español.
 - La Tagline se corrigió de "Enginner" a "Engineer".
 - El sistema visual de referencia es `DESIGN.md` ("Serene Bio Card"), inspirado en el Carrd Template #93.
-- La URL pública final aún no está definida; ver `docs/risks-and-open-questions.md`.
+- La URL pública está definida: `https://fahed-hermoza-card.fahedhermoza.workers.dev/`
+  (Cloudflare Workers static assets, no Pages). El redeploy es manual del propietario y la
+  verificación live/unfurl sigue en `docs/risks-and-open-questions.md`.

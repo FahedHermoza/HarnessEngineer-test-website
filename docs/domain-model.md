@@ -19,9 +19,15 @@
 
 La Tarjeta digital no tiene estado interno. Su ciclo es de publicación:
 
-1. **Borrador:** archivos locales (`index.html`, `assets/`).
-2. **Publicada:** desplegada en Cloudflare Pages y accesible por URL.
-3. **Actualizada:** se editan Enlaces o Perfil y se vuelve a desplegar.
+1. **Borrador:** archivos locales (`index.html`, `assets/`) validados por `./init.sh`.
+2. **Publicada:** desplegada manualmente en **Cloudflare Workers static assets** y accesible
+   por `https://fahed-hermoza-card.fahedhermoza.workers.dev/` con HTTPS. Criterio de
+   publicación: los cinco paths (`/`, `/styles.css`, `/assets/avatar.jpg`,
+   `/assets/og-image.jpg` y `/assets/fahedhermoza.vcf`) responden 200; el HTML y los assets
+   publicados coinciden byte a byte con el repo; y `canonical`/`og:url`/imágenes sociales
+   apuntan a esa misma URL.
+3. **Actualizada:** se editan Enlaces o Perfil, se ejecuta el gate y el propietario vuelve a
+   desplegar manualmente.
 4. **Retirada:** la URL deja de estar disponible (caso no previsto en el MVP).
 
 ## Important Scenarios
@@ -39,3 +45,5 @@ La Tarjeta digital no tiene estado interno. Su ciclo es de publicación:
 - **Navegador sin NFC:** el visitante usa el Código QR o el enlace compartido.
 - **Sin app para `tel:` o `mailto:`:** el sistema decide la app; la página no puede forzarla.
 - **vCard en iOS/Android:** el comportamiento de descarga difiere; debe validarse en ambos.
+- **Vista previa social:** aunque `og-image.jpg` y las URLs absolutas sean correctas, el
+  unfurl puede fallar por caché o política del cliente; no se garantiza desde el dominio.

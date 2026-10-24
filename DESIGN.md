@@ -14,7 +14,7 @@ designAssets:
       status: available
     - path: assets/og-image.jpg
       role: Imagen Open Graph 1200×630
-      status: pending
+      status: available (aprobación visual humana pendiente)
 colors:
   background: '#f7f9ff'
   surface: '#ffffff'
@@ -113,13 +113,16 @@ components:
 
 - **Carrd Template #93** — `https://0a41b4efa061ab62.demo.carrd.co` — *inspiration only*. Define la estructura base: tarjeta centrada, avatar circular, handle en gris, divisores finos, botones de ancho completo con icono a la derecha. No es fuente de verdad.
 - **`assets/avatar.jpg`** — foto de perfil; ya presente en el repositorio.
-- **`assets/og-image.jpg`** — imagen Open Graph 1200×630. Estado: pendiente de crear.
+- **`assets/og-image.jpg`** — imagen Open Graph 1200×630. Estado: disponible; composición reproducible documentada abajo y aprobación visual humana pendiente.
 
 Autoridad: los tokens, reglas de layout y guía de componentes de este documento son la fuente de verdad cuando el template o las imágenes entren en conflicto.
 
 ## Generated Concept Images
 
-Ninguna. Este agente no puede generar ni leer imágenes, así que no se produjeron conceptos. La `og-image` se creará con otra herramienta.
+La `og-image` no es un concepto de IA: se generó con la receta reproducible del spec
+`deploy-cloudflare-pages` (HTML temporal no commiteado + captura de Chrome a 1200×630 y
+JPEG calidad 90). El agente no interpreta la imagen resultante; la aprobación de la
+composición es humana.
 
 ## Product Feel
 
@@ -189,6 +192,26 @@ Una sola vista: la Tarjeta digital. Estados:
 
 1. **Perfil → Enlaces → Guardar contacto → Pie** (orden vertical).
 2. **Avatar ausente:** círculo con iniciales "FH" en `#484dc4` sobre `#f1f4fa`.
+
+## Open Graph Image (1200×630)
+
+Asset: `assets/og-image.jpg` — JPEG 1200×630, 37 214 bytes, SHA-256
+`b7c9b694…a012a2`, generado el 2026-10-23. No es una captura de la página ni una copia del
+avatar y no se muestra como `<img>` dentro de la Tarjeta.
+
+Composición (tokens de este documento):
+
+- Lienzo `--color-background` `#f7f9ff` a 1200×630.
+- Tarjeta blanca 880×440 centrada, radio 24px, borde `1px solid rgba(0,0,0,0.04)` y la
+  sombra de `components.card`.
+- Avatar real 128×128 circular (opcional) a la izquierda.
+- Nombre `Fahed Hermoza` a 64px/600 `#2d3139`; Handle `@fahedhermoza` a 30px/400
+  `#6b7280`; Tagline `Software Engineer & Speaker & Builder` a 26px/400 `#6b7280`.
+- Tipografía Plus Jakarta Sans (o pila del sistema). Sin colores, tipografías ni motivos
+  fuera de esta guía.
+
+La aprobación visual de la composición es del propietario; `./init.sh` solo valida que el
+JPEG mida 1200×630, no sea una copia del avatar y no exceda 300 KiB.
 
 ## Responsive Baseline
 
@@ -275,5 +298,5 @@ cinco tonos y el token de texto secundario. Ratios calculados con la fórmula WC
 
 - ~~Tratamiento final del botón "Guardar contacto" (neutro vs dentro del degradado).~~ **Resuelto (2026-10-23, `save-contact-vcard`):** misma forma que un Enlace con tratamiento neutro `#f1f4fa`/`#484dc4`, fuera de la rampa, entre los Enlaces y el pie.
 - ~~Cómo se repite/extiende el degradado de 5 tonos para 8 botones.~~ **Resuelto (2026-10-23, `links-order-gradient`):** los 7 Enlaces usan los cinco tonos más dos intermedios 50/50; "Guardar contacto" queda neutro y fuera de la rampa.
-- Diseño definitivo de `assets/og-image.jpg`.
+- ~~Diseño definitivo de `assets/og-image.jpg`.~~ **Resuelto (2026-10-23, `deploy-cloudflare-pages`):** JPEG 1200×630 con la composición de la sección "Open Graph Image"; aprobación visual humana pendiente de confirmar.
 - ¿Se necesita favicon y `theme-color`? (fuera del MVP por ahora).
