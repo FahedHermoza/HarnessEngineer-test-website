@@ -6,8 +6,8 @@ y del Código QR.
 
 - **Producción:** <https://fahed-hermoza-card.fahedhermoza.workers.dev/>
 - **Stack:** HTML5 + CSS moderno; sin framework, bundler, backend ni dependencias de runtime.
-- **Estado:** 20 features `accepted`; `deploy-cloudflare-pages` en `passing`, pendiente de la
-  verificación live posterior al redeploy.
+- **Estado:** 21 features `accepted`; despliegue live verificado el 2026-10-24. El unfurl social
+  real sigue pendiente de observación humana.
 
 ## Qué incluye
 
@@ -152,8 +152,11 @@ verificación.
 - Origen único: `https://fahed-hermoza-card.fahedhermoza.workers.dev/`.
 - Sin comando de build: se publica la raíz del repositorio (`index.html`, `styles.css`,
   `assets/`).
-- El despliegue se dispara al llegar a `main` y lo opera el propietario; no hay `wrangler.toml`,
-  CI ni credenciales en el repo.
+- El despliegue se dispara al llegar a `main` y lo opera el propietario; no hay CI ni
+  credenciales en el repo. `wrangler.jsonc` es configuración externa del propietario.
+- `wrangler.jsonc` usa `assets.directory: "."`, por lo que publica la raíz del repo (incluye
+  rutas internas como `/.git/config` y `/PROGRESS.md`). No hay secretos trackeados; se
+  recomienda acotar el directorio o excluir rutas internas.
 - Si cambia el origen, actualiza juntos `PRODUCTION_ORIGIN`/`PRODUCTION_URL`/
   `PRODUCTION_IMAGE_URL` en `init.sh` y las cuatro URLs del `<head>`.
 
@@ -174,6 +177,7 @@ verificación.
 │   ├── avatar.jpg
 │   ├── og-image.jpg            # Open Graph 1200×630
 │   └── fahedhermoza.vcf        # vCard 3.0 estática (CRLF)
+├── wrangler.jsonc              # Configuración externa de Cloudflare Workers
 ├── docs/
 │   ├── build-brief.md
 │   ├── domain-model.md
@@ -200,9 +204,11 @@ verificación.
 
 ## Pendientes conocidos
 
-- Verificación live de `deploy-cloudflare-pages` tras el redeploy y validación independiente.
-- Unfurl real en WhatsApp/Facebook (depende de caché y políticas del cliente).
+- Unfurl real en WhatsApp/Facebook/iMessage: los tags y la imagen son correctos, pero no se ha
+  observado la vista previa (depende de caché y políticas del cliente).
 - Importación real de la vCard en iOS y Android.
 - Activar “Always Use HTTPS” en Cloudflare (`http://` responde 200 hoy).
+- `wrangler.jsonc` publica la raíz del repo; acotar `assets.directory` o excluir rutas internas
+  (`/.git/`, `docs/`, `PROGRESS.md`, etc.) para no exponer archivos de trabajo.
 - `meta description` y analítica están fuera del alcance actual.
 - No hay E2E persistente: la cobertura es `init.sh` + Chrome DevTools + Lighthouse + `curl` live.
