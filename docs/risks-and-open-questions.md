@@ -1,10 +1,29 @@
 # Risks and Open Questions
 
-## Blocking Next Phase
+## Publication Status And Manual Checks
 
-- **Imagen social `assets/og-image.jpg`:** el repositorio solo contiene `assets/avatar.jpg`; la imagen JPEG 1200×630 no existe ni puede generarse con las herramientas del agente. `open-graph-metadata` implementó y verificó el contrato de etiquetas, pero esta pendiente bloquea la vista previa real. No se creó, reutilizó ni sustituyó ningún binario; debe producirla una persona/herramienta externa coherente con Nombre/Handle/Tagline y la paleta de `DESIGN.md`.
-- **URL pública final:** falta definir el proyecto/dominio en Cloudflare Pages. Se necesita para `canonical` y `og:url`; hasta entonces ambos se omiten en `index.html` (sin inventar dominios). Posición provisional: usar la URL que entregue Cloudflare Pages y actualizarla antes de grabar la Tarjeta NFC.
-- **Vista previa real sin validar:** `og:image`/`twitter:image` usan la ruta relativa provisional `assets/og-image.jpg`; los crawlers sociales suelen exigir URLs absolutas. Al publicar, `deploy-cloudflare-pages` debe absolutizar ambas imágenes, añadir `og:url`/canonical con la URL final y comprobar el unfurl real (WhatsApp/Facebook). Un HTML correcto no prueba por sí solo la vista previa.
+- **Resuelto (2026-10-23, `deploy-cloudflare-pages`) — imagen social:** `assets/og-image.jpg`
+  existe como JPEG 1200×630 (37 214 bytes, SHA-256 `b7c9b694…a012a2`), distinto del avatar,
+  generado con la receta reproducible del spec y validado con `sips`/`file`. La composición
+  usa los tokens de `DESIGN.md`. **Aprobación visual humana pendiente**; el agente no
+  interpreta imágenes y no la declara aprobada.
+- **Resuelto (2026-10-23) — URL pública:** la plataforma real es **Cloudflare Workers con
+  static assets**, no Pages: `https://fahed-hermoza-card.fahedhermoza.workers.dev/`.
+  `canonical`, `og:url` y las imágenes absolutas ya están cableados en `index.html` y
+  `init.sh` los verifica. El id histórico `deploy-cloudflare-pages` se conserva por
+  trazabilidad y no autoriza a crear un proyecto Pages.
+- **Pendiente — redeploy manual y verificación live:** el HTML live actual es el anterior
+  (SHA-256 `145b2028…`) y `/assets/og-image.jpg` sigue en 404 hasta que el propietario
+  redeploye. El método manual (dashboard vs `wrangler`) no está documentado en el repo; no se
+  inventan credenciales ni pipeline. Tras el redeploy hay que repetir el bloque `curl` del
+  spec (5 assets 200, MIME, hashes local/live, `/index.html` 307, `http://` status). Un gate
+  verde no demuestra el redeploy.
+- **Pendiente — unfurl real:** aunque el HTML y la imagen sean correctos, WhatsApp/Facebook/
+  iMessage cachean por URL y aplican políticas propias. Probar con Facebook Sharing Debugger
+  y un mensaje de WhatsApp, y registrar el resultado sin afirmar éxito sin observación.
+- **Recomendado — "Always Use HTTPS":** hoy `http://` en la raíz responde 200 sin
+  redirección. Es un ajuste de Cloudflare, fuera del repo; se recomienda activarlo, pero no
+  bloquea la aceptación.
 
 ## Implementation-Time Questions
 
@@ -16,7 +35,10 @@
   iOS es inconsistente) y Blob (exigiría JavaScript). El gate valida el asset byte a byte
   y su coherencia con los cinco Enlaces, el teléfono y el correo.
 - Fuente: precarga (`preload`) y fallback para evitar salto de texto (FOUT).
-- `og-image`: dimensiones fijadas en 1200×630 JPEG (`og:image:width/height/type`); quedan abiertos el texto/contenido visual y la herramienta de generación (el agente no puede generar imágenes).
+- **Resuelto (2026-10-23, `deploy-cloudflare-pages`):** `og-image` es un JPEG 1200×630
+  generado con HTML temporal + Chrome + `sips`/`file`, con la composición documentada en
+  `DESIGN.md`; no se añadió ninguna herramienta al stack. Solo queda la aprobación visual
+  humana.
 - Comportamiento de `tel:` y `mailto:` según app por defecto del dispositivo.
 
 ## Later / Not MVP
@@ -25,13 +47,13 @@
 - Código QR incrustado en la página.
 - Favicon con iniciales y `theme-color`.
 - Modo oscuro y multi-idioma.
-- Página 404 y `_headers` para Cloudflare Pages.
+- Página 404 y `_headers` para Cloudflare Workers static assets.
 
 ## Assumptions
 
 - `assets/avatar.jpg` ya está disponible en el repositorio.
 - La Tarjeta NFC se grabará con la URL final una vez publicado el sitio.
-- Cloudflare Pages servirá el contenido estático sin build.
+- Cloudflare Workers con static assets sirve el contenido estático sin build.
 - El público objetivo usa teléfonos modernos con navegador actualizado.
 
 ## Risks
@@ -45,12 +67,28 @@
 - **Enlaces que envejecen:** URLs de redes o portafolio pueden cambiar; nadie lo detecta automáticamente.
 - **Dependencia de Google Fonts:** una caída o bloqueo degrada la tipografía (mitigado con fallback).
 - **Avatar no disponible:** sin `assets/avatar.jpg` la página se ve incompleta (mitigado con iniciales).
-- **Vista previa deficiente o sin imagen:** sin `assets/og-image.jpg` válida (y sin URL absoluta tras el despliegue) el enlace compartido se ve pobre aunque las etiquetas sean correctas. Mitigación actual: comentario HTML de provisionalidad y `[warn]` no bloqueantes en `init.sh`; cierre en `deploy-cloudflare-pages`.
+- **Vista previa deficiente o sin imagen (mitigado):** el asset ya existe, es 1200×630 y las
+  URLs son absolutas; `init.sh` falla ante asset ausente, no JPEG, dimensiones incorrectas,
+  copia del avatar o URL no absoluta. Queda el riesgo de que el cliente social cachee una
+  vista previa antigua o ignore las etiquetas; se comprueba manualmente después del redeploy.
+- **Caché y redeploy manual:** Cloudflare sirve HTML/assets con `max-age=0,
+  must-revalidate`, pero puede devolver `cf-cache-status: HIT`; tras el redeploy hay que
+  verificar con cache-busting (`?cb=`) y no confundir una respuesta cacheada con el estado
+  nuevo. El despliegue no es reproducible desde el repo (método manual no documentado).
+- **`http://` sin redirección forzada:** la raíz `http://` responde 200. No rompe la Tarjeta
+  (los enlaces y metadatos usan HTTPS), pero se recomienda "Always Use HTTPS" en Cloudflare;
+  no se configura desde el repo.
+- **MIME variable de la vCard:** Workers podría servir `text/vcard` u otro tipo distinto de
+  `text/x-vcard` porque no hay `_headers`. Se registra el valor real tras el redeploy; el
+  mecanismo `download` + `.vcf` se mantiene.
+- **Unfurl no garantizado:** un HTML correcto, HTTPS y una imagen 200 no garantizan que
+  WhatsApp/Facebook rendericen la tarjeta; la caché y las políticas de cada cliente mandan.
+  No se declara "unfurl verificado" sin observación real.
 - **vCard: importación real pendiente y MIME variable:** el mecanismo ya está cerrado en
   un `.vcf` estático, pero la importación en la agenda de iOS y Android no se puede probar
   en este entorno. Queda como comprobación manual de dispositivo (no fabricar el resultado):
   un 200 y un `Content-Type` correcto no demuestran que la agenda importe nombre, teléfono,
-  correo y Enlaces. `python3 -m http.server` sirve `text/x-vcard`; Cloudflare Pages podría
+  correo y Enlaces. `python3 -m http.server` sirve `text/x-vcard`; Cloudflare Workers podría
   usar `text/vcard` u `octet-stream` porque no hay `_headers` en el MVP. Mitigación:
   `download` + extensión `.vcf`; reevaluar cabeceras en `deploy-cloudflare-pages`.
   Algunas versiones de iOS guardan en Archivos y otras muestran vista previa; ambas
@@ -61,5 +99,8 @@
 
 - Confirmar el comportamiento real de descarga/importación de la vCard en iOS y Android
   actuales (pendiente manual; no ejecutado en este entorno).
-- Verificar límites de caché y rutas de assets en Cloudflare Pages.
-- Definir herramienta para generar `assets/og-image.jpg` 1200×630.
+- Verificar tras el redeploy los límites de caché, MIME y rutas de assets en Cloudflare
+  Workers static assets.
+- ~~Definir herramienta para generar `assets/og-image.jpg` 1200×630.~~ **Resuelto
+  (2026-10-23):** receta HTML + Chrome + `sips`/`file`, documentada en el spec y `DESIGN.md`;
+  solo falta la aprobación visual humana.

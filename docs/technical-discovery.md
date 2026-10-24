@@ -19,7 +19,11 @@ Sitio web estático de una sola página, móvil-first, sin estado ni sesión. Se
 - Contenido hardcodeado en `index.html`.
 - Assets estáticos:
   - `assets/avatar.jpg` — foto de perfil (presente en el repositorio).
-  - `assets/og-image.jpg` — imagen Open Graph 1200×630 (a crear).
+  - `assets/og-image.jpg` — imagen Open Graph JPEG 1200×630 (37 214 bytes), generada con la
+    receta reproducible de `docs/specs/deploy-cloudflare-pages.md`: HTML temporal fuera del
+    repo, composición con tokens de `DESIGN.md`, viewport Chrome `1200x630x1`, captura JPEG
+    calidad 90 y validación con `sips`/`file`. No se commitea el HTML temporal ni se reutiliza
+    el avatar. Aprobación visual humana pendiente.
   - `assets/fahedhermoza.vcf` — Contacto vCard 3.0 estática, UTF-8 sin BOM y con líneas
     CRLF; se sirve same-origin y se descarga con `download="fahedhermoza.vcf"`, sin
     `data:` URI, Blob ni generación en cliente. `.gitattributes` marca `assets/*.vcf`
@@ -43,10 +47,23 @@ No aplica. Página pública, sin roles, sin permisos, sin datos de usuario.
 ## Deployment and Operations
 
 - Repositorio en GitHub.
-- Despliegue en Cloudflare Pages conectado al repositorio.
-- Sin comando de build; directorio de salida: raíz del repositorio.
-- HTTPS provisto por Cloudflare Pages.
-- Mantenimiento: editar `index.html` / `assets` y hacer push.
+- Plataforma: **Cloudflare Workers con static assets** (no Cloudflare Pages). El id histórico
+  `deploy-cloudflare-pages` se conserva por trazabilidad, pero no existe ni se crea un proyecto
+  Pages.
+- URL pública: `https://fahed-hermoza-card.fahedhermoza.workers.dev/`.
+- Sin comando de build; el contenido servido es la raíz del repositorio (`index.html`,
+  `styles.css`, `assets/`).
+- HTTPS provisto por Cloudflare. `http://` en la raíz responde 200 (sin redirección forzada);
+  se recomienda activar "Always Use HTTPS" en Cloudflare, pero el repo no lo configura.
+- Despliegue manual del propietario; el método exacto (dashboard vs `wrangler`) no está
+  documentado en el repo y no se inventa. No hay `wrangler.toml`, CI ni `package.json`.
+- Caché observada: HTML/assets con `cache-control: public, max-age=0, must-revalidate`;
+  `cf-cache-status: HIT` puede aparecer y no es un error. Para verificar tras un redeploy,
+  usar cache-busting (`?cb=$(date +%s)`) solo en la comprobación, nunca en
+  `canonical`/`og:url`.
+- Mantenimiento: editar `index.html`/`assets`, ejecutar `./init.sh` y pedir al propietario el
+  redeploy manual. Un cambio de origen exige actualizar `PRODUCTION_ORIGIN`,
+  `PRODUCTION_URL`, `PRODUCTION_IMAGE_URL` y las cuatro URLs del `<head>` en el mismo cambio.
 
 ## Testing and Verification
 
@@ -71,6 +88,13 @@ No aplica. Página pública, sin roles, sin permisos, sin datos de usuario.
   `.link-button__label`, ausencia de `overflow-x` como máscara o de `width: 100vw`,
   breakpoints de ancho solo en el set `360px`/`480px`/`736px` y altura ≥44px de `.link-button`
   dentro de cualquier media query de ancho.
+- `Sharing metadata production checks:` (después del contrato 14/14): cuatro coincidencias
+  exactas `grep -qF` para `canonical`, `og:url`, `og:image` y `twitter:image` construidas
+  desde `PRODUCTION_URL`/`PRODUCTION_IMAGE_URL` (`[ok] production URL metadata (4/4)`), más
+  checks bloqueantes de `assets/og-image.jpg` (`file` disponible, no vacío, JPEG real,
+  1200×630, distinto del avatar, ≤300 KiB como objetivo con `[warn]` solo por tamaño),
+  URL absoluta de ambas imágenes y `og:url`+canonical declarados. No hace HTTP ni arranca
+  servidor.
 - Servido manual: `python3 -m http.server 3502 --directory .` (no se arranca por defecto;
   `RUN_SERVE_COMMAND=1` lo inicia).
 - Matriz responsive de ocho anchos con recarga fresca: 320×844, 360×844, 375×844, 390×844
@@ -85,7 +109,9 @@ No aplica. Página pública, sin roles, sin permisos, sin datos de usuario.
   deben salir con código 1 sin listener. Para la vCard: asset ausente, LF en vez de CRLF,
   URL alterada, `href`/`download` cambiados, botón fuera de posición, foco eliminado,
   reduced motion sin `.save-contact-button` y token neutro alterado también deben fallar
-  sin arrancar servidor.
+  sin arrancar servidor. Para publicación: canonical roto, `og:url` roto, imagen relativa,
+  JPEG 1000×630 y asset ausente deben salir con código 1, stderr concreto y sin listener
+  en 3502.
 - Verificación manual del `.vcf`: `curl -sI http://localhost:3501/assets/fahedhermoza.vcf`
   debe devolver 200 con contenido no vacío; `od -c`/`file` debe confirmar CRLF y ausencia
   de BOM. El puerto 3501 se usó solo para la sesión de la vCard; el hint estándar es 3502.
@@ -93,8 +119,17 @@ No aplica. Página pública, sin roles, sin permisos, sin datos de usuario.
 - Lighthouse móvil de accesibilidad sobre `http://localhost:3502` (device `mobile`,
   navigation): objetivo ≥95 y sin auditorías `critical`/`serious`. Es una comprobación manual,
   no forma parte de `init.sh`; repetirla tras cambios visuales o de contraste.
+- Verificación live **después del redeploy manual** (no la ejecuta `./init.sh`):
+  `curl` a `/` y a `/styles.css`, `/assets/avatar.jpg`, `/assets/og-image.jpg` y
+  `/assets/fahedhermoza.vcf` debe dar 200 por HTTPS; `og-image` con `image/jpeg`; la vCard con
+  `text/x-vcard`/`text/vcard` y cuerpo íntegro; `/index.html` debe redirigir 307 a `/`; y los
+  SHA-256 de HTML/assets deben coincidir byte a byte con local. Registrar `cache-control`,
+  `cf-cache-status` y el status de `http://`. Usar `?cb=$(date +%s)` solo para saltar caché de
+  verificación, nunca en `canonical`/`og:url`.
 - Pruebas manuales en iOS y Android de cada Enlace y de la vCard.
-- Validador de Open Graph (p. ej. depurador de enlaces) tras el despliegue.
+- Unfurl manual (Facebook Sharing Debugger y un mensaje de prueba de WhatsApp): puede fallar
+  por caché o política del cliente aunque el HTML sea correcto. No declarar "unfurl
+  verificado" sin observación real; registrar el resultado tal cual.
 - Comprobación de enlaces con un chequeador simple antes de publicar.
 - No existe harness E2E persistente (`package.json`, Playwright/Cypress): añadirlo
   introduciría dependencias prohibidas por este stack. La cobertura es `init.sh` +
@@ -106,6 +141,11 @@ Fuera del alcance del MVP. Sin analítica ni logs. Se reevalúa en `docs/risks-a
 
 ## Constraints
 
-- Este agente no puede leer ni generar imágenes: el avatar ya está en el repo y la `og-image` debe producirse con otra herramienta.
-- La URL pública final (proyecto/dominio en Cloudflare Pages) aún no está definida.
-- Presupuesto: cero costo; solo servicios gratuitos (GitHub + Cloudflare Pages + Google Fonts).
+- El agente no interpreta imágenes: la `og-image` se genera con una receta reproducible y la
+  aprobación visual de su composición es humana.
+- La URL pública es única y está fijada:
+  `https://fahed-hermoza-card.fahedhermoza.workers.dev/`. No se inventan otros dominios ni se
+  crea un proyecto Pages.
+- El redeploy es manual del propietario; el repo no contiene credenciales, `wrangler.toml` ni
+  pipeline de despliegue.
+- Presupuesto: cero costo; solo servicios gratuitos (GitHub + Cloudflare Workers + Google Fonts).

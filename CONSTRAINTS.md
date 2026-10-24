@@ -74,3 +74,31 @@ remove, weaken or reorder it.
   be replaced by static grep alone.
 - The two inline footer links stay under the WCAG 2.5.8 inline/link-in-text exception; do not
   evaluate them against the 44×44 target unless the footer layout changes.
+
+## Publicación (Cloudflare Workers static assets)
+
+These rules are durable: the production identity and social preview must stay exact.
+`./init.sh` enforces the checkable subset in `Sharing metadata production checks:`; do not
+remove, weaken or reorder it.
+
+- **MUST** keep one production origin only:
+  `https://fahed-hermoza-card.fahedhermoza.workers.dev`, declared once in `init.sh` as
+  `PRODUCTION_ORIGIN`, with `PRODUCTION_URL` (trailing slash) and `PRODUCTION_IMAGE_URL`
+  derived from it.
+- **MUST** keep `canonical` and `og:url` byte-identical to `PRODUCTION_URL`
+  (`https://fahed-hermoza-card.fahedhermoza.workers.dev/`) and `og:image`/`twitter:image`
+  byte-identical to `PRODUCTION_IMAGE_URL`
+  (`https://fahed-hermoza-card.fahedhermoza.workers.dev/assets/og-image.jpg`). No relative
+  paths, `/index.html`, query strings, `www`, `http://` or invented domains in these tags.
+- **MUST** keep `assets/og-image.jpg` a real JPEG 1200×630, at most 307 200 bytes, distinct
+  from `assets/avatar.jpg`, and never rendered as an `<img>` of the page.
+- **MUST** update `index.html` and the three `init.sh` constants together in one change if
+  the origin changes; never mix origins.
+- **MUST NOT** add HTTP calls or start a server from the gate to prove production; the gate
+  stays local and static, and live verification is a separate `curl` step after the
+  owner's manual redeploy.
+- The platform is **Cloudflare Workers static assets**. The historical feature id
+  `deploy-cloudflare-pages` does not authorize creating a Cloudflare Pages project or
+  asserting one exists.
+- **MUST** keep the redeploy and the unfurl as explicit human checks: a green gate does not
+  prove the live deployment, and correct tags do not guarantee a social unfurl.

@@ -8,6 +8,10 @@ fail() {
   exit 1
 }
 
+PRODUCTION_ORIGIN="https://fahed-hermoza-card.fahedhermoza.workers.dev"
+PRODUCTION_URL="${PRODUCTION_ORIGIN}/"
+PRODUCTION_IMAGE_URL="${PRODUCTION_ORIGIN}/assets/og-image.jpg"
+
 if [ ! -f "index.html" ]; then
   echo "Harness status: pre-bootstrap"
   echo "Application stack is not initialized yet."
@@ -887,22 +891,75 @@ fi
 
 echo "  [ok] sharing metadata contract ($sharing_present/$sharing_total)"
 
-if [ -f "assets/og-image.jpg" ]; then
-  echo "  [ok] assets/og-image.jpg exists"
-else
-  echo "  [warn] assets/og-image.jpg is missing (link preview image blocker; produce it with an external tool)"
+echo "Sharing metadata production checks:"
+
+PRODUCTION_METADATA_CONTRACT=(
+  "<link rel=\"canonical\" href=\"${PRODUCTION_URL}\">"
+  "<meta property=\"og:url\" content=\"${PRODUCTION_URL}\">"
+  "<meta property=\"og:image\" content=\"${PRODUCTION_IMAGE_URL}\">"
+  "<meta name=\"twitter:image\" content=\"${PRODUCTION_IMAGE_URL}\">"
+)
+
+production_total=${#PRODUCTION_METADATA_CONTRACT[@]}
+production_present=0
+production_missing=0
+for entry in "${PRODUCTION_METADATA_CONTRACT[@]}"; do
+  if grep -qF -- "$entry" index.html; then
+    production_present=$((production_present + 1))
+  else
+    echo "FAILED - index.html is missing production URL metadata: $entry" >&2
+    production_missing=$((production_missing + 1))
+  fi
+done
+
+if [ "$production_missing" -gt 0 ]; then
+  fail "production URL metadata is missing $production_missing of $production_total required tags"
 fi
 
-if grep -qE '<meta property="og:image" content="https?://' index.html && grep -qE '<meta name="twitter:image" content="https?://' index.html; then
-  echo "  [ok] og:image/twitter:image use an absolute path"
-else
-  echo "  [warn] og:image/twitter:image use a relative path (must be absolute after deploy)"
+echo "  [ok] production URL metadata ($production_present/$production_total)"
+
+command -v file >/dev/null 2>&1 || fail "the 'file' command is required for the og-image gate"
+
+if [ ! -f "assets/og-image.jpg" ]; then
+  fail "assets/og-image.jpg is missing (required JPEG 1200x630 link preview asset)"
 fi
 
-if grep -q 'property="og:url"' index.html && grep -q 'rel="canonical"' index.html; then
+og_image_size=$(wc -c < "assets/og-image.jpg" | tr -d '[:space:]')
+
+if [ "$og_image_size" -eq 0 ]; then
+  fail "assets/og-image.jpg is empty"
+fi
+
+og_image_info=$(file -b "assets/og-image.jpg")
+
+if ! printf '%s\n' "$og_image_info" | grep -qE 'JPEG image data'; then
+  fail "assets/og-image.jpg is not a JPEG image (file reported: $og_image_info)"
+fi
+
+if ! printf '%s\n' "$og_image_info" | grep -qE '1200x630'; then
+  fail "assets/og-image.jpg must be 1200x630 (file reported: $og_image_info)"
+fi
+
+echo "  [ok] assets/og-image.jpg exists (JPEG 1200x630, $og_image_size bytes)"
+
+if [ "$og_image_size" -gt 307200 ]; then
+  echo "  [warn] assets/og-image.jpg is larger than 300 KiB ($og_image_size bytes); recompress before publishing"
+fi
+
+if grep -qF -- "<meta property=\"og:image\" content=\"${PRODUCTION_IMAGE_URL}\">" index.html && grep -qF -- "<meta name=\"twitter:image\" content=\"${PRODUCTION_IMAGE_URL}\">" index.html; then
+  echo "  [ok] og:image/twitter:image use the production absolute URL"
+else
+  fail "og:image/twitter:image must use the production absolute URL ${PRODUCTION_IMAGE_URL}"
+fi
+
+if grep -qF -- "<meta property=\"og:url\" content=\"${PRODUCTION_URL}\">" index.html && grep -qF -- "<link rel=\"canonical\" href=\"${PRODUCTION_URL}\">" index.html; then
   echo "  [ok] og:url and canonical declared"
 else
-  echo "  [warn] og:url/canonical pending public URL (deploy-cloudflare-pages)"
+  fail "og:url and canonical must both declare the production URL ${PRODUCTION_URL}"
+fi
+
+if cmp -s "assets/og-image.jpg" "assets/avatar.jpg"; then
+  fail "assets/og-image.jpg must not reuse assets/avatar.jpg"
 fi
 
 echo "Instagram link checks:"
