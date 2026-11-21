@@ -121,7 +121,8 @@ No aplica. Página pública, sin roles, sin permisos, sin datos de usuario.
 - Verificación manual del `.vcf`: `curl -sI http://localhost:3501/assets/fahedhermoza.vcf`
   debe devolver 200 con contenido no vacío; `od -c`/`file` debe confirmar CRLF y ausencia
   de BOM. El puerto 3501 se usó solo para la sesión de la vCard; el hint estándar es 3502.
-  La importación real en iOS/Android sigue siendo una prueba manual de dispositivo.
+  El propietario reportó importación correcta en iOS/Android el 2026-11-21 al seguir el
+  protocolo manual; no se recibieron modelos, versiones ni capturas.
 - Lighthouse móvil de accesibilidad sobre `http://localhost:3502` (device `mobile`,
   navigation): objetivo ≥95 y sin auditorías `critical`/`serious`. Es una comprobación manual,
   no forma parte de `init.sh`; repetirla tras cambios visuales o de contraste.
@@ -137,8 +138,12 @@ No aplica. Página pública, sin roles, sin permisos, sin datos de usuario.
   verificación, nunca en `canonical`/`og:url`.
 - Pruebas manuales en iOS y Android de cada Enlace y de la vCard.
 - Unfurl manual (Facebook Sharing Debugger y un mensaje de prueba de WhatsApp): puede fallar
-  por caché o política del cliente aunque el HTML sea correcto. No declarar "unfurl
-  verificado" sin observación real; registrar el resultado tal cual.
+  por caché o política del cliente aunque el HTML sea correcto. El propietario reportó
+  vistas previas correctas en WhatsApp, Facebook e iMessage el 2026-11-21 tras seguir el
+  protocolo de dispositivo; no se recibieron capturas ni resultados individuales.
+- Comprobación operativa de solo lectura (2026-11-21): raíz HTTPS 200, raíz HTTP 200 sin
+  redirección, `/PROGRESS.md` y `/AGENTS.md` HTTPS 200. Las tareas de redirección HTTPS y
+  restricción del directorio público siguen abiertas.
 - Comprobación de enlaces con un chequeador simple antes de publicar.
 - No existe harness E2E persistente (`package.json`, Playwright/Cypress): añadirlo
   introduciría dependencias prohibidas por este stack. La cobertura es `init.sh` +

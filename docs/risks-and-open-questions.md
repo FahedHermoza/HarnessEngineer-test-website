@@ -18,21 +18,25 @@
   SHA-256 local/remoto coinciden. `cache-control: public, max-age=0, must-revalidate` y
   `cf-cache-status: HIT` fueron observados. El método manual (dashboard vs `wrangler`) sigue
   sin documentarse, pero `wrangler.jsonc` es la configuración externa usada por el propietario.
-- **Pendiente — unfurl real:** aunque el HTML y la imagen sean correctos, WhatsApp/Facebook/
-  iMessage cachean por URL y aplican políticas propias. Probar con Facebook Sharing Debugger
-  y un mensaje de WhatsApp, y registrar el resultado sin afirmar éxito sin observación.
-- **Nota de exposición (2026-10-24) — `wrangler.jsonc`:** su `assets.directory: "."` publica la
-  raíz del repo; `/.git/config`, `/PROGRESS.md`, `/AGENTS.md` y `/docs/...` responden 200. No
-  hay secretos trackeados ni `.env` público, pero cualquier archivo futuro en la raíz quedaría
-  servido automáticamente. Recomendación para el propietario: acotar `assets.directory` a un
+- **Reportado como correcto (2026-11-21) — unfurl real:** el propietario confirmó que el
+  protocolo de vistas previas en WhatsApp, Facebook e iMessage salió bien. No se recibieron
+  capturas ni resultados separados por app; esta evidencia es un reporte humano, no una
+  observación independiente del agente. La caché y las políticas de cada cliente siguen
+  pudiendo cambiar el resultado en otra ocasión.
+- **Nota de exposición (confirmada de nuevo 2026-11-21) — `wrangler.jsonc`:** su
+  `assets.directory: "."` publica la raíz del repo. `/.git/config`, `/PROGRESS.md`,
+  `/AGENTS.md` y `/docs/...` respondieron 200 el 2026-10-24; `curl` confirmó 200 para
+  `/PROGRESS.md` y `/AGENTS.md` el 2026-11-21. No hay secretos trackeados ni `.env` público,
+  pero cualquier archivo futuro en la raíz quedaría servido automáticamente.
+  Recomendación para el propietario: acotar `assets.directory` a un
   directorio público o añadir exclusiones; no es un defecto de la feature.
-- **Recomendado — "Always Use HTTPS":** hoy `http://` en la raíz responde 200 sin
+- **Recomendado — "Always Use HTTPS":** el 2026-11-21 `http://` en la raíz respondió 200 sin
   redirección. Es un ajuste de Cloudflare, fuera del repo; se recomienda activarlo, pero no
   bloquea la aceptación.
 
 ## Implementation-Time Questions
 
-- **Resuelto (2026-10-23, `link-whatsapp`):** el formato de WhatsApp es `https://wa.me/51955116562`; se descarta `api.whatsapp.com`. El handoff real a la app no se puede automatizar en este repositorio: queda como comprobación manual pendiente en un dispositivo y no bloquea el contrato de markup.
+- **Resuelto (2026-10-23, `link-whatsapp`; comprobación manual 2026-11-21):** el formato de WhatsApp es `https://wa.me/51955116562`; se descarta `api.whatsapp.com`. El propietario confirmó que la apertura del enlace en dispositivo salió bien; no se recibieron datos del dispositivo ni capturas.
 - **Resuelto (2026-10-23, `save-contact-vcard`):** la Contacto se sirve como
   `assets/fahedhermoza.vcf` estático (VCARD 3.0, UTF-8 sin BOM, CRLF-only, ≤4096 bytes) y
   se descarga con `<a href="assets/fahedhermoza.vcf" download="fahedhermoza.vcf">`. Se
@@ -75,7 +79,8 @@
 - **Vista previa deficiente o sin imagen (mitigado):** el asset ya existe, es 1200×630 y las
   URLs son absolutas; `init.sh` falla ante asset ausente, no JPEG, dimensiones incorrectas,
   copia del avatar o URL no absoluta. Queda el riesgo de que el cliente social cachee una
-  vista previa antigua o ignore las etiquetas; la prueba manual de unfurl sigue pendiente.
+  vista previa antigua o ignore las etiquetas; el propietario reportó una prueba correcta
+  en WhatsApp, Facebook e iMessage el 2026-11-21, sin evidencia visual adjunta.
 - **Caché y redeploy manual:** Cloudflare sirve HTML/assets con `max-age=0,
   must-revalidate`, pero puede devolver `cf-cache-status: HIT`; tras el redeploy hay que
   verificar con cache-busting (`?cb=`) y no confundir una respuesta cacheada con el estado
@@ -83,27 +88,24 @@
 - **`http://` sin redirección forzada:** la raíz `http://` responde 200. No rompe la Tarjeta
   (los enlaces y metadatos usan HTTPS), pero se recomienda "Always Use HTTPS" en Cloudflare;
   no se configura desde el repo.
-- **MIME variable de la vCard:** Workers podría servir `text/vcard` u otro tipo distinto de
-  `text/x-vcard` porque no hay `_headers`. Se registra el valor real tras el redeploy; el
-  mecanismo `download` + `.vcf` se mantiene.
-- **Unfurl no garantizado:** un HTML correcto, HTTPS y una imagen 200 no garantizan que
-  WhatsApp/Facebook rendericen la tarjeta; la caché y las políticas de cada cliente mandan.
-  No se declara "unfurl verificado" sin observación real.
-- **vCard: importación real pendiente y MIME variable:** el mecanismo ya está cerrado en
-  un `.vcf` estático, pero la importación en la agenda de iOS y Android no se puede probar
-  en este entorno. Queda como comprobación manual de dispositivo (no fabricar el resultado):
-  un 200 y un `Content-Type` correcto no demuestran que la agenda importe nombre, teléfono,
-  correo y Enlaces. `python3 -m http.server` sirve `text/x-vcard`; Cloudflare Workers podría
-  usar `text/vcard` u `octet-stream` porque no hay `_headers` en el MVP. Mitigación:
-  `download` + extensión `.vcf`; MIME observado en producción el 2026-10-24: `text/x-vcard`.
-  Algunas versiones de iOS guardan en Archivos y otras muestran vista previa; ambas
-  cumplen «ofrece/descarga».
-- **Handoff de WhatsApp no verificado:** un `href` correcto no demuestra que el dispositivo abra la app o muestre la página intermedia de `wa.me`. La comprobación final requiere un teléfono real; se mantiene como pendiente manual y no se cuenta como fallo del harness.
+- **MIME de la vCard:** Workers sirvió `text/x-vcard` en la verificación live del
+  2026-10-24. Un redeploy futuro podría cambiarlo porque no hay `_headers`; el mecanismo
+  `download` + `.vcf` se mantiene y el tipo se debe comprobar tras desplegar.
+- **Unfurl variable:** el propietario reportó vistas previas correctas en WhatsApp, Facebook
+  e iMessage el 2026-11-21. La caché y las políticas de cada cliente pueden cambiar el
+  resultado; el reporte no incluye capturas ni una observación independiente.
+- **vCard: importación reportada y MIME observado:** el mecanismo usa un `.vcf` estático.
+  El propietario reportó importación correcta en agendas iOS y Android el 2026-11-21 tras
+  seguir el protocolo de campos; no se recibieron modelos, versiones ni capturas. El MIME
+  observado en producción el 2026-10-24 fue `text/x-vcard`. El botón conserva `download`
+  y la extensión `.vcf`.
+- **Handoff de WhatsApp reportado:** el propietario confirmó el 2026-11-21 que el enlace
+  abrió el flujo esperado en un dispositivo real. No se registró modelo, sistema ni captura.
 
 ## Research Tasks
 
-- Confirmar el comportamiento real de descarga/importación de la vCard en iOS y Android
-  actuales (pendiente manual; no ejecutado en este entorno).
+- Descarga/importación de la vCard en iOS y Android: reportada como correcta por el
+  propietario el 2026-11-21; no ejecutada ni observada por el agente.
 - Límites de caché, MIME y rutas de assets en Cloudflare Workers static assets: verificados el
   2026-10-24 (cinco paths 200, `text/x-vcard`, hashes idénticos).
 - ~~Definir herramienta para generar `assets/og-image.jpg` 1200×630.~~ **Resuelto

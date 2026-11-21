@@ -44,6 +44,7 @@ La Tarjeta digital no tiene estado interno. Su ciclo es de publicación:
 - **Enlace caído:** el destino puede estar fuera de servicio; la página no lo detecta (fuera de alcance).
 - **Navegador sin NFC:** el visitante usa el Código QR o el enlace compartido.
 - **Sin app para `tel:` o `mailto:`:** el sistema decide la app; la página no puede forzarla.
-- **vCard en iOS/Android:** el comportamiento de descarga difiere; debe validarse en ambos.
+- **vCard en iOS/Android:** el comportamiento de descarga difiere; el propietario reportó
+  importación correcta en ambos el 2026-11-21, sin detalle de dispositivos adjunto.
 - **Vista previa social:** aunque `og-image.jpg` y las URLs absolutas sean correctas, el
   unfurl puede fallar por caché o política del cliente; no se garantiza desde el dominio.
