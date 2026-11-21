@@ -16,6 +16,15 @@ Representación escaneable de la misma URL de la Tarjeta digital, impresa en la 
 ### Enlace (Link)
 Cada botón accionable de la Tarjeta digital que abre un canal externo. Los Enlaces del MVP son, en orden: Instagram, Facebook, WhatsApp, LinkedIn, Portafolio, Correo y Celular.
 
+### Acción rápida
+Control compacto del Perfil que ofrece una acción frecuente. En el rediseño acordado son
+Celular, Correo, mostrar el Código QR y Compartir la Tarjeta digital. Celular y Correo siguen
+siendo Enlaces aunque cambien de posición visual.
+
+### Vista QR
+Estado temporal de la Tarjeta digital que muestra un Código QR de su URL pública para que
+otra persona lo escanee. Incluye acciones para copiar el Enlace y guardar el Código QR.
+
 ### Perfil
 Bloque superior de la Tarjeta digital: foto, Nombre, Handle y Tagline.
 

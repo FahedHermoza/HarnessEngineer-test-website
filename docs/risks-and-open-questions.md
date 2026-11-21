@@ -36,6 +36,31 @@
 
 ## Implementation-Time Questions
 
+### Rediseño acordado (2026-11-21; aún no implementado)
+
+- **Contratos durables:** `CONSTRAINTS.md` y `./init.sh` todavía fijan siete botones grandes,
+  diez anclas, ocho SVG decorativos y la estructura previa. El futuro cambio a cinco
+  botones grandes, Acciones rápidas y una Vista QR requiere revisar conteos y selectores
+  explícitamente. No se deben eliminar los checks AA ni usar la nueva estructura para
+  eludirlos.
+- **Contraste y tamaño táctil de las referencias:** dos fondos del `code.html` adjunto
+  (`#636cf4` y `#7568eb`) dan aproximadamente 4.22:1 y 4.25:1 con texto blanco; los cinco
+  tonos del `DESIGN.md` adjunto dan 3.86–4.14:1. Las Acciones rápidas del prototipo miden
+  40×40 px. Se deben ajustar colores, estados hover/foco y áreas interactivas a AA y al
+  mínimo táctil del proyecto, sin copiar valores literalmente.
+- **Vista QR y Compartir:** confirmar en implementación el comportamiento con teclado,
+  lector de pantalla, portapapeles denegado, API de compartir ausente y JavaScript
+  desactivado. El PNG debe codificar la URL canónica exacta, poder descargarse y escanearse
+  en un teléfono real. La vCard estática no cambia.
+- **Elementos ornamentales:** «NFC CONNECT» y el punto verde son decisiones visuales del
+  propietario. No deben anunciar presencia «En línea» ni presentarse como una conexión
+  NFC activa. La nueva imagen Open Graph requiere aprobación visual humana y verificación
+  live tras el redeploy.
+- **Referencias visuales:** las capturas, `code.html` y el `DESIGN.md` adjuntos por el
+  propietario el 2026-11-21 no forman parte del repositorio. `DESIGN.md` de la raíz
+  conserva por ahora los tokens del sitio publicado y registra la dirección futura;
+  las capturas son guía visual, no especificación de píxeles.
+
 - **Resuelto (2026-10-23, `link-whatsapp`; comprobación manual 2026-11-21):** el formato de WhatsApp es `https://wa.me/51955116562`; se descarta `api.whatsapp.com`. El propietario confirmó que la apertura del enlace en dispositivo salió bien; no se recibieron datos del dispositivo ni capturas.
 - **Resuelto (2026-10-23, `save-contact-vcard`):** la Contacto se sirve como
   `assets/fahedhermoza.vcf` estático (VCARD 3.0, UTF-8 sin BOM, CRLF-only, ≤4096 bytes) y

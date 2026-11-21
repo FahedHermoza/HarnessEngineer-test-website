@@ -75,3 +75,35 @@ Criterio de slice: un visitante puede abrir la página desde un teléfono, enten
   verificación live se completó el 2026-10-24. El propietario reportó vistas previas
   correctas en WhatsApp, Facebook e iMessage el 2026-11-21; los límites de esa evidencia
   y las tareas operativas abiertas figuran en `docs/risks-and-open-questions.md`.
+
+## Rediseño acordado (descubrimiento, 2026-11-21)
+
+**Problema y usuarios:** la Tarjeta publicada ya reúne los canales y funciona. Fahed quiere
+una presentación visual más cercana a las capturas que aportó, con acceso visible al QR y
+una forma directa de compartir; los visitantes y la URL pública siguen siendo los mismos.
+Este apartado define el cambio futuro y no describe el sitio actualmente publicado.
+
+**Alcance:** mantener los siete canales, con Instagram, Facebook, WhatsApp, LinkedIn y
+Portafolio como cinco Enlaces grandes, y Celular/Correo en una fila de Acciones rápidas.
+La fila añade una acción QR y una única acción Compartir. El QR de la URL pública se muestra
+en un cuadro sobre la Tarjeta, con cerrar, Copiar Enlace y Guardar PNG. Compartir abre el
+menú nativo cuando esté disponible; si no, copia la URL e informa del resultado en pantalla.
+El pie usa la invitación con enlace a WhatsApp, un control visual de Guardar contacto y el
+texto «Tarjeta NFC & QR». La vCard conserva su archivo y datos actuales. La imagen social
+1200×630 se alineará con el nuevo diseño antes de publicar.
+
+**Dirección y límites:** las dos capturas adjuntas el 2026-11-21 guían jerarquía, forma y
+composición; el `code.html` y el `DESIGN.md` adjuntos son referencias, no código ni tokens
+para copiar literalmente. «NFC CONNECT» y el punto verde se conservan como elementos
+visuales sin anunciar un estado «En línea». Se mantienen HTML/CSS, Plus Jakarta Sans,
+SVG propios, despliegue estático y vCard estática. Se admite JavaScript mínimo para QR,
+Compartir y Copiar; quedan fuera Tailwind CDN, Font Awesome, Inter, la vCard generada con
+Blob, nuevas cuentas, backend y analítica.
+
+**Validación del cambio:** revisión visual del propietario en móvil y escritorio; las ocho
+anchuras de la matriz responsive sin scroll horizontal; controles accesibles con foco,
+tamaño táctil y contraste AA, `prefers-reduced-motion` y Lighthouse móvil Accessibility ≥95
+sin fallos `critical`/`serious`; QR escaneable hacia la URL canónica, descarga PNG y copia;
+Compartir con y sin API nativa; siete destinos y vCard intactos; imagen social nueva
+1200×630 y verificación live tras el despliegue manual. La aprobación visual de la nueva
+tarjeta y de la imagen social corresponde al propietario.

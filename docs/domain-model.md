@@ -48,3 +48,19 @@ La Tarjeta digital no tiene estado interno. Su ciclo es de publicación:
   importación correcta en ambos el 2026-11-21, sin detalle de dispositivos adjunto.
 - **Vista previa social:** aunque `og-image.jpg` y las URLs absolutas sean correctas, el
   unfurl puede fallar por caché o política del cliente; no se garantiza desde el dominio.
+
+## Rediseño acordado (estado futuro, 2026-11-21)
+
+- Los siete Enlaces conservan sus destinos. Cinco se presentan como botones grandes
+  (Instagram, Facebook, WhatsApp, LinkedIn y Portafolio); Celular y Correo pasan a
+  Acciones rápidas del Perfil. La posición visual no cambia sus datos en la vCard.
+- La Vista QR abre desde la Tarjeta, codifica su URL pública y vuelve a la Tarjeta al
+  cerrarse. Copiar Enlace y Guardar PNG operan sobre esa misma URL/imagen.
+- Compartir Tarjeta usa el mecanismo nativo del dispositivo cuando existe y ofrece
+  copia de la URL con confirmación visible en caso contrario. No almacena datos del visitante.
+- Guardar contacto sigue descargando la vCard estática. El nuevo pie ofrece además un
+  Enlace textual a WhatsApp. «NFC CONNECT» y el punto verde son ornamentales; no expresan
+  una conexión ni un estado de presencia verificable.
+- Casos de excepción a validar: navegador sin API de compartir o permiso de portapapeles,
+  JavaScript desactivado, QR que no escanea, cierre por teclado y retorno del foco al
+  control que abrió la Vista QR.
