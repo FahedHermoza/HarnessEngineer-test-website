@@ -6,8 +6,9 @@ y del Código QR.
 
 - **Producción:** <https://fahed-hermoza-card.fahedhermoza.workers.dev/>
 - **Stack:** HTML5 + CSS moderno; sin framework, bundler, backend ni dependencias de runtime.
-- **Estado:** 21 features `accepted`; despliegue live verificado el 2026-10-24. El propietario
-  reportó importación de vCard y vistas previas sociales correctas el 2026-11-21.
+- **Estado:** 21 features `accepted` y 6 del rediseño `not_started`; despliegue actual
+  verificado el 2026-10-24. El propietario reportó importación de vCard y vistas previas
+  sociales correctas el 2026-11-21.
 
 ## Qué incluye
 
