@@ -84,9 +84,19 @@ spacing:
 components:
   card:
     backgroundColor: '{colors.surface}'
-    rounded: '{rounded.xl}'
-    shadow: '0 18px 45px -10px rgba(25,30,48,0.08), 0 8px 16px -6px rgba(25,30,48,0.03)'
-    border: '1px solid rgba(0,0,0,0.04)'
+    rounded: 24px
+    shadow: '0 24px 64px -28px rgba(45, 49, 57, 0.16), 0 8px 24px -10px rgba(45, 49, 57, 0.08)'
+    border: '1px solid {colors.border}'
+  profile:
+    headerGap: 24px
+    headerPadding: '36px 24px 0'
+    identityPadding: '20px 24px 34px'
+    handleFont: '13px / 600 / 20px'
+    topRow: 'flex row, space-between, full width — NFC icon+label at left, external-link icon at right; avatar centered below'
+    nfcLabel: 'NFC broadcast icon + "NFC CONNECT" text, top-left, ornamental, hidden from assistive technology'
+    nfcLabelStyle: 'label-sm (11px / 600 / 16px, 0.05em) uppercase in {colors.primary}; inline NFC-waves SVG icon 14px with currentColor; NOT a pill (no border, radius or background)'
+    openIcon: 'external-link SVG icon 18px, currentColor in {colors.on-surface-variant}, decorative (aria-hidden), top-right; not an interactive control in this slice'
+    decorativeDot: '#2f8f65 dot (16px, 3px {colors.surface} halo) placed on the avatar bottom-right (place-self: end), ornamental'
   button-link:
     height: 48px
     rounded: '{rounded.md}'
@@ -131,11 +141,16 @@ Minimalismo cálido y etéreo. Mucho aire, geometría refinada, autoridad tipogr
 ## Colors
 
 - **Fondo (canvas):** `#f7f9ff` — off-white frío suave que da contraste a la tarjeta.
-- **Superficie (tarjeta):** `#ffffff` — contenedor limpio.
+- **Superficie (tarjeta):** `#ffffff` — contenedor limpio y suave.
 - **Borde / divisores:** `#ebeef2` — reglas finas, sin estructura agresiva.
 - **Texto principal:** `#2d3139` — gris pizarra profundo, no negro puro.
 - **Texto secundario / meta:** `#6b7280` — para handle y tagline; el pie usa `#2d3139`.
 - **Acento / enlaces:** `#585ce5`.
+- **Punto verde ornamental del avatar:** `#2f8f65`, color local del ornamento, no token
+  global; se posa en la esquina inferior derecha del avatar y no indica disponibilidad,
+  conexión NFC ni presencia.
+- **Icono de enlace externo (tinta neutra):** usa `#6b7280` (`on-surface-variant`) vía
+  `currentColor`; decorativo, sin relleno de color de marca.
 - **Degradado de botones** (secuencia descendente en la pila de Enlaces):
   1. `#5a67d1`
   2. `#645fcc`
@@ -160,7 +175,8 @@ Los intermedios se derivan con `color-mix` a partir de los tokens existentes (co
 
 Familia única **Plus Jakarta Sans**, con pila de respaldo del sistema (`system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`).
 
-- **Nombre / Handle:** `headline-lg`, peso 600, tracking negativo sutil.
+- **Nombre:** `headline-lg`, peso 600, tracking negativo sutil.
+- **Handle:** `body-md`, peso 600, sobre superficie con contraste AA.
 - **Tagline:** `body-md`, color `#6b7280`.
 - **Etiquetas de botón:** `button-label` en mayúsculas, tracking `0.18em`, peso 800.
 - **Pie / meta:** `body-sm` o `body-md` con enlaces en `#585ce5` subrayados.
@@ -170,18 +186,40 @@ Familia única **Plus Jakarta Sans**, con pila de respaldo del sistema (`system-
 - Tarjeta única centrada vertical y horizontalmente en escritorio; con márgenes seguros en móvil.
 - Ancho máximo de tarjeta: 380–420px en escritorio; `calc(100vw - 2rem)` en móvil.
 - Columna única. Bloques separados por divisores de 1px a ancho completo de la tarjeta.
-- Perfil con margen `space-xl` arriba y abajo; botones con separación vertical `space-sm` (0.75rem); pie con `space-lg`.
+- Perfil con una fila superior a ancho completo (`space-between`): a la izquierda el rótulo
+  «NFC CONNECT» (icono de ondas NFC + texto) en color de marca, a la derecha un icono
+  decorativo de enlace externo en tinta neutra. El avatar queda centrado debajo con 24px
+  entre la fila superior y el avatar y 36px de padding superior. El punto verde ornamental
+  se posa en la esquina inferior derecha del avatar. La identidad conserva 20px de padding
+  superior y 34px inferior. Botones con separación vertical `space-sm` (0.75rem); pie con
+  `space-lg`.
 
 ## Shapes
 
-- Tarjeta: esquinas `12–16px` (`rounded.xl`).
+- Tarjeta renovada: esquinas de `24px`, borde `1px #ebeef2` y sombra compuesta tenue.
 - Botones: `6–8px` (`rounded.md`), forma estructurada tipo pill suave.
 - Avatar: círculo perfecto con anillo blanco de 3px.
 - Badges / chips secundarios: `6px`.
 
 ## Components
 
-- **Perfil:** avatar circular 88×88 con `object-fit: cover` y halo blanco; nombre en `headline-lg` a 1.25rem del avatar; handle y tagline debajo.
+- **Perfil (slice `redesign-card-profile`):** fila superior a ancho completo con
+  `justify-content: space-between`. A la izquierda, el rótulo `NFC CONNECT` como icono de
+  ondas NFC (SVG inline de 14px, `currentColor`) + texto `label-sm` (11px/600/16px, tracking
+  0.05em) en mayúsculas y color de marca `#484dc4` (`primary`); **no** es una píldora (sin
+  borde, radio ni fondo). A la derecha, un icono decorativo de enlace externo (SVG inline de
+  18px, `currentColor` en `#6b7280`, `on-surface-variant`), puramente ornamental en este
+  slice (no es enlace, Compartir ni QR; esas son features posteriores). El punto verde
+  ornamental `#2f8f65` (16px, halo de 3px en superficie blanca) se posa en la esquina
+  inferior derecha del frame del avatar (`place-self: end`). El rótulo, su icono, el icono de
+  enlace externo y el punto están dentro de elementos `aria-hidden="true"` y no anuncian
+  estado, control ni conexión activa. Avatar local circular 88×88 con `object-fit: cover`,
+  halo blanco y fallback `FH` de igual tamaño. Nombre en `headline-lg`; Handle debajo en
+  `body-md` 13px/600 y Tagline en `body-md` 13px/400 con `lang="en"`.
+- **Tarjeta (slice `redesign-card-profile`):** superficie `#ffffff`, borde
+  `1px solid #ebeef2`, radio 24px y sombra
+  `0 24px 64px -28px rgba(45, 49, 57, 0.16), 0 8px 24px -10px rgba(45, 49, 57, 0.08)`.
+  Se conserva la fórmula responsive `min(400px, calc(100vw - 2rem))`.
 - **Botón de Enlace:** ancho completo, alto 48px, padding horizontal 1.25rem, flexbox `space-between` (etiqueta mayúsculas a la izquierda, icono SVG 18px a la derecha), fondo del degradado, sombra `0 2px 6px rgba(108,114,234,0.15)`. Hover/focus: `translateY(-1.5px)`, sombra `0 8px 18px rgba(108,114,234,0.28)`, `filter: brightness(1.03)`. Transición 180ms ease.
 - **Guardar contacto:** misma forma que un Enlace (`width: 100%`, 48px, padding horizontal 1.25rem, radio `rounded.md`, flexbox `space-between`, etiqueta `button-label` en mayúsculas e icono SVG 18px a la derecha), pero fuera de la rampa: fondo `#f1f4fa` (`surface-container-low`) y texto/icono `#484dc4` (`primary`). Sombra base `0 2px 6px rgba(25,30,48,0.08)`; hover/focus `translateY(-1.5px)`, sombra `0 8px 18px rgba(25,30,48,0.12)`, `filter: brightness(1.03)` y outline de acento 2px/offset 2px. Dispara la descarga de `assets/fahedhermoza.vcf` con un `<a download>`, sin JavaScript. Se separa del último Enlace con `space-sm` (12px) y del pie con el margen propio del pie.
 - **Pie:** borde superior `1px #ebeef2`, texto centrado, correo y handle con enlaces acentuados.
@@ -203,7 +241,7 @@ Composición (tokens de este documento):
 
 - Lienzo `--color-background` `#f7f9ff` a 1200×630.
 - Tarjeta blanca 880×440 centrada, radio 24px, borde `1px solid rgba(0,0,0,0.04)` y la
-  sombra de `components.card`.
+  sombra histórica de `0 18px 45px -10px rgba(25,30,48,0.08), 0 8px 16px -6px rgba(25,30,48,0.03)`.
 - Avatar real 128×128 circular (opcional) a la izquierda.
 - Nombre `Fahed Hermoza` a 64px/600 `#2d3139`; Handle `@fahedhermoza` a 30px/400
   `#6b7280`; Tagline `Software Engineer & Speaker & Builder` a 26px/400 `#6b7280`.
@@ -233,7 +271,8 @@ documento se conservan como **fronteras de auditoría**, no como ramas de implem
 - No se usa `overflow-x: hidden/clip` ni `width: 100vw` como parche: el overflow se corrige,
   no se enmascara. `./init.sh` contiene `Responsive checks:` con siete invariantes.
 
-Mediciones clave (Chrome DevTools, servidor único en 3502, recarga fresca):
+Mediciones históricas del layout anterior (Chrome DevTools, 2026-10-23; servidor único en
+3502, recarga fresca). **No representan el estado local tras `redesign-card-profile`.**
 
 | Viewport | clientWidth | Tarjeta w×h (x) | Botón w×h | Etiquetas truncadas |
 | --- | --- | --- | --- | --- |
@@ -251,6 +290,33 @@ una línea. En los ocho anchos no hay elementos fuera del viewport, el alto extr
 scroll vertical, la consola queda en 0 mensajes y la red sirve documento, CSS, avatar y fuentes
 sin `/favicon.ico` ni fallos. La prueba de "sin scroll horizontal" es runtime (ver
 `docs/risks-and-open-questions.md`).
+
+Mediciones del Perfil renovado (Chrome DevTools, local en `localhost:3601`, recarga fresca,
+2026-11-21):
+
+| Viewport | clientWidth | Tarjeta w×h (x, y) | Botón mínimo w×h | Etiquetas truncadas |
+| --- | --- | --- | --- | --- |
+| 320×844 | 320 | 288×911 (16, 24) | 238×48 | 0 |
+| 360×844 | 360 | 328×911 (16, 24) | 278×48 | 0 |
+| 375×844 | 375 | 343×891 (16, 24) | 293×48 | 0 |
+| 390×844 | 390 | 358×891 (16, 24) | 308×48 | 0 |
+| 480×844 | 480 | 400×891 (40, 24) | 350×48 | 0 |
+| 736×800 | 721 | 400×891 (160.5, 24) | 350×48 | 0 |
+| 768×800 | 753 | 400×891 (176.5, 24) | 350×48 | 0 |
+| 1280×800 | 1265 | 400×891 (432.5, 24) | 350×48 | 0 |
+
+En las ocho anchuras, `documentElement` y `body` tienen `scrollWidth === clientWidth`, los
+ocho controles de ancho completo miden 48px de alto (mínimo medido: 238×48px), ningún texto
+se recorta y el contenido alto produce solo scroll vertical. A 320px y 360px el pie ocupa dos
+líneas. Chrome reportó 0 mensajes en la carga normal y no hubo recursos fallidos; las únicas
+capturas de esta implementación son evidencia técnica del implementador, no aprobación visual
+del propietario.
+
+Fallback comprobado con fallo inducido del avatar en un contexto aislado a 390×844 y
+1280×800: el frame conserva su rectángulo 88×88 y posición, muestra `FH` con `#f1f4fa` /
+`#484dc4` y halo blanco de 3px, mantiene el `alt` descriptivo y no genera overflow
+horizontal. El único 404 es el recurso de avatar esperado durante esa simulación; tras
+restaurar el archivo original, la foto volvió a cargar normalmente.
 
 ## Accessibility Baseline
 
@@ -301,14 +367,16 @@ cinco tonos y el token de texto secundario. Ratios calculados con la fórmula WC
 - ~~Diseño definitivo de `assets/og-image.jpg`.~~ **Resuelto (2026-10-23, `deploy-cloudflare-pages`):** JPEG 1200×630 con la composición de la sección "Open Graph Image"; aprobada por el propietario el 2026-10-23.
 - ¿Se necesita favicon y `theme-color`? (fuera del MVP por ahora).
 
-## Dirección del próximo rediseño (acordada el 2026-11-21; no implementada)
+## Dirección del rediseño acordado (2026-11-21)
 
-Los tokens YAML y las mediciones anteriores siguen describiendo la Tarjeta publicada.
-Esta sección guía el cambio futuro; al implementarlo se actualizarán los tokens y los
-contratos de verificación en el mismo trabajo. La fuente visual son dos capturas aportadas
-por Fahed el 2026-11-21: la Tarjeta completa y su Vista QR superpuesta. El `code.html` y el
-`DESIGN.md` adjuntos ese día sirven como referencias parciales. Ninguno de esos archivos
-externos está versionado en el repositorio ni debe copiarse literalmente.
+Los tokens base y las mediciones históricas describen la Tarjeta publicada. Esta sección
+se ejecuta en slices: `redesign-card-profile` está implementado localmente en esta worktree,
+pero aún requiere revisión visual del propietario y validación independiente; no se ha
+publicado. Los cambios de Acciones rápidas, Enlaces, pie, QR, Compartir e imagen social
+siguen siendo features posteriores. La dirección partió de dos capturas aportadas por Fahed
+el 2026-11-21 (Tarjeta completa y Vista QR superpuesta); no están versionadas ni disponibles
+en el repositorio para comparación visual en esta sesión, y el `code.html`/`DESIGN.md`
+adjuntos son referencias parciales que no deben copiarse literalmente.
 
 ### Jerarquía y composición objetivo
 
