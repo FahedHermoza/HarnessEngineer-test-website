@@ -36,7 +36,7 @@
 
 ## Implementation-Time Questions
 
-### Rediseño acordado (2026-11-21; aún no implementado)
+### Rediseño acordado (2026-11-21; slices en curso)
 
 - **Contratos durables:** `CONSTRAINTS.md` y `./init.sh` todavía fijan siete botones grandes,
   diez anclas, ocho SVG decorativos y la estructura previa. El futuro cambio a cinco
@@ -58,8 +58,14 @@
   live tras el redeploy.
 - **Referencias visuales:** las capturas, `code.html` y el `DESIGN.md` adjuntos por el
   propietario el 2026-11-21 no forman parte del repositorio. `DESIGN.md` de la raíz
-  conserva por ahora los tokens del sitio publicado y registra la dirección futura;
-  las capturas son guía visual, no especificación de píxeles.
+  conserva los tokens base AA del sitio publicado, documenta la implementación local del
+  Perfil y registra la dirección pendiente del resto del rediseño; las capturas son guía
+  visual, no especificación de píxeles.
+- **`redesign-card-profile` (implementación local, 2026-11-21):** el lienzo, la tarjeta y el
+  encabezado de Perfil se han renovado localmente; el gate, navegador y Lighthouse son
+  evidencia técnica, no aprobación visual. Las capturas originales no estaban accesibles
+  en el repositorio y la comparación/revisión explícita del propietario sigue pendiente.
+  No implica despliegue ni aprobación de los slices posteriores.
 
 - **Resuelto (2026-10-23, `link-whatsapp`; comprobación manual 2026-11-21):** el formato de WhatsApp es `https://wa.me/51955116562`; se descarta `api.whatsapp.com`. El propietario confirmó que la apertura del enlace en dispositivo salió bien; no se recibieron datos del dispositivo ni capturas.
 - **Resuelto (2026-10-23, `save-contact-vcard`):** la Contacto se sirve como
@@ -95,7 +101,7 @@
 - **Resuelto — Contraste de etiquetas de Enlace (2026-10-23, `accessibility-baseline`):** blanco `#ffffff` sobre los tokens oscurecidos mide 4.889, 5.184, 5.244, 5.184 y 4.958 a 1 en reposo (gradient-1…5) y 4.658–4.993:1 con el `filter: brightness(1.03)` de hover/foco, por encima de AA 4.5:1. Valores: `#5a67d1`, `#645fcc`, `#705aca`, `#8055c8`, `#9252c5`. Las etiquetas/iconos siguen blancos y el gate `./init.sh` recalcula los ratios. Los dos intermedios de la rampa de 7 Enlaces se derivan por `color-mix` de estos tokens, por lo que heredan el cumplimiento AA.
 - **Resuelto — Contraste de la Tagline (2026-10-23, `accessibility-baseline`):** `--color-on-surface-variant` pasa a `#6b7280`, que sobre blanco mide ≈4.834:1; Handle y Tagline mejoran sin cambiar su escala 13px/400 y 26px/600. `DESIGN.md` refleja el token nuevo.
 - **Excepción WCAG 2.5.8 documentada:** los dos enlaces inline del pie (correo y Handle) son más bajos que 44px; quedan cubiertos por la excepción de enlaces dentro de una frase. Reevaluar si cambia el pie.
-- **Lighthouse móvil es manual:** el gate `./init.sh` no ejecuta Lighthouse. Repetir la auditoría de accesibilidad en `http://localhost:3502` (móvil) tras cambios de color, foco o estructura; objetivo ≥95 sin fallos `critical`/`serious`.
+- **Lighthouse móvil es manual:** el gate `./init.sh` no ejecuta Lighthouse. Repetir la auditoría de accesibilidad en `http://localhost:3601` (móvil, puerto aislado de esta worktree) tras cambios de color, foco o estructura; objetivo ≥95 sin fallos `critical`/`serious`.
 - **Prueba responsive runtime-only:** "sin scroll horizontal" no se demuestra solo con grep. `Responsive checks:` fija los invariantes de CSS, pero la prueba real es la matriz de ocho anchos en el navegador con recarga fresca; repetirla tras cualquier cambio de layout, tipografía, tarjeta, botones o pie. No existe harness E2E persistente y añadirlo introduciría dependencias prohibidas por `docs/technical-discovery.md`.
 - **Octavo botón integrado:** `save-contact-vcard` añadió un botón de ancho completo y 48px. Tras el rebase de `responsive-baseline` sobre `demo/seed` se repitió la matriz (320, 390, 768 y 1280): los ocho botones miden 48px, no hay etiquetas truncadas ni scroll horizontal; a 320 el pie sigue ocupando dos líneas sin recorte. Repetir la matriz completa si cambia el layout.
 - **Enlaces que envejecen:** URLs de redes o portafolio pueden cambiar; nadie lo detecta automáticamente.

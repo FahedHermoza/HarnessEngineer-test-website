@@ -196,6 +196,46 @@ else
   fail "styles.css is missing the card width contract min(400px, calc(100vw - 2rem))"
 fi
 
+echo "Card and profile redesign checks:"
+
+CARD_RULE=$(awk '
+  /^[[:space:]]*\.card[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+CARD_REDESIGN_CONTRACT=(
+  'border: 1px solid var(--color-border);'
+  'border-radius: 24px;'
+  'box-shadow: 0 24px 64px -28px rgba(45, 49, 57, 0.16), 0 8px 24px -10px rgba(45, 49, 57, 0.08);'
+)
+card_redesign_missing=0
+for declaration in "${CARD_REDESIGN_CONTRACT[@]}"; do
+  if printf '%s\n' "$CARD_RULE" | grep -qF -- "$declaration"; then
+    :
+  else
+    echo "FAILED - .card redesign rule missing declaration: $declaration" >&2
+    card_redesign_missing=$((card_redesign_missing + 1))
+  fi
+done
+if [ "$card_redesign_missing" -gt 0 ]; then
+  fail ".card redesign contract is missing $card_redesign_missing of ${#CARD_REDESIGN_CONTRACT[@]} required declarations"
+fi
+echo "  [ok] redesigned card border, shape and shadow (${#CARD_REDESIGN_CONTRACT[@]}/${#CARD_REDESIGN_CONTRACT[@]})"
+
+PROFILE_HEADER_RULE=$(awk '
+  /^[[:space:]]*\.profile[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+if printf '%s\n' "$PROFILE_HEADER_RULE" | grep -qF 'gap: 24px;' \
+  && printf '%s\n' "$PROFILE_HEADER_RULE" | grep -qF 'padding: 36px 24px 0;' \
+  && printf '%s\n' "$PROFILE_HEADER_RULE" | grep -qF 'align-items: center;'; then
+  echo "  [ok] profile header spacing and alignment"
+else
+  fail "styles.css .profile must keep gap: 24px;, padding: 36px 24px 0; and centered alignment"
+fi
+
 echo "Profile checks:"
 
 if grep -qF 'class="profile-avatar"' index.html \
@@ -401,6 +441,189 @@ if [ -n "$PROFILE_AVATAR_FALLBACK_IMAGE_RULE" ] \
 else
   fail "styles.css is missing the avatar fallback activation rules (opacity: 0; and display: flex;)"
 fi
+
+echo "Profile ornament checks:"
+
+# NFC signal icon + label, top-left, decorative (not a pill)
+if printf '%s\n' "$PROFILE_BLOCK" | grep -qE '<span class="profile-nfc-label"[^>]*aria-hidden="true"[^>]*>' \
+  && printf '%s\n' "$PROFILE_BLOCK" | grep -qE '<svg class="profile-nfc-label__icon"[^>]*aria-hidden="true"[^>]*focusable="false"' \
+  && printf '%s\n' "$PROFILE_BLOCK" | grep -qF 'stroke="currentColor"' \
+  && printf '%s\n' "$PROFILE_BLOCK" | grep -qF 'NFC CONNECT'; then
+  echo "  [ok] decorative NFC signal icon and NFC CONNECT label markup"
+else
+  fail 'profile header must contain the aria-hidden NFC CONNECT label with its decorative currentColor broadcast icon (.profile-nfc-label__icon)'
+fi
+
+# Top row: NFC label left, decorative external-link icon right
+if printf '%s\n' "$PROFILE_BLOCK" | grep -qF 'class="profile-top"' \
+  && printf '%s\n' "$PROFILE_BLOCK" | grep -qE '<svg class="profile-open-icon"[^>]*aria-hidden="true"[^>]*focusable="false"'; then
+  echo "  [ok] decorative top-right external-link icon markup (aria-hidden)"
+else
+  fail 'profile header top row must contain the aria-hidden decorative external-link icon (.profile-open-icon) inside .profile-top'
+fi
+
+# The external-link icon stays purely decorative (no interactive wrapper around it)
+if printf '%s\n' "$PROFILE_BLOCK" | grep -qE '<a[^>]*>[[:space:]]*<svg class="profile-open-icon"'; then
+  fail 'the external-link icon must stay decorative; do not wrap it in an anchor (share/QR are downstream features)'
+fi
+
+# Green ornamental dot now sits on the avatar frame (not inline with the NFC label)
+if printf '%s\n' "$PROFILE_BLOCK" | grep -qF '<span class="profile-avatar-dot" aria-hidden="true"></span>'; then
+  echo "  [ok] decorative green dot markup present and aria-hidden"
+else
+  fail 'the avatar frame must contain the aria-hidden decorative dot <span class="profile-avatar-dot" aria-hidden="true"></span>'
+fi
+
+# The dot must be grouped with the avatar (after the avatar image), not inline with the NFC label
+nfc_label_line=$(grep -nF 'class="profile-nfc-label"' index.html | head -n 1 | cut -d: -f1 || true)
+avatar_img_line=$(grep -nF 'class="profile-avatar"' index.html | head -n 1 | cut -d: -f1 || true)
+avatar_dot_line=$(grep -nF 'class="profile-avatar-dot"' index.html | head -n 1 | cut -d: -f1 || true)
+avatar_frame_line=$(grep -nF 'class="profile-avatar-frame"' index.html | head -n 1 | cut -d: -f1 || true)
+if [ -n "$nfc_label_line" ] && [ -n "$avatar_img_line" ] && [ -n "$avatar_dot_line" ] && [ -n "$avatar_frame_line" ] \
+  && [ "$avatar_frame_line" -gt "$nfc_label_line" ] \
+  && [ "$avatar_img_line" -gt "$avatar_frame_line" ] \
+  && [ "$avatar_dot_line" -gt "$avatar_img_line" ]; then
+  echo "  [ok] decorative dot grouped with the avatar frame, after the NFC label"
+else
+  fail 'the decorative dot must sit inside the avatar frame after the avatar image, not inline with the NFC label'
+fi
+
+# The obsolete centered pill dot must be gone
+if grep -qF 'profile-nfc-label__dot' index.html styles.css; then
+  fail 'the obsolete inline pill dot (.profile-nfc-label__dot) must be removed from index.html and styles.css'
+fi
+echo "  [ok] obsolete inline pill dot removed"
+
+if printf '%s\n' "$PROFILE_BLOCK" | grep -qiE 'role="status"|aria-live=|title=|aria-label="[^"]*(NFC|connect|online|en línea|conectado)' \
+  || printf '%s\n' "$PROFILE_BLOCK" | grep -qiE 'En línea|conectado|online|connected'; then
+  fail 'profile ornament must not announce presence, status or an active NFC connection'
+else
+  echo "  [ok] profile ornament has no presence or connection semantics"
+fi
+
+PROFILE_NFC_LABEL_RULE=$(awk '
+  /^[[:space:]]*\.profile-nfc-label[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+PROFILE_NFC_ICON_RULE=$(awk '
+  /^[[:space:]]*\.profile-nfc-label__icon[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+PROFILE_AVATAR_DOT_RULE=$(awk '
+  /^[[:space:]]*\.profile-avatar-dot[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+# NFC label: top-left, brand indigo, label-sm uppercase — NOT a pill
+PROFILE_NFC_LABEL_CONTRACT=(
+  'display: inline-flex;'
+  'align-items: center;'
+  'align-self: flex-start;'
+  'color: var(--color-primary);'
+  'font-family: var(--font-family-base);'
+  'font-size: var(--text-label-sm-font-size);'
+  'font-weight: var(--text-label-sm-font-weight);'
+  'line-height: var(--text-label-sm-line-height);'
+  'letter-spacing: var(--text-label-sm-letter-spacing);'
+  'text-transform: uppercase;'
+)
+profile_nfc_label_missing=0
+for declaration in "${PROFILE_NFC_LABEL_CONTRACT[@]}"; do
+  if printf '%s\n' "$PROFILE_NFC_LABEL_RULE" | grep -qF -- "$declaration"; then
+    :
+  else
+    echo "FAILED - .profile-nfc-label rule missing declaration: $declaration" >&2
+    profile_nfc_label_missing=$((profile_nfc_label_missing + 1))
+  fi
+done
+if [ "$profile_nfc_label_missing" -gt 0 ]; then
+  fail ".profile-nfc-label contract is missing $profile_nfc_label_missing of ${#PROFILE_NFC_LABEL_CONTRACT[@]} required declarations"
+fi
+
+if printf '%s\n' "$PROFILE_NFC_LABEL_RULE" | grep -qE 'border:|border-radius:|background'; then
+  fail '.profile-nfc-label must be top-left text, not a pill (no border, border-radius or background)'
+fi
+
+PROFILE_NFC_ICON_CONTRACT=(
+  'width: 14px;'
+  'height: 14px;'
+)
+profile_nfc_icon_missing=0
+for declaration in "${PROFILE_NFC_ICON_CONTRACT[@]}"; do
+  if printf '%s\n' "$PROFILE_NFC_ICON_RULE" | grep -qF -- "$declaration"; then
+    :
+  else
+    echo "FAILED - .profile-nfc-label__icon rule missing declaration: $declaration" >&2
+    profile_nfc_icon_missing=$((profile_nfc_icon_missing + 1))
+  fi
+done
+if [ "$profile_nfc_icon_missing" -gt 0 ]; then
+  fail ".profile-nfc-label__icon contract is missing $profile_nfc_icon_missing of ${#PROFILE_NFC_ICON_CONTRACT[@]} required declarations"
+fi
+
+# Top row lays NFC label left and external-link icon right (space-between), avatar centered below
+PROFILE_TOP_RULE=$(awk '
+  /^[[:space:]]*\.profile-top[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+if printf '%s\n' "$PROFILE_TOP_RULE" | grep -qF 'display: flex;' \
+  && printf '%s\n' "$PROFILE_TOP_RULE" | grep -qF 'justify-content: space-between;' \
+  && printf '%s\n' "$PROFILE_TOP_RULE" | grep -qF 'width: 100%;'; then
+  echo "  [ok] profile top row (space-between, full width)"
+else
+  fail '.profile-top must lay the top row with display: flex;, justify-content: space-between; and width: 100%;'
+fi
+
+# External-link icon: decorative, muted neutral ink (not a filled brand color)
+PROFILE_OPEN_ICON_RULE=$(awk '
+  /^[[:space:]]*\.profile-open-icon[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+PROFILE_OPEN_ICON_CONTRACT=(
+  'width: 18px;'
+  'height: 18px;'
+  'color: var(--color-on-surface-variant);'
+)
+profile_open_icon_missing=0
+for declaration in "${PROFILE_OPEN_ICON_CONTRACT[@]}"; do
+  if printf '%s\n' "$PROFILE_OPEN_ICON_RULE" | grep -qF -- "$declaration"; then
+    :
+  else
+    echo "FAILED - .profile-open-icon rule missing declaration: $declaration" >&2
+    profile_open_icon_missing=$((profile_open_icon_missing + 1))
+  fi
+done
+if [ "$profile_open_icon_missing" -gt 0 ]; then
+  fail ".profile-open-icon contract is missing $profile_open_icon_missing of ${#PROFILE_OPEN_ICON_CONTRACT[@]} required declarations"
+fi
+echo "  [ok] decorative external-link icon in muted neutral ink (${#PROFILE_OPEN_ICON_CONTRACT[@]}/${#PROFILE_OPEN_ICON_CONTRACT[@]})"
+
+# Green dot: on the avatar bottom-right with the subtle white halo
+PROFILE_AVATAR_DOT_CONTRACT=(
+  'place-self: end;'
+  'border-radius: var(--radius-full);'
+  'background-color: #2f8f65;'
+  'box-shadow: 0 0 0 3px var(--color-surface);'
+)
+profile_avatar_dot_missing=0
+for declaration in "${PROFILE_AVATAR_DOT_CONTRACT[@]}"; do
+  if printf '%s\n' "$PROFILE_AVATAR_DOT_RULE" | grep -qF -- "$declaration"; then
+    :
+  else
+    echo "FAILED - .profile-avatar-dot rule missing declaration: $declaration" >&2
+    profile_avatar_dot_missing=$((profile_avatar_dot_missing + 1))
+  fi
+done
+if [ "$profile_avatar_dot_missing" -gt 0 ]; then
+  fail ".profile-avatar-dot contract is missing $profile_avatar_dot_missing of ${#PROFILE_AVATAR_DOT_CONTRACT[@]} required declarations"
+fi
+echo "  [ok] NFC icon+label top-left in brand indigo (${#PROFILE_NFC_LABEL_CONTRACT[@]}/${#PROFILE_NFC_LABEL_CONTRACT[@]} + icon ${#PROFILE_NFC_ICON_CONTRACT[@]}/${#PROFILE_NFC_ICON_CONTRACT[@]})"
+echo "  [ok] decorative green dot on the avatar bottom-right (${#PROFILE_AVATAR_DOT_CONTRACT[@]}/${#PROFILE_AVATAR_DOT_CONTRACT[@]})"
 
 echo "Page footer checks:"
 
@@ -668,7 +891,7 @@ check_profile_rule_contract() {
 }
 
 check_profile_rule_contract ".profile-identity" "$PROFILE_IDENTITY_RULE" \
-  'padding: var(--space-xl) var(--space-lg);' \
+  'padding: 20px 24px 34px;' \
   'text-align: center;'
 
 check_profile_rule_contract ".profile-identity__name" "$PROFILE_IDENTITY_NAME_RULE" \
@@ -679,10 +902,9 @@ check_profile_rule_contract ".profile-identity__name" "$PROFILE_IDENTITY_NAME_RU
   'color: var(--color-on-surface);'
 
 check_profile_rule_contract ".profile-identity__handle" "$PROFILE_IDENTITY_HANDLE_RULE" \
-  'font-size: var(--text-headline-lg-font-size);' \
-  'font-weight: var(--text-headline-lg-font-weight);' \
-  'line-height: var(--text-headline-lg-line-height);' \
-  'letter-spacing: var(--text-headline-lg-letter-spacing);' \
+  'font-size: var(--text-body-md-font-size);' \
+  'font-weight: var(--text-label-sm-font-weight);' \
+  'line-height: var(--text-body-md-line-height);' \
   'color: var(--color-on-surface-variant);'
 
 check_profile_rule_contract ".profile-identity__tagline" "$PROFILE_IDENTITY_TAGLINE_RULE" \
@@ -1592,14 +1814,14 @@ while IFS= read -r svg_tag; do
   esac
 done <<< "$SVG_TAGS"
 
-if [ "$svg_total" -ne 8 ]; then
-  fail "index.html must contain exactly 8 decorative SVG icons (found $svg_total)"
+if [ "$svg_total" -ne 10 ]; then
+  fail "index.html must contain exactly 10 decorative SVG icons (found $svg_total)"
 fi
 if [ "$svg_bad" -gt 0 ]; then
   fail "accessibility SVG contract is missing $svg_bad required attributes"
 fi
 if grep -qE '<span class="page-footer__separator"[^>]*aria-hidden="true"' index.html; then
-  echo "  [ok] 8 decorative SVG icons and footer separator are hidden from assistive technology"
+  echo "  [ok] 10 decorative SVG icons and footer separator are hidden from assistive technology"
 else
   fail 'the page footer separator must keep aria-hidden="true"'
 fi
@@ -1995,9 +2217,9 @@ echo "  [ok] width breakpoints keep link button tap targets >=44px (none today)"
 
 echo "  [ok] responsive contract (fluid card, full-width 48px buttons, shrink-safe labels)"
 
-echo "Serving command: python3 -m http.server 3502 --directory ."
+echo "Serving command: python3 -m http.server 3601 --directory ."
 echo "Manual verification: 320×844, 360×844, 375×844, 390×844, 480×844, 736×800, 768×800 and 1280×800."
 
 if [ "${RUN_SERVE_COMMAND:-0}" = "1" ]; then
-  exec python3 -m http.server 3502 --directory .
+  exec python3 -m http.server 3601 --directory .
 fi

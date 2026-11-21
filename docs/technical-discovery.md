@@ -101,8 +101,8 @@ No aplica. Página pública, sin roles, sin permisos, sin datos de usuario.
   1200×630, distinto del avatar, ≤300 KiB como objetivo con `[warn]` solo por tamaño),
   URL absoluta de ambas imágenes y `og:url`+canonical declarados. No hace HTTP ni arranca
   servidor.
-- Servido manual: `python3 -m http.server 3502 --directory .` (no se arranca por defecto;
-  `RUN_SERVE_COMMAND=1` lo inicia).
+- Servido manual: `python3 -m http.server 3601 --directory .` en la worktree aislada del
+  rediseño (no se arranca por defecto; `RUN_SERVE_COMMAND=1` lo inicia).
 - Matriz responsive de ocho anchos con recarga fresca: 320×844, 360×844, 375×844, 390×844
   (DPR 3), 480×844, 736×800, 768×800 y 1280×800 (emulación móvil/táctil ≤480, desktop ≥736).
   Medir `scrollWidth` contra `clientWidth` (en escritorio la barra clásica reduce `clientWidth`
@@ -115,15 +115,15 @@ No aplica. Página pública, sin roles, sin permisos, sin datos de usuario.
   deben salir con código 1 sin listener. Para la vCard: asset ausente, LF en vez de CRLF,
   URL alterada, `href`/`download` cambiados, botón fuera de posición, foco eliminado,
   reduced motion sin `.save-contact-button` y token neutro alterado también deben fallar
-  sin arrancar servidor. Para publicación: canonical roto, `og:url` roto, imagen relativa,
-  JPEG 1000×630 y asset ausente deben salir con código 1, stderr concreto y sin listener
-  en 3502.
-- Verificación manual del `.vcf`: `curl -sI http://localhost:3501/assets/fahedhermoza.vcf`
+   sin arrancar servidor. Para publicación: canonical roto, `og:url` roto, imagen relativa,
+   JPEG 1000×630 y asset ausente deben salir con código 1, stderr concreto y sin listener
+   en 3601.
+- Verificación manual del `.vcf`: `curl -sI http://localhost:3601/assets/fahedhermoza.vcf`
   debe devolver 200 con contenido no vacío; `od -c`/`file` debe confirmar CRLF y ausencia
-  de BOM. El puerto 3501 se usó solo para la sesión de la vCard; el hint estándar es 3502.
+  de BOM. La evidencia histórica de la feature vCard usó 3501; el hint actual aislado es 3601.
   El propietario reportó importación correcta en iOS/Android el 2026-11-21 al seguir el
   protocolo manual; no se recibieron modelos, versiones ni capturas.
-- Lighthouse móvil de accesibilidad sobre `http://localhost:3502` (device `mobile`,
+- Lighthouse móvil de accesibilidad sobre `http://localhost:3601` (device `mobile`,
   navigation): objetivo ≥95 y sin auditorías `critical`/`serious`. Es una comprobación manual,
   no forma parte de `init.sh`; repetirla tras cambios visuales o de contraste.
 - Verificación live **después del redeploy manual** (no la ejecuta `./init.sh`), ejecutada el
@@ -165,10 +165,12 @@ Fuera del alcance del MVP. Sin analítica ni logs. Se reevalúa en `docs/risks-a
   parte del código de producto ni de la implementación de `deploy-cloudflare-pages`.
 - Presupuesto: cero costo; solo servicios gratuitos (GitHub + Cloudflare Workers + Google Fonts).
 
-## Rediseño acordado: dirección técnica futura (2026-11-21)
+## Rediseño acordado: slices futuros y estado local (2026-11-21)
 
-Este apartado describe el cambio aún no implementado. El sitio publicado conserva el
-contrato anterior hasta que se especifique, implemente y valide el rediseño.
+El slice `redesign-card-profile` está implementado y auto-verificado localmente; la revisión
+visual del propietario y la validación independiente siguen pendientes y no se ha desplegado.
+El sitio publicado conserva el contrato anterior. Las demás interacciones y cambios de
+presentación aquí descritos siguen siendo slices futuros.
 
 - Mantener HTML/CSS y Plus Jakarta Sans, iconos SVG propios, la foto local y la vCard
   estática existente. El HTML adjunto es un prototipo visual: no incorporar Tailwind CDN,
