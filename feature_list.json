@@ -577,5 +577,122 @@
       "Comprobación manual posterior (reporte del propietario, 2026-11-21): confirmó que el protocolo de vistas previas en WhatsApp, Facebook e iMessage salió bien; no aportó capturas ni resultados individuales. `./init.sh` volvió a salir 0. Comprobación HTTP de solo lectura del agente el mismo día: raíz HTTPS 200, raíz HTTP 200 sin redirección, `/PROGRESS.md` 200 y `/AGENTS.md` 200 por HTTPS. Por tanto, el unfurl deja de estar pendiente como prueba manual reportada, mientras HTTPS forzado y restricción de archivos internos siguen abiertos como tareas operativas."
     ],
     "notes": "Plataforma: Cloudflare Workers con static assets (no Pages), URL `https://fahed-hermoza-card.fahedhermoza.workers.dev/`. Se conserva el id histórico `deploy-cloudflare-pages` por trazabilidad. Aprobación visual de `assets/og-image.jpg` registrada por el propietario el 2026-10-23. Redeploy verificado live el 2026-10-24; el propietario reportó vistas previas correctas en WhatsApp/Facebook/iMessage el 2026-11-21 (sin capturas). `wrangler.jsonc` conserva `assets.directory: \".\"` y publica archivos internos; `/PROGRESS.md` y `/AGENTS.md` respondieron 200 el 2026-11-21. La raíz HTTP respondió 200 sin redirección ese día. Restringir assets y forzar HTTPS siguen pendientes operativos."
+  },
+  {
+    "id": "redesign-card-profile",
+    "area": "profile",
+    "title": "Nueva estructura visual del Perfil",
+    "user_visible_behavior": "La Tarjeta conserva su contenido y muestra un lienzo claro, tarjeta más suave y encabezado renovado con avatar local, nombre, Handle, Tagline, «NFC CONNECT» y punto verde ornamental, siguiendo las capturas aprobadas como dirección visual.",
+    "depends_on": [
+      "profile-identity",
+      "avatar-fallback",
+      "accessibility-baseline",
+      "responsive-baseline"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Actualizar los tokens y reglas de diseño de forma explícita en DESIGN.md, CONSTRAINTS.md e init.sh cuando corresponda; ./init.sh debe salir 0 sin debilitar Accessibility checks: ni Responsive checks:.",
+      "Validar en navegador 390×844 y 1280×800: perfil completo, fallback de avatar, consola sin errores, red sin fallos y sin scroll horizontal; repetir la matriz responsive de ocho anchos.",
+      "Comprobar contraste AA, foco y reduced motion; Lighthouse móvil Accessibility ≥95 sin fallos critical/serious. «NFC CONNECT» y el punto verde no deben anunciar una conexión activa ni «En línea».",
+      "Obtener revisión visual del propietario frente a las capturas; conservar los siete destinos, la vCard y los metadatos actuales durante este cambio."
+    ],
+    "evidence": [],
+    "notes": "Primera feature del rediseño definido en docs/build-brief.md y DESIGN.md (2026-11-21). Las capturas son dirección visual, no valores CSS exactos. Mantener HTML/CSS, Plus Jakarta Sans, SVG propios y avatar local; no incorporar Tailwind CDN, Font Awesome ni Inter."
+  },
+  {
+    "id": "redesign-contact-navigation",
+    "area": "links",
+    "title": "Navegación de siete canales",
+    "user_visible_behavior": "Instagram, Facebook, WhatsApp, LinkedIn y Portafolio aparecen como cinco botones grandes; Celular y Correo pasan a la fila de Acciones rápidas con sus destinos intactos. El pie anterior se sustituye en la siguiente feature antes de publicar el rediseño.",
+    "depends_on": [
+      "redesign-card-profile",
+      "links-order-gradient",
+      "save-contact-vcard"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Confirmar los siete href canónicos, el orden de los cinco botones grandes y la presencia única de Celular y Correo; la vCard estática mantiene teléfono, correo y cinco URLs externas.",
+      "Revisar explícitamente en CONSTRAINTS.md e init.sh los conteos y selectores ligados a los siete .link-button, conservando comprobaciones de anclas reales, iconos decorativos, foco, reduced motion, contraste AA y tamaños táctiles ≥44×44.",
+      "Ejecutar ./init.sh y casos negativos de ausencia/destino alterado; validar navegador 390×844 y 1280×800 con consola/red limpias, matriz de ocho anchos sin scroll horizontal y Lighthouse móvil Accessibility ≥95 sin fallos critical/serious.",
+      "Verificar que los tonos lavanda→violeta, incluidas sus variantes de hover/foco, cumplen contraste AA y que Celular/Correo abren el destino esperado en un dispositivo real."
+    ],
+    "evidence": [],
+    "notes": "La fila rápida contiene solo Celular y Correo en esta etapa; QR y Compartir se añaden en features posteriores, sin controles inertes. El pie anterior aún puede repetir Correo hasta `redesign-footer-contact`; esa duplicación transitoria no se publica. Los 40×40 px del prototipo no cumplen el mínimo táctil acordado."
+  },
+  {
+    "id": "redesign-footer-contact",
+    "area": "contact",
+    "title": "Nuevo pie de contacto",
+    "user_visible_behavior": "El pie invita a escribir por WhatsApp, ofrece Guardar contacto con la nueva presentación visual y muestra «Tarjeta NFC & QR»; la descarga sigue usando el archivo vCard actual.",
+    "depends_on": [
+      "redesign-contact-navigation",
+      "page-footer"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Comprobar que el enlace textual «escríbeme directamente» abre el WhatsApp canónico y que Guardar contacto sigue siendo un <a> con href/download al mismo assets/fahedhermoza.vcf, sin Blob ni generador JavaScript.",
+      "Actualizar los contratos específicos de pie y vCard en CONSTRAINTS.md/init.sh sin retirar los checks AA; ./init.sh debe salir 0 y fallar ante href/download rotos o controles no semánticos.",
+      "Verificar en navegador 390×844 y 1280×800, matriz de ocho anchos, foco, contraste, área táctil, reduced motion, consola/red sin errores y Lighthouse móvil Accessibility ≥95 sin fallos critical/serious."
+    ],
+    "evidence": [],
+    "notes": "Sustituye el pie actual de correo y Handle por el contenido elegido en la captura; Correo sigue disponible en la fila de Acciones rápidas. Mantener los datos de la vCard ya aceptada."
+  },
+  {
+    "id": "redesign-qr-panel",
+    "area": "sharing",
+    "title": "Vista QR de la Tarjeta",
+    "user_visible_behavior": "La acción rápida QR abre sobre la Tarjeta un cuadro accesible con el Código QR de la URL pública, cerrar, Copiar Enlace y Guardar PNG; al cerrarlo el visitante vuelve a la Tarjeta.",
+    "depends_on": [
+      "redesign-contact-navigation"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Verificar que el PNG descargable y el QR mostrado codifican exactamente https://fahed-hermoza-card.fahedhermoza.workers.dev/; escanearlo en un teléfono real y confirmar el destino.",
+      "Probar apertura/cierre con ratón, toque, teclado y Escape, navegación y retorno del foco, lectura accesible, copia exitosa y permiso denegado y descarga PNG; sin JavaScript, la acción QR debe seguir ofreciendo el PNG estático en vez de quedar inerte.",
+      "Revisar explícitamente CONSTRAINTS.md/init.sh para permitir botones semánticos en acciones dentro de la página, conservando contraste AA, foco, reduced motion y áreas táctiles ≥44×44; ./init.sh debe salir 0.",
+      "Validar navegador 390×844 y 1280×800 con consola/red limpias, matriz responsive sin scroll horizontal y Lighthouse móvil Accessibility ≥95 sin fallos critical/serious."
+    ],
+    "evidence": [],
+    "notes": "QR estático, misma URL canónica que NFC y metadatos; JavaScript mínimo sin dependencias solo para la interacción y copia. Diseño del cuadro basado en la segunda captura del propietario."
+  },
+  {
+    "id": "redesign-share-action",
+    "area": "sharing",
+    "title": "Compartir Tarjeta desde una sola acción rápida",
+    "user_visible_behavior": "La acción rápida Compartir abre el menú nativo del dispositivo cuando está disponible; en otros navegadores copia la URL canónica y muestra una confirmación visible o un error comprensible.",
+    "depends_on": [
+      "redesign-contact-navigation"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Comprobar que existe una sola acción Compartir y que siempre usa la URL canónica de producción, sin parámetros de prueba ni destinos alternativos.",
+      "Probar las ramas con API nativa disponible, ausente, cancelada y con portapapeles denegado; verificar confirmación visible, semántica del botón, foco y ausencia de errores de consola. Sin JavaScript no debe mostrarse un control Compartir inerte.",
+      "Ejecutar ./init.sh y validar navegador 390×844 y 1280×800 sin peticiones fallidas, matriz responsive y Lighthouse móvil Accessibility ≥95 sin fallos critical/serious; documentar el resultado en dispositivo real."
+    ],
+    "evidence": [],
+    "notes": "La acción superior duplicada de code.html no se incorpora. Mantener JavaScript mínimo sin dependencias ni cambio de la vCard estática."
+  },
+  {
+    "id": "redesign-social-preview",
+    "area": "sharing",
+    "title": "Imagen social de la Tarjeta renovada",
+    "user_visible_behavior": "Al compartir la URL pública, la vista previa conserva título y destino correctos y usa una imagen 1200×630 que refleja el nuevo diseño de la Tarjeta.",
+    "depends_on": [
+      "redesign-card-profile",
+      "redesign-contact-navigation",
+      "redesign-footer-contact",
+      "redesign-qr-panel",
+      "redesign-share-action",
+      "deploy-cloudflare-pages"
+    ],
+    "status": "not_started",
+    "verification": [
+      "Obtener aprobación visual del propietario para assets/og-image.jpg nuevo y comprobar JPEG real 1200×630, ≤307200 bytes, distinto del avatar y sin uso como imagen dentro de la Tarjeta.",
+      "Ejecutar ./init.sh sin debilitar Sharing metadata production checks:, Accessibility checks: ni Responsive checks:; confirmar canonical, og:url, og:image y twitter:image con la URL pública exacta.",
+      "Validar navegador 390×844 y 1280×800 sin consola/red fallidas, sin scroll horizontal y Lighthouse móvil Accessibility ≥95 sin fallos critical/serious.",
+      "Tras redeploy manual, comprobar por HTTPS los cinco paths, MIME y hashes local/live, y registrar vistas previas reales en WhatsApp/Facebook/iMessage; no marcar accepted solo por crear el JPEG."
+    ],
+    "evidence": [],
+    "notes": "Última feature del rediseño. La URL pública y el despliegue Cloudflare Workers static assets no cambian; no corrige por sí sola los pendientes operativos previos de HTTP→HTTPS y exposición de archivos internos."
   }
 ]
