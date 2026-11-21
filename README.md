@@ -6,9 +6,11 @@ y del Código QR.
 
 - **Producción:** <https://fahed-hermoza-card.fahedhermoza.workers.dev/>
 - **Stack:** HTML5 + CSS moderno; sin framework, bundler, backend ni dependencias de runtime.
-- **Estado:** 21 features `accepted` y 6 del rediseño `not_started`; despliegue actual
-  verificado el 2026-10-24. El propietario reportó importación de vCard y vistas previas
-  sociales correctas el 2026-11-21.
+- **Estado:** 21 features `accepted`, `redesign-card-profile` en `passing` (auto-verificada;
+  revisión visual del propietario y validación independiente pendientes) y cinco slices del
+  rediseño `not_started`. La implementación nueva es local y todavía no está desplegada;
+  el sitio publicado se verificó el 2026-10-24. El propietario reportó importación de vCard
+  y vistas previas sociales correctas el 2026-11-21.
 
 ## Qué incluye
 
@@ -88,10 +90,10 @@ Requisitos: `bash`, `python3`, `git` y un navegador (Chrome para las comprobacio
 ./init.sh
 
 # 2. Servir la Tarjeta en local
-python3 -m http.server 3502 --directory .
+python3 -m http.server 3601 --directory .
 
 # 3. Abrir
-open http://localhost:3502/
+open http://localhost:3601/
 ```
 
 Alternativa en un solo paso:
@@ -100,8 +102,9 @@ Alternativa en un solo paso:
 RUN_SERVE_COMMAND=1 ./init.sh
 ```
 
-`./init.sh` debe salir con código `0`. Hoy imprime **109 `[ok]`** y ningún `[warn]`. El servidor
-solo se inicia con `RUN_SERVE_COMMAND=1`.
+`./init.sh` debe salir con código `0` y conserva las secciones de accesibilidad y responsive.
+El servidor local sugerido es el puerto aislado `3601`; solo se inicia desde el gate con
+`RUN_SERVE_COMMAND=1`.
 
 ## Verificación
 
@@ -123,7 +126,7 @@ solo se inicia con `RUN_SERVE_COMMAND=1`.
 ### Validación manual
 
 ```bash
-python3 -m http.server 3502 --directory .
+python3 -m http.server 3601 --directory .
 ```
 
 - Móvil **390×844** y escritorio **1280×800**: consola limpia, red sin fallos, sin scroll horizontal.
