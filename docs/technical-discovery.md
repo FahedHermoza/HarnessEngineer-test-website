@@ -164,3 +164,28 @@ Fuera del alcance del MVP. Sin analítica ni logs. Se reevalúa en `docs/risks-a
   pipeline de despliegue. `wrangler.jsonc` es configuración externa del propietario, no forma
   parte del código de producto ni de la implementación de `deploy-cloudflare-pages`.
 - Presupuesto: cero costo; solo servicios gratuitos (GitHub + Cloudflare Workers + Google Fonts).
+
+## Rediseño acordado: dirección técnica futura (2026-11-21)
+
+Este apartado describe el cambio aún no implementado. El sitio publicado conserva el
+contrato anterior hasta que se especifique, implemente y valide el rediseño.
+
+- Mantener HTML/CSS y Plus Jakarta Sans, iconos SVG propios, la foto local y la vCard
+  estática existente. El HTML adjunto es un prototipo visual: no incorporar Tailwind CDN,
+  Font Awesome, Inter, el avatar remoto ni su generador de vCard con Blob.
+- Preparar un QR descargable como asset estático que codifique exactamente la URL canónica
+  de producción. JavaScript pequeño y sin dependencias puede abrir/cerrar la Vista QR,
+  copiar el Enlace y activar la acción Compartir; si el navegador no permite compartir o
+  copiar, debe dar una salida comprensible al visitante. Sin backend ni almacenamiento.
+- Los contratos actuales de `CONSTRAINTS.md` y `./init.sh` fijan siete `.link-button`, diez
+  anclas y ningún botón interactivo. El cambio a cinco Enlaces grandes, Acciones rápidas y
+  Vista QR exigirá actualizar esos contratos de forma explícita durante implementación,
+  conservando o elevando la base AA, el gate `Accessibility checks:` y la matriz responsive.
+- Verificar la Vista QR con teclado, cierre y retorno del foco, lectura por tecnología de
+  asistencia, escaneo real hacia la URL pública, PNG descargado, estado sin JavaScript y
+  permisos del portapapeles. Verificar Compartir con API disponible y ausente. Repetir
+  `./init.sh`, navegador móvil/escritorio, ocho anchuras, Lighthouse móvil Accessibility
+  ≥95 y pruebas de los siete destinos y de la vCard.
+- La nueva `assets/og-image.jpg` debe seguir siendo JPEG 1200×630, distinta del avatar y
+  aprobada visualmente por el propietario. Tras su redeploy manual, repetir hashes/MIME
+  live y observar las vistas previas sociales. La URL pública no cambia.

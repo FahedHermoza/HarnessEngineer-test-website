@@ -300,3 +300,57 @@ cinco tonos y el token de texto secundario. Ratios calculados con la fórmula WC
 - ~~Cómo se repite/extiende el degradado de 5 tonos para 8 botones.~~ **Resuelto (2026-10-23, `links-order-gradient`):** los 7 Enlaces usan los cinco tonos más dos intermedios 50/50; "Guardar contacto" queda neutro y fuera de la rampa.
 - ~~Diseño definitivo de `assets/og-image.jpg`.~~ **Resuelto (2026-10-23, `deploy-cloudflare-pages`):** JPEG 1200×630 con la composición de la sección "Open Graph Image"; aprobada por el propietario el 2026-10-23.
 - ¿Se necesita favicon y `theme-color`? (fuera del MVP por ahora).
+
+## Dirección del próximo rediseño (acordada el 2026-11-21; no implementada)
+
+Los tokens YAML y las mediciones anteriores siguen describiendo la Tarjeta publicada.
+Esta sección guía el cambio futuro; al implementarlo se actualizarán los tokens y los
+contratos de verificación en el mismo trabajo. La fuente visual son dos capturas aportadas
+por Fahed el 2026-11-21: la Tarjeta completa y su Vista QR superpuesta. El `code.html` y el
+`DESIGN.md` adjuntos ese día sirven como referencias parciales. Ninguno de esos archivos
+externos está versionado en el repositorio ni debe copiarse literalmente.
+
+### Jerarquía y composición objetivo
+
+- Lienzo muy claro y tarjeta blanca centrada, con mayor aire, esquinas más redondeadas y
+  sombra suave. Conservar una sola columna fluida y márgenes seguros en móvil.
+- Encabezado con rótulo «NFC CONNECT», avatar local, nombre prominente, Handle, Tagline
+  espaciada y punto verde ornamental. El rótulo y el punto no anuncian conexión activa ni
+  estado «En línea» a tecnologías de asistencia. No usar la foto remota del prototipo.
+- Fila de cuatro Acciones rápidas: Celular, Correo, Código QR y una única acción Compartir.
+  Los controles tendrán nombre accesible, foco visible y área táctil de al menos 44×44 px;
+  los 40×40 px del prototipo no son el objetivo final.
+- Cinco Enlaces grandes, en orden Instagram, Facebook, WhatsApp, LinkedIn y Portafolio,
+  conservan la secuencia visual lavanda→violeta. Celular y Correo salen de esa pila sin
+  perder sus destinos ni sus datos en la vCard.
+- Pie con la invitación «¿Tienes un proyecto en mente? Haz clic en mis redes o escríbeme
+  directamente», donde el texto final enlaza a WhatsApp; Guardar contacto se presenta como
+  acción visual discreta y sigue descargando la vCard estática; cerrar con «Tarjeta NFC & QR».
+
+### Vista QR y estados de interacción
+
+- Al activar QR, mostrar un cuadro centrado sobre la Tarjeta con fondo atenuado, título,
+  QR escaneable de la URL pública, cerrar, «Copiar Enlace» y «Guardar PNG». Su tamaño debe
+  seguir siendo utilizable en un móvil estrecho. El cierre devuelve la atención al punto
+  de apertura y el cuadro conserva navegación por teclado y lectura accesible.
+- Compartir usa la hoja nativa del dispositivo cuando existe. Si no está disponible,
+  copia la URL canónica y muestra confirmación visible. La copia desde la Vista QR usa la
+  misma URL. Definir una respuesta comprensible cuando el portapapeles no permita copiar.
+- Mantener `prefers-reduced-motion`, estados de foco visibles y contrastes AA en reposo y
+  hover/foco. Los colores claros de las referencias son dirección cromática: sus valores
+  exactos no son aprobados como tokens porque varios fallan AA con texto blanco.
+
+### Tipografía, assets y límites
+
+- Conservar Plus Jakarta Sans y los SVG propios. Ajustar pesos, tamaños, espaciado y
+  geometría hacia las capturas; no adoptar Inter, Font Awesome ni Tailwind CDN.
+- Conservar la imagen de perfil local y el archivo `assets/fahedhermoza.vcf`; no generar la
+  vCard mediante Blob. La imagen social se rediseñará para acompañar la nueva Tarjeta,
+  seguirá siendo JPEG 1200×630 y necesitará aprobación visual de Fahed antes de publicar.
+- El QR descargable debe ser PNG y codificar exactamente
+  `https://fahed-hermoza-card.fahedhermoza.workers.dev/`. El sitio sigue siendo estático,
+  sin backend ni build; se admite JavaScript mínimo solo para las nuevas interacciones.
+
+**Criterio visual:** las capturas orientan jerarquía y sensación general, no una réplica
+pixel a pixel. Una revisión de Fahed en móvil y escritorio decide la aceptación visual;
+el contraste, la geometría responsive y la accesibilidad mantienen sus gates técnicos.
