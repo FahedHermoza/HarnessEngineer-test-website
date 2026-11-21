@@ -63,6 +63,10 @@ planner → implementer → validator → accepted → commit
 Los roles están configurados como subagentes en `.opencode/agent/` (`planner`, `implementer`,
 `validator`) y las instrucciones reutilizables viven en `.agents/skills/`.
 
+Este harness corre sobre **dos herramientas** (OpenCode y Claude Code) desde el mismo proyecto:
+`AGENTS.md` y los skills son la fuente única; cada herramienta añade adaptadores finos. Las reglas
+de mantenimiento y el mapeo entre ambos lados están en [`HARNESS.md`](HARNESS.md).
+
 ### Reglas del harness
 
 - Una feature a la vez; no se marca completa solo porque se añadió código.
