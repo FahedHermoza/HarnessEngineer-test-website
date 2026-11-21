@@ -1,6 +1,8 @@
 ---
 description: Wrapper agent that delegates validation work to $feature-validator.
 mode: subagent
+model: openai/gpt-6.1-sol
+variant: max
 permission:
   read: allow
   glob: allow

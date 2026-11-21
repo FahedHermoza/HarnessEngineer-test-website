@@ -721,3 +721,21 @@
 - Files or artifacts updated: `feature_list.json`, `PROGRESS.md` y el resumen de estado de `README.md`; sin cambios de producto.
 - Known risk or unresolved issue: `CONSTRAINTS.md` e `init.sh` aún fijan la estructura publicada de siete botones grandes, diez anclas y vCard/pie actuales. Cada feature deberá actualizar solo sus contratos afectados sin debilitar AA, responsive, metadatos ni los checks negativos. Los pendientes operativos de Cloudflare permanecen fuera del rediseño.
 - Next best step: crear el spec de `redesign-card-profile` con `feature-spec` y luego implementarlo/validarlo; no usar `harness-starter` de nuevo para una lista que ya existe.
+
+### Session 058 — modelos de subagentes
+
+- Date: 2026-11-21
+- Goal: asignar modelos concretos a los subagentes de planificación, implementación y validación.
+- Completed: `.opencode/agent/implementer.md` usa `opencode/deepseek-v4.1-flash-free`; `planner.md` usa `openai/gpt-6-sol`; `validator.md` usa `openai/gpt-6.1-sol` con `variant: max`. Los modelos y la variante se confirmaron en el catálogo local de OpenCode. `feature_list.json` conserva las 21 features aceptadas y las seis del rediseño sin cambio de estado; la siguiente sigue siendo `redesign-card-profile`.
+- Verification run: `./init.sh` pasó antes y después del cambio con `Accessibility checks:` y `Responsive checks:` en verde; `opencode debug agent implementer`, `planner` y `validator` resolvieron los modelos pedidos y `variant: max` en validator; `git diff --check` limpio; `feature_list.json` parsea con 27 entradas (21 `accepted`, seis `not_started`). No hubo cambios de UI, por lo que no se repitieron navegador ni Lighthouse.
+- Known risk or unresolved issue: los cambios de configuración se aplican solo al reiniciar OpenCode; pendientes operativos de Cloudflare sin cambios.
+- Next best step: reiniciar OpenCode y continuar con el spec de `redesign-card-profile`.
+
+### Session 059 — implementer con GPT-6 Luna Max
+
+- Date: 2026-11-21
+- Goal: sustituir el modelo de implementer por GPT-6 Luna en variante `max`.
+- Completed: `.opencode/agent/implementer.md` usa `openai/gpt-6-luna` y `variant: max`; planner y validator conservan sus asignaciones de la Session 058. `feature_list.json` mantiene las 27 features y sus estados porque no cambió el producto.
+- Verification run: `./init.sh` pasó antes y después del cambio con `Accessibility checks:` y `Responsive checks:` en verde; `opencode debug agent implementer` resolvió `openai/gpt-6-luna` con `variant: max`; `git diff --check` limpio y `feature_list.json` válido con 27 entradas (21 `accepted`, seis `not_started`). No cambió la UI y no se repitió navegador ni Lighthouse.
+- Known risk or unresolved issue: reiniciar OpenCode para aplicar la configuración; las tareas operativas previas de Cloudflare permanecen pendientes.
+- Next best step: reiniciar OpenCode y crear el spec de `redesign-card-profile`.

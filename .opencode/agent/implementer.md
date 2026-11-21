@@ -1,6 +1,8 @@
 ---
 description: Delegates to $feature-implementer.
 mode: subagent
+model: openai/gpt-6-luna
+variant: max
 permission:
   edit: allow
   bash: allow

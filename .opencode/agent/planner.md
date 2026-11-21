@@ -1,6 +1,7 @@
 ---
 description: Delegates to $feature-spec.
 mode: subagent
+model: openai/gpt-6-sol
 permission:
   edit:
     "*": deny
