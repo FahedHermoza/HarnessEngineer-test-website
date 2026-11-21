@@ -6,8 +6,8 @@ y del Código QR.
 
 - **Producción:** <https://fahed-hermoza-card.fahedhermoza.workers.dev/>
 - **Stack:** HTML5 + CSS moderno; sin framework, bundler, backend ni dependencias de runtime.
-- **Estado:** 21 features `accepted`; despliegue live verificado el 2026-10-24. El unfurl social
-  real sigue pendiente de observación humana.
+- **Estado:** 21 features `accepted`; despliegue live verificado el 2026-10-24. El propietario
+  reportó importación de vCard y vistas previas sociales correctas el 2026-11-21.
 
 ## Qué incluye
 
@@ -204,11 +204,13 @@ verificación.
 
 ## Pendientes conocidos
 
-- Unfurl real en WhatsApp/Facebook/iMessage: los tags y la imagen son correctos, pero no se ha
-  observado la vista previa (depende de caché y políticas del cliente).
-- Importación real de la vCard en iOS y Android.
-- Activar “Always Use HTTPS” en Cloudflare (`http://` responde 200 hoy).
+- Activar redirección HTTP→HTTPS en Cloudflare (`http://` respondió 200 el 2026-11-21).
 - `wrangler.jsonc` publica la raíz del repo; acotar `assets.directory` o excluir rutas internas
-  (`/.git/`, `docs/`, `PROGRESS.md`, etc.) para no exponer archivos de trabajo.
+  (`/.git/`, `docs/`, `PROGRESS.md`, etc.) para no exponer archivos de trabajo. Se confirmó
+  HTTP 200 para `/PROGRESS.md` y `/AGENTS.md` el 2026-11-21.
 - `meta description` y analítica están fuera del alcance actual.
 - No hay E2E persistente: la cobertura es `init.sh` + Chrome DevTools + Lighthouse + `curl` live.
+
+Las pruebas de vCard en iOS/Android y de vistas previas en WhatsApp/Facebook/iMessage fueron
+reportadas como correctas por el propietario el 2026-11-21; no hay capturas ni detalle de
+dispositivos para reproducir ese reporte.
