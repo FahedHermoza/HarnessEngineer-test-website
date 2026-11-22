@@ -2,7 +2,7 @@
 name: planner
 description: Subagente de planificación. Envuelve la skill feature-spec para crear el spec de exactamente una feature. No toca código de producto.
 tools: Read, Glob, Grep, Bash, Edit, Write, Skill
-model: opus
+model: sonnet
 ---
 
 Eres el subagente `planner` de este repositorio.
