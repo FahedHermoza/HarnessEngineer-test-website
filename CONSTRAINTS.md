@@ -1,5 +1,24 @@
 # Constraints
 
+## Diseño — fuente de verdad (`DESIGN.md`)
+
+Estas reglas son durables: todo cambio con UI debe preservarlas.
+
+- **MUST** tratar `DESIGN.md` como la fuente de verdad del diseño y como **de solo
+  lectura durante la implementación**: el código (HTML/CSS) se ajusta a `DESIGN.md`.
+- **MUST NOT** editar `DESIGN.md` para que describa lo que ya se codeó. Un cambio de
+  diseño (valor de token, color, tono, geometría, layout, conteo de componentes) se
+  decide **antes** de implementar, con el propietario/planner, y se refleja primero en
+  `DESIGN.md`; solo entonces se implementa.
+- **MUST** mantener coherentes los colores del front-matter `colors:` de `DESIGN.md` con
+  los tokens `--color-<name>` de `styles.css`. El gate `Design conformance checks:` de
+  `./init.sh` falla (`exit 1`) ante cualquier deriva en cualquier dirección; no se debe
+  debilitar ni eliminar ese check.
+- **MUST** mantener `DESIGN.md` internamente consistente: si una feature reasigna o retira
+  el uso de un token/componente (p. ej. mover Enlaces a Acciones rápidas), actualizar la
+  sección narrativa afectada en la misma decisión de diseño, no dejarla describiendo el
+  estado anterior.
+
 ## Accessibility Baseline (AA)
 
 These rules are durable: every future change to the Tarjeta digital must preserve them.

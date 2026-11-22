@@ -80,6 +80,8 @@ If paths are provisional because the app is not bootstrapped yet, say so explici
 
 If UI is involved, follow `../../../../DESIGN.md` and identify any feature-specific visual states the implementer must handle. If `../../../../DESIGN.md` is missing but needed, mark it as a planning gap rather than letting the implementer invent a visual style.
 
+`../../../../DESIGN.md` is the read-only design source of truth. Do **not** write a spec that tells the implementer to "update DESIGN.md during implementation" or to treat it as the place to record new visual values. If this feature changes the design itself (new token/value, tone, geometry, layout, or component count), that is a **design decision**: it must be resolved into `DESIGN.md` here at planning time with owner approval, *before* implementation, and the spec then points the implementer at the already-updated `DESIGN.md`. The implementer conforms the code to `DESIGN.md`; it never rewrites `DESIGN.md` to match code. If an owner-approved design change lands after planning, re-open the spec to fold it into `DESIGN.md` rather than deferring the doc edit to the implementer.
+
 ## Durable Documentation Impact
 
 - `../../../../ARCHITECTURE.md`: create/update/not needed — <reason>
