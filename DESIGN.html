@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Serene Bio Card — DESIGN.md</title>
+    <title>Serene Bio Card — preview</title>
     <link rel="icon" href="data:,">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,13 +34,7 @@
         font-weight: var(--text-headline-lg-font-weight);
         line-height: var(--text-headline-lg-line-height);
         letter-spacing: var(--text-headline-lg-letter-spacing);
-        margin: var(--space-xs) 0 var(--space-md);
-      }
-      .design-doc__description {
-        font-size: var(--text-body-md-font-size);
-        line-height: var(--text-body-md-line-height);
-        color: var(--color-on-surface-variant);
-        margin: 0 0 var(--space-xl);
+        margin: var(--space-xs) 0 var(--space-xl);
       }
       .design-doc h2 {
         font-size: var(--text-headline-md-font-size);
@@ -51,21 +45,10 @@
         margin-top: var(--space-xl);
         padding-top: var(--space-lg);
       }
-      .design-doc h3 {
-        font-size: var(--text-body-md-font-size);
-        font-weight: 700;
-        color: var(--color-primary);
-        margin-top: var(--space-lg);
-      }
-      .design-doc p, .design-doc li {
+      .design-doc p {
         font-size: var(--text-body-md-font-size);
         line-height: var(--text-body-md-line-height);
-      }
-      .design-doc ul, .design-doc ol {
-        padding-left: 1.25rem;
-      }
-      .design-doc li + li {
-        margin-top: var(--space-xs);
+        color: var(--color-on-surface-variant);
       }
       .design-doc code {
         background: var(--color-surface-container-low);
@@ -73,45 +56,6 @@
         border-radius: var(--radius-sm);
         padding: 0.1em 0.35em;
         font-size: 0.92em;
-      }
-      .design-doc blockquote {
-        margin: var(--space-md) 0;
-        padding: var(--space-sm) var(--space-md);
-        border-left: 3px solid var(--color-accent);
-        background: var(--color-surface-container-low);
-        border-radius: var(--radius-sm);
-        color: var(--color-on-surface-variant);
-      }
-      .design-doc table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: var(--space-md) 0;
-        font-size: var(--text-body-sm-font-size);
-      }
-      .design-doc th, .design-doc td {
-        border: 1px solid var(--color-border);
-        padding: var(--space-xs) var(--space-sm);
-        text-align: left;
-      }
-      .design-doc th {
-        background: var(--color-surface-container-low);
-      }
-      .design-doc del {
-        color: var(--color-on-surface-variant);
-      }
-      .design-doc__frontmatter {
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius-lg);
-        padding: var(--space-md);
-        overflow-x: auto;
-      }
-      .design-doc__frontmatter pre {
-        margin: 0;
-        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: var(--text-body-sm-font-size);
-        white-space: pre-wrap;
-        word-break: break-word;
       }
       .design-doc__preview {
         display: flex;
@@ -164,9 +108,9 @@
   </head>
   <body>
     <main class="design-doc">
-      <p class="design-doc__eyebrow">DESIGN.md — fuente de verdad</p>
+      <p class="design-doc__eyebrow">DESIGN.md — preview</p>
       <h1>Serene Bio Card</h1>
-      <p class="design-doc__description">Tarjeta digital de enlaces personales con estética minimalista cálida, tarjeta blanca flotante y botones en degradado lavanda→violeta.</p>
+
       <h2>Vista previa en vivo</h2>
       <p>Renderiza el <code>index.html</code> publicado en este mismo worktree/servidor. Puede
         no reflejar aún las secciones de "Dirección del rediseño" todavía no implementadas.</p>
@@ -176,202 +120,13 @@
           sin servidor (<code>file://</code>), el iframe puede no cargar por restricciones del
           navegador; usa <code>python3 -m http.server</code> para verlo en vivo.</p>
       </div>
-<h2>Paleta de color (preview)</h2>
-<p>Swatches generados directamente de <code>colors:</code> en el frontmatter de <code>DESIGN.md</code>; ningún valor está inventado aquí.</p>
-<div class="design-doc__swatches"><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#f7f9ff"></span><span class="design-doc__swatch-label"><code>background</code><br>#f7f9ff</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#ffffff"></span><span class="design-doc__swatch-label"><code>surface</code><br>#ffffff</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#f1f4fa"></span><span class="design-doc__swatch-label"><code>surface-container-low</code><br>#f1f4fa</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#ebeef2"></span><span class="design-doc__swatch-label"><code>border</code><br>#ebeef2</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#2d3139"></span><span class="design-doc__swatch-label"><code>on-surface</code><br>#2d3139</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#6b7280"></span><span class="design-doc__swatch-label"><code>on-surface-variant</code><br>#6b7280</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#767685"></span><span class="design-doc__swatch-label"><code>outline</code><br>#767685</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#484dc4"></span><span class="design-doc__swatch-label"><code>primary</code><br>#484dc4</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#ffffff"></span><span class="design-doc__swatch-label"><code>on-primary</code><br>#ffffff</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#585ce5"></span><span class="design-doc__swatch-label"><code>accent</code><br>#585ce5</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#5c68d4"></span><span class="design-doc__swatch-label"><code>gradient-1</code><br>#5c68d4</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#6a64d8"></span><span class="design-doc__swatch-label"><code>gradient-2</code><br>#6a64d8</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#765fd4"></span><span class="design-doc__swatch-label"><code>gradient-3</code><br>#765fd4</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#8659d1"></span><span class="design-doc__swatch-label"><code>gradient-4</code><br>#8659d1</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#9654c9"></span><span class="design-doc__swatch-label"><code>gradient-5</code><br>#9654c9</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#ba1a1a"></span><span class="design-doc__swatch-label"><code>error</code><br>#ba1a1a</span></div></div>
-      <h2>Metadata (frontmatter)</h2>
-      <div class="design-doc__frontmatter"><pre>name: Serene Bio Card
-description: Tarjeta digital de enlaces personales con estética minimalista cálida, tarjeta blanca flotante y botones en degradado lavanda→violeta.
-designAssets:
-  sourceOfTruth: []
-  references:
-    - url: https://0a41b4efa061ab62.demo.carrd.co
-      role: Carrd Template #93, base estructural de la tarjeta
-      status: inspiration
-  generatedConcepts: []
-  ownerProvided:
-    - path: assets/avatar.jpg
-      role: Foto de perfil (la aporta Fahed)
-      status: available
-    - path: assets/og-image.jpg
-      role: Imagen Open Graph 1200×630
-      status: available (aprobada el 2026-10-23)
-colors:
-  background: '#f7f9ff'
-  surface: '#ffffff'
-  surface-container-low: '#f1f4fa'
-  border: '#ebeef2'
-  on-surface: '#2d3139'
-  on-surface-variant: '#6b7280'
-  outline: '#767685'
-  primary: '#484dc4'
-  on-primary: '#ffffff'
-  accent: '#585ce5'
-  gradient-1: '#5c68d4'
-  gradient-2: '#6a64d8'
-  gradient-3: '#765fd4'
-  gradient-4: '#8659d1'
-  gradient-5: '#9654c9'
-  error: '#ba1a1a'
-typography:
-  headline-lg:
-    fontFamily: Plus Jakarta Sans
-    fontSize: 26px
-    fontWeight: '600'
-    lineHeight: 34px
-    letterSpacing: -0.02em
-  headline-md:
-    fontFamily: Plus Jakarta Sans
-    fontSize: 20px
-    fontWeight: '600'
-    lineHeight: 28px
-    letterSpacing: -0.015em
-  body-md:
-    fontFamily: Plus Jakarta Sans
-    fontSize: 13px
-    fontWeight: '400'
-    lineHeight: 20px
-  body-sm:
-    fontFamily: Plus Jakarta Sans
-    fontSize: 12px
-    fontWeight: '400'
-    lineHeight: 18px
-  button-label:
-    fontFamily: Plus Jakarta Sans
-    fontSize: 11px
-    fontWeight: '800'
-    lineHeight: 16px
-    letterSpacing: 0.18em
-  label-sm:
-    fontFamily: Plus Jakarta Sans
-    fontSize: 11px
-    fontWeight: '600'
-    lineHeight: 16px
-    letterSpacing: 0.05em
-rounded:
-  sm: 0.125rem
-  md: 0.375rem
-  lg: 0.5rem
-  xl: 0.75rem
-  full: 9999px
-spacing:
-  gutter: 1rem
-  margin: 1.5rem
-  space-xs: 0.375rem
-  space-sm: 0.75rem
-  space-md: 1rem
-  space-lg: 1.5rem
-  space-xl: 2.25rem
-components:
-  card:
-    backgroundColor: '{colors.surface}'
-    rounded: 24px
-    shadow: '0 24px 64px -28px rgba(45, 49, 57, 0.16), 0 8px 24px -10px rgba(45, 49, 57, 0.08)'
-    border: '1px solid {colors.border}'
-  profile:
-    headerGap: 24px
-    headerPadding: '36px 24px 0'
-    identityPadding: '20px 24px 34px'
-    handleFont: '13px / 600 / 20px'
-    topRow: 'flex row, space-between, full width — NFC icon+label at left, external-link icon at right; avatar centered below'
-    nfcLabel: 'NFC broadcast icon + "NFC CONNECT" text, top-left, ornamental, hidden from assistive technology'
-    nfcLabelStyle: 'label-sm (11px / 600 / 16px, 0.05em) uppercase in {colors.primary}; inline NFC-waves SVG icon 14px with currentColor; NOT a pill (no border, radius or background)'
-    openIcon: 'external-link SVG icon 18px, currentColor in {colors.on-surface-variant}, decorative (aria-hidden), top-right; not an interactive control in this slice'
-    decorativeDot: '#2f8f65 dot (16px, 3px {colors.surface} halo) placed on the avatar bottom-right (place-self: end), ornamental'
-  button-link:
-    height: 48px
-    rounded: '{rounded.md}'
-    textColor: '{colors.on-primary}'
-    font: '{typography.button-label}'
-  save-contact:
-    height: 48px
-    rounded: '{rounded.md}'
-    backgroundColor: '{colors.surface-container-low}'
-    textColor: '{colors.primary}'
-    font: '{typography.button-label}'
-  avatar:
-    size: 88px
-    rounded: '{rounded.full}'</pre></div>
-<h1>Design Direction</h1>
-<h2>Overview</h2>
-<p>"Serene Bio Card" es un sistema visual de tarjeta personal tipo link-in-bio. Una tarjeta blanca flotante sobre un lienzo neutro cálido, con jerarquía tipográfica tranquila y botones de acción de ancho completo que recorren un degradado lavanda→violeta. El objetivo es claridad, elegancia y tacto simple: que el visitante entienda quién es Fahed y toque el canal correcto sin esfuerzo.</p>
-<h2>Existing Design Assets</h2>
-<ul><li><strong>Carrd Template #93</strong> — <code>https://0a41b4efa061ab62.demo.carrd.co</code> — <em>inspiration only</em>. Define la estructura base: tarjeta centrada, avatar circular, handle en gris, divisores finos, botones de ancho completo con icono a la derecha. No es fuente de verdad.</li><li><strong><code>assets/avatar.jpg</code></strong> — foto de perfil; ya presente en el repositorio.</li><li><strong><code>assets/og-image.jpg</code></strong> — imagen Open Graph 1200×630. Estado: disponible y aprobada por el propietario el 2026-10-23; composición reproducible documentada abajo.</li></ul>
-<p>Autoridad: los tokens, reglas de layout y guía de componentes de este documento son la fuente de verdad cuando el template o las imágenes entren en conflicto.</p>
-<h2>Generated Concept Images</h2>
-<p>La <code>og-image</code> no es un concepto de IA: se generó con la receta reproducible del spec <code>deploy-cloudflare-pages</code> (HTML temporal no commiteado + captura de Chrome a 1200×630 y JPEG calidad 90). El agente no interpreta la imagen resultante; la aprobación de la composición es humana.</p>
-<h2>Product Feel</h2>
-<p>Minimalismo cálido y etéreo. Mucho aire, geometría refinada, autoridad tipográfica discreta y microinteracciones suaves. Nada de ruido digital ni bordes duros.</p>
-<h2>Colors</h2>
-<ul><li><strong>Fondo (canvas):</strong> <code>#f7f9ff</code> — off-white frío suave que da contraste a la tarjeta.</li><li><strong>Superficie (tarjeta):</strong> <code>#ffffff</code> — contenedor limpio y suave.</li><li><strong>Borde / divisores:</strong> <code>#ebeef2</code> — reglas finas, sin estructura agresiva.</li><li><strong>Texto principal:</strong> <code>#2d3139</code> — gris pizarra profundo, no negro puro.</li><li><strong>Texto secundario / meta:</strong> <code>#6b7280</code> — para handle y tagline; el pie usa <code>#2d3139</code>.</li><li><strong>Acento / enlaces:</strong> <code>#585ce5</code>.</li><li><strong>Punto verde ornamental del avatar:</strong> <code>#2f8f65</code>, color local del ornamento, no token global; se posa en la esquina inferior derecha del avatar y no indica disponibilidad, conexión NFC ni presencia.</li><li><strong>Icono de enlace externo (tinta neutra):</strong> usa <code>#6b7280</code> (<code>on-surface-variant</code>) vía <code>currentColor</code>; decorativo, sin relleno de color de marca.</li><li><strong>Degradado de botones</strong> (secuencia descendente en la pila de Enlaces), rampa adoptada del sistema Stitch (periwinkle→orquídea) y <strong>ajustada para AA</strong> (ver nota abajo): 1. <code>#5c68d4</code> 2. <code>#6a64d8</code> 3. <code>#765fd4</code> 4. <code>#8659d1</code> 5. <code>#9654c9</code> El texto y el icono de todos los botones van siempre en <code>#ffffff</code>.</li></ul>
-<blockquote><p><strong>Nota de reconciliación (AA).</strong> El export Stitch proponía la rampa <code>#6876F0 · #736DEB · #8168E8 · #9362E6 · #A85EE2</code>. Con texto blanco esos tonos dan 3.65–4.13:1, por debajo del mínimo AA de 4.5:1 (y peor en hover con <code>brightness(1.03)</code>). Para conservar el matiz periwinkle→orquídea sin romper la base AA de <code>CONSTRAINTS.md</code>, la rampa se oscurece ~10% a los valores de arriba, que pasan 4.52–4.82:1 en reposo y hover. Aprobado por el propietario el 2026-11-22.</p></blockquote>
-<p>Tras <code>redesign-contact-navigation</code>, la pila de Enlaces son <strong>cinco botones grandes</strong> (Celular y Correo se movieron a la fila de Acciones rápidas, ver abajo). La progresión recorre la rampa desde <code>gradient-1</code> hasta <code>gradient-4</code>, insertando un intermedio 50/50 en el salto 3→4, sin repetir tonos ni superar 14/255 por canal entre botones consecutivos:</p>
-<ol><li>Instagram — <code>gradient-1</code> <code>#5c68d4</code></li><li>Facebook — <code>gradient-2</code> <code>#6a64d8</code></li><li>WhatsApp — <code>gradient-3</code> <code>#765fd4</code></li><li>LinkedIn — intermedio <code>gradient-3</code>/<code>gradient-4</code> ≈ <code>#7e5cd2</code></li><li>Portafolio — <code>gradient-4</code> <code>#8659d1</code></li></ol>
-<p>El intermedio se deriva con <code>color-mix</code> a partir de los tokens existentes (con fallback al tono inferior). No se añaden colores ni tokens. Los tokens <code>gradient-5</code> (<code>#9654c9</code>) y el intermedio <code>gradient-4</code>/<code>gradient-5</code> <strong>se conservan en la paleta pero ya no se asignan a ningún botón grande</strong> (eran Celular y Correo, hoy Acciones rápidas); su regla CSS queda disponible por si una feature posterior la reutiliza.</p>
-<ul><li><strong>Acciones rápidas (Celular, Correo):</strong> fuera de la rampa de degradado. Botones <strong>circulares neutros</strong> (48×48, <code>rounded.full</code>), superficie <code>#f1f4fa</code> (<code>surface-container-low</code>) e icono en <code>#484dc4</code> (<code>primary</code>), con <code>aria-label</code> propio e icono SVG decorativo. Fila centrada entre la identidad y la pila de Enlaces. QR y Compartir se añaden a esta misma fila en features posteriores.</li></ul>
-<p>El botón "Guardar contacto" queda fuera de la rampa con tratamiento neutro (superficie <code>#f1f4fa</code> con texto <code>#484dc4</code>) para diferenciarse de los Enlaces externos.</p>
-<h2>Typography</h2>
-<p>Familia única <strong>Plus Jakarta Sans</strong>, con pila de respaldo del sistema (<code>system-ui, -apple-system, "Segoe UI", Roboto, sans-serif</code>).</p>
-<ul><li><strong>Nombre:</strong> <code>headline-lg</code>, peso 600, tracking negativo sutil.</li><li><strong>Handle:</strong> <code>body-md</code>, peso 600, sobre superficie con contraste AA.</li><li><strong>Tagline:</strong> <code>body-md</code>, color <code>#6b7280</code>.</li><li><strong>Etiquetas de botón:</strong> <code>button-label</code> en mayúsculas, tracking <code>0.18em</code>, peso 800.</li><li><strong>Pie / meta:</strong> <code>body-sm</code> o <code>body-md</code> con enlaces en <code>#585ce5</code> subrayados.</li></ul>
-<h2>Layout</h2>
-<ul><li>Tarjeta única centrada vertical y horizontalmente en escritorio; con márgenes seguros en móvil.</li><li>Ancho máximo de tarjeta: 380–420px en escritorio; <code>calc(100vw - 2rem)</code> en móvil.</li><li>Columna única. Bloques separados por divisores de 1px a ancho completo de la tarjeta.</li><li>Perfil con una fila superior a ancho completo (<code>space-between</code>): a la izquierda el rótulo «NFC CONNECT» (icono de ondas NFC + texto) en color de marca, a la derecha un icono decorativo de enlace externo en tinta neutra. El avatar queda centrado debajo con 24px entre la fila superior y el avatar y 36px de padding superior. El punto verde ornamental se posa en la esquina inferior derecha del avatar. La identidad conserva 20px de padding superior y 34px inferior. Botones con separación vertical <code>space-sm</code> (0.75rem); pie con <code>space-lg</code>.</li></ul>
-<h2>Shapes</h2>
-<ul><li>Tarjeta renovada: esquinas de <code>24px</code>, borde <code>1px #ebeef2</code> y sombra compuesta tenue.</li><li>Botones: <code>6–8px</code> (<code>rounded.md</code>), forma estructurada tipo pill suave.</li><li>Avatar: círculo perfecto con anillo blanco de 3px.</li><li>Badges / chips secundarios: <code>6px</code>.</li></ul>
-<h2>Components</h2>
-<ul><li><strong>Perfil (slice <code>redesign-card-profile</code>):</strong> fila superior a ancho completo con <code>justify-content: space-between</code>. A la izquierda, el rótulo <code>NFC CONNECT</code> como icono de ondas NFC (SVG inline de 14px, <code>currentColor</code>) + texto <code>label-sm</code> (11px/600/16px, tracking 0.05em) en mayúsculas y color de marca <code>#484dc4</code> (<code>primary</code>); <strong>no</strong> es una píldora (sin borde, radio ni fondo). A la derecha, un icono decorativo de enlace externo (SVG inline de 18px, <code>currentColor</code> en <code>#6b7280</code>, <code>on-surface-variant</code>), puramente ornamental en este slice (no es enlace, Compartir ni QR; esas son features posteriores). El punto verde ornamental <code>#2f8f65</code> (16px, halo de 3px en superficie blanca) se posa en la esquina inferior derecha del frame del avatar (<code>place-self: end</code>). El rótulo, su icono, el icono de enlace externo y el punto están dentro de elementos <code>aria-hidden="true"</code> y no anuncian estado, control ni conexión activa. Avatar local circular 88×88 con <code>object-fit: cover</code>, halo blanco y fallback <code>FH</code> de igual tamaño. Nombre en <code>headline-lg</code>; Handle debajo en <code>body-md</code> 13px/600 y Tagline en <code>body-md</code> 13px/400 con <code>lang="en"</code>.</li><li><strong>Tarjeta (slice <code>redesign-card-profile</code>):</strong> superficie <code>#ffffff</code>, borde <code>1px solid #ebeef2</code>, radio 24px y sombra <code>0 24px 64px -28px rgba(45, 49, 57, 0.16), 0 8px 24px -10px rgba(45, 49, 57, 0.08)</code>. Se conserva la fórmula responsive <code>min(400px, calc(100vw - 2rem))</code>.</li><li><strong>Botón de Enlace:</strong> ancho completo, alto 48px, padding horizontal 1.25rem, flexbox <code>space-between</code> (etiqueta mayúsculas a la izquierda, icono SVG 18px a la derecha), fondo del degradado, sombra <code>0 2px 6px rgba(108,114,234,0.15)</code>. Hover/focus: <code>translateY(-1.5px)</code>, sombra <code>0 8px 18px rgba(108,114,234,0.28)</code>, <code>filter: brightness(1.03)</code>. Transición 180ms ease.</li><li><strong>Guardar contacto:</strong> misma forma que un Enlace (<code>width: 100%</code>, 48px, padding horizontal 1.25rem, radio <code>rounded.md</code>, flexbox <code>space-between</code>, etiqueta <code>button-label</code> en mayúsculas e icono SVG 18px a la derecha), pero fuera de la rampa: fondo <code>#f1f4fa</code> (<code>surface-container-low</code>) y texto/icono <code>#484dc4</code> (<code>primary</code>). Sombra base <code>0 2px 6px rgba(25,30,48,0.08)</code>; hover/focus <code>translateY(-1.5px)</code>, sombra <code>0 8px 18px rgba(25,30,48,0.12)</code>, <code>filter: brightness(1.03)</code> y outline de acento 2px/offset 2px. Dispara la descarga de <code>assets/fahedhermoza.vcf</code> con un <code>&lt;a download&gt;</code>, sin JavaScript. Se separa del último Enlace con <code>space-sm</code> (12px) y del pie con el margen propio del pie.</li><li><strong>Pie:</strong> borde superior <code>1px #ebeef2</code>, texto centrado, correo y handle con enlaces acentuados.</li></ul>
-<h2>Sistema de diseño ampliado (export Stitch, adoptado 2026-11-22)</h2>
-<p>Esta sección adopta como fuente de verdad el sistema "Serene Bio Card" del export Stitch, reconciliado con la base AA y responsive de este repositorio. Los tokens <strong>efectivamente vinculados en <code>styles.css</code></strong> son los del front-matter <code>colors:</code> (contrato verificado por el gate <code>Design conformance checks:</code>); el resto de la escala se documenta aquí como paleta del sistema para componentes presentes y futuros, sin obligar a implementarla entera.</p>
-<h3>Marca y estética</h3>
-<p>Minimalismo cálido y etéreo para marca personal, portafolio y link-in-bio: contenedor flotante y táctil sobre un lienzo neutro cálido, transiciones de botón periwinkle→orquídea por ítem, mucho aire, geometría refinada y autoridad tipográfica discreta. Claridad, elegancia y simplicidad táctil por encima del ruido digital.</p>
-<h3>Paleta extendida (escala del sistema; no todos los tokens se vinculan hoy)</h3>
-<ul><li>Superficies: <code>surface-dim #d7dae1</code>, <code>surface-bright #f7f9ff</code>, <code>surface-container-lowest #ffffff</code>, <code>surface-container-low #f1f4fa</code>, <code>surface-container #ebeef5</code>, <code>surface-container-high #e5e8ef</code>, <code>surface-container-highest #e0e2e9</code>, <code>surface-variant #e0e2e9</code>.</li><li>Texto/contorno: <code>on-surface #2d3139</code><em> , <code>on-surface-variant #6b7280</code></em>, <code>outline #767685</code>, <code>outline-variant #c6c5d6</code>, <code>inverse-surface #2d3136</code>, <code>inverse-on-surface #eef1f8</code>.</li><li>Primario: <code>primary #484dc4</code>, <code>on-primary #ffffff</code>, <code>primary-container #6167df</code>, <code>on-primary-container #fffbff</code>, <code>inverse-primary #bfc1ff</code>, <code>primary-fixed #e1e0ff</code>.</li><li>Secundario/terciario (reservados para features futuras, aún no en el CSS): <code>secondary #8338bb</code>, <code>on-secondary #ffffff</code>, <code>secondary-container #c57afe</code>, <code>tertiary #5a5c5e</code>, <code>on-tertiary #ffffff</code>.</li><li>Enlace de texto/acento: <code>accent/link #585ce5</code>. Divisor/borde: <code>#ebeef2</code>.</li><li>Error: <code>error #ba1a1a</code>, <code>on-error #ffffff</code>, <code>error-container #ffdad6</code>.</li></ul>
-<blockquote><p>*Reconciliación de neutros: el export traía <code>on-surface #181c21</code> y <code>on-surface-variant #464653</code> en su front-matter M3, en conflicto con su propia prosa (<code>#2D3139</code> / <code>#717886</code>). Para no regresar el texto a casi-negro ni cambiar el gris secundario ya verificado en AA, se conservan los valores implementados <code>#2d3139</code> y <code>#6b7280</code> (aprobado por el propietario). Igualmente, <code>surface</code> del sistema M3 nombra el lienzo; en el CSS <code>--color-surface</code> es la tarjeta (<code>#ffffff</code>) y <code>--color-background</code> el lienzo (<code>#f7f9ff</code>). El front-matter <code>colors:</code> usa el naming del código.</p></blockquote>
-<h3>Elevación y profundidad</h3>
-<ul><li>Tarjeta (reposo): <code>0 18px 45px -10px rgba(25,30,48,0.08), 0 8px 16px -6px rgba(25,30,48,0.03)</code>; borde ultrafino <code>1px solid rgba(0,0,0,0.04)</code>.</li><li>Botones de acción: reposo <code>0 2px 6px rgba(108,114,234,0.15)</code>; hover <code>0 8px 18px rgba(108,114,234,0.28)</code> con <code>translateY(-1.5px)</code>.</li><li>Avatar: anillo blanco <code>3px solid #ffffff</code> con <code>0 4px 14px rgba(0,0,0,0.08)</code>.</li></ul>
-<h3>Social Icon Bar (tier complementario)</h3>
-<p>Fila horizontal de botones circulares monocromáticos para canales periféricos. Es la base de diseño de las <strong>Acciones rápidas</strong> ya implementadas (Celular/Correo) y de QR/Compartir futuros: fondo translúcido <code>#f0f2f6</code>/<code>surface-container-low</code>, pasa a blanco sólido con sombra ambiental en hover; tamaño <code>40–48px</code> con bordes circulares (<code>rounded.full</code>). En este repo los controles icon-only son anclas reales con <code>aria-label</code> y mínimo táctil ≥44×44.</p>
-<h3>Formularios y campos (modales de contacto/suscripción, feature futura)</h3>
-<p>Relleno gris claro inset <code>#f4f6f9</code>, sin contorno duro; foco activo <code>1.5px solid #6c72ea</code> con halo difuso <code>0 0 0 3px rgba(108,114,234,0.12)</code>. Reservado para una futura vista modal; no hay formularios en la Tarjeta estática actual.</p>
-<h2>Core Screens</h2>
-<p>Una sola vista: la Tarjeta digital. Estados:</p>
-<ol><li><strong>Perfil → Enlaces → Guardar contacto → Pie</strong> (orden vertical).</li><li><strong>Avatar ausente:</strong> círculo con iniciales "FH" en <code>#484dc4</code> sobre <code>#f1f4fa</code>.</li></ol>
-<h2>Open Graph Image (1200×630)</h2>
-<p>Asset: <code>assets/og-image.jpg</code> — JPEG 1200×630, 37 214 bytes, SHA-256 <code>b7c9b694…a012a2</code>, generado el 2026-10-23. No es una captura de la página ni una copia del avatar y no se muestra como <code>&lt;img&gt;</code> dentro de la Tarjeta.</p>
-<p>Composición (tokens de este documento):</p>
-<ul><li>Lienzo <code>--color-background</code> <code>#f7f9ff</code> a 1200×630.</li><li>Tarjeta blanca 880×440 centrada, radio 24px, borde <code>1px solid rgba(0,0,0,0.04)</code> y la sombra histórica de <code>0 18px 45px -10px rgba(25,30,48,0.08), 0 8px 16px -6px rgba(25,30,48,0.03)</code>.</li><li>Avatar real 128×128 circular (opcional) a la izquierda.</li><li>Nombre <code>Fahed Hermoza</code> a 64px/600 <code>#2d3139</code>; Handle <code>@fahedhermoza</code> a 30px/400 <code>#6b7280</code>; Tagline <code>Software Engineer &amp; Speaker &amp; Builder</code> a 26px/400 <code>#6b7280</code>.</li><li>Tipografía Plus Jakarta Sans (o pila del sistema). Sin colores, tipografías ni motivos fuera de esta guía.</li></ul>
-<p>La aprobación visual de la composición es del propietario; <code>./init.sh</code> solo valida que el JPEG mida 1200×630, no sea una copia del avatar y no exceda 300 KiB.</p>
-<h2>Responsive Baseline</h2>
-<p>Estado verificado (2026-10-23, feature <code>responsive-baseline</code>): el layout fluido cubre todo el rango 320–1280px <strong>sin media queries de ancho</strong>. Los valores ~736 / ~480 / ~360px de este documento se conservan como <strong>fronteras de auditoría</strong>, no como ramas de implementación.</p>
-<ul><li>Mobile-first; sin scroll horizontal desde 320px hasta 1280px (<code>documentElement.scrollWidth === clientWidth</code> y <code>body.scrollWidth === clientWidth</code>).</li><li>Fórmula única de tarjeta: <code>width: min(400px, calc(100vw - 2rem))</code> con <code>max-width: 100%</code>, dentro de <code>.page</code> con gutter <code>var(--space-gutter)</code> (16px por lado). Hasta 431px de ancho útil la tarjeta ocupa el ancho menos 32px; desde 432px se capa en 400px.</li><li>Botones a ancho completo en todos los tamaños: <code>width: 100%</code>, <code>height: 48px</code> y <code>box-sizing: border-box</code>; áreas táctiles de al menos 44×44px (los siete Enlaces miden 48px de alto).</li><li>Guard de etiquetas: <code>.link-button__label</code> conserva <code>min-width: 0</code>, <code>overflow: hidden</code>, <code>white-space: nowrap</code> y <code>text-overflow: ellipsis</code>; en la matriz medida la ellipsis no se activa (238px disponibles a 320px para etiquetas de ≤95px).</li><li>No se usa <code>overflow-x: hidden/clip</code> ni <code>width: 100vw</code> como parche: el overflow se corrige, no se enmascara. <code>./init.sh</code> contiene <code>Responsive checks:</code> con siete invariantes.</li></ul>
-<p>Mediciones históricas del layout anterior (Chrome DevTools, 2026-10-23; servidor único en 3502, recarga fresca). <strong>No representan el estado local tras <code>redesign-card-profile</code>.</strong></p>
-<table><thead><tr><th>Viewport</th><th>clientWidth</th><th>Tarjeta w×h (x)</th><th>Botón w×h</th><th>Etiquetas truncadas</th></tr></thead><tbody><tr><td>320×844</td><td>320</td><td>288×861 (16)</td><td>238×48</td><td>0</td></tr><tr><td>360×844</td><td>360</td><td>328×861 (16)</td><td>278×48</td><td>0</td></tr><tr><td>375×844</td><td>375</td><td>343×841 (16)</td><td>293×48</td><td>0</td></tr><tr><td>390×844</td><td>390</td><td>358×841 (16)</td><td>308×48</td><td>0</td></tr><tr><td>480×844</td><td>480</td><td>400×841 (40)</td><td>350×48</td><td>0</td></tr><tr><td>736×800</td><td>721</td><td>400×841 (160.5)</td><td>350×48</td><td>0</td></tr><tr><td>768×800</td><td>753</td><td>400×841 (176.5)</td><td>350×48</td><td>0</td></tr><tr><td>1280×800</td><td>1265</td><td>400×841 (432.5)</td><td>350×48</td><td>0</td></tr></tbody></table>
-<p>A 320–360px el texto del pie ocupa dos líneas y la tarjeta crece a 861px; a 375px o más ocupa una línea. En los ocho anchos no hay elementos fuera del viewport, el alto extra produce solo scroll vertical, la consola queda en 0 mensajes y la red sirve documento, CSS, avatar y fuentes sin <code>/favicon.ico</code> ni fallos. La prueba de "sin scroll horizontal" es runtime (ver <code>docs/risks-and-open-questions.md</code>).</p>
-<p>Mediciones del Perfil renovado (Chrome DevTools, local en <code>localhost:3601</code>, recarga fresca, 2026-11-21):</p>
-<table><thead><tr><th>Viewport</th><th>clientWidth</th><th>Tarjeta w×h (x, y)</th><th>Botón mínimo w×h</th><th>Etiquetas truncadas</th></tr></thead><tbody><tr><td>320×844</td><td>320</td><td>288×911 (16, 24)</td><td>238×48</td><td>0</td></tr><tr><td>360×844</td><td>360</td><td>328×911 (16, 24)</td><td>278×48</td><td>0</td></tr><tr><td>375×844</td><td>375</td><td>343×891 (16, 24)</td><td>293×48</td><td>0</td></tr><tr><td>390×844</td><td>390</td><td>358×891 (16, 24)</td><td>308×48</td><td>0</td></tr><tr><td>480×844</td><td>480</td><td>400×891 (40, 24)</td><td>350×48</td><td>0</td></tr><tr><td>736×800</td><td>721</td><td>400×891 (160.5, 24)</td><td>350×48</td><td>0</td></tr><tr><td>768×800</td><td>753</td><td>400×891 (176.5, 24)</td><td>350×48</td><td>0</td></tr><tr><td>1280×800</td><td>1265</td><td>400×891 (432.5, 24)</td><td>350×48</td><td>0</td></tr></tbody></table>
-<p>En las ocho anchuras, <code>documentElement</code> y <code>body</code> tienen <code>scrollWidth === clientWidth</code>, los ocho controles de ancho completo miden 48px de alto (mínimo medido: 238×48px), ningún texto se recorta y el contenido alto produce solo scroll vertical. A 320px y 360px el pie ocupa dos líneas. Chrome reportó 0 mensajes en la carga normal y no hubo recursos fallidos; las únicas capturas de esta implementación son evidencia técnica del implementador, no aprobación visual del propietario.</p>
-<p>Fallback comprobado con fallo inducido del avatar en un contexto aislado a 390×844 y 1280×800: el frame conserva su rectángulo 88×88 y posición, muestra <code>FH</code> con <code>#f1f4fa</code> / <code>#484dc4</code> y halo blanco de 3px, mantiene el <code>alt</code> descriptivo y no genera overflow horizontal. El único 404 es el recurso de avatar esperado durante esa simulación; tras restaurar el archivo original, la foto volvió a cargar normalmente.</p>
-<h2>Accessibility Baseline</h2>
-<ul><li>Contraste mínimo AA en texto y etiquetas de botón.</li><li>Cada botón es un <code>&lt;a&gt;</code> real con texto legible; los iconos son decorativos (<code>aria-hidden</code>) o con <code>title</code>.</li><li>Foco visible (outline de acento) en todos los elementos interactivos.</li><li><code>alt</code> descriptivo en el avatar; <code>lang="es"</code> en el documento y <code>lang="en"</code> en la Tagline inglesa.</li><li>Respetar <code>prefers-reduced-motion</code> desactivando transformaciones y transiciones.</li><li>Controles reales, sin <code>role="button"</code> ni manejadores inline; el viewport no deshabilita el zoom.</li><li><code>./init.sh</code> incluye un gate de accesibilidad que no debe debilitarse (ver <code>CONSTRAINTS.md</code>).</li></ul>
-<h3>Contraste AA de la base (remediación 2026-10-23; rampa re-basada al sistema Stitch 2026-11-22)</h3>
-<p>Se mantienen las etiquetas e iconos en <code>#ffffff</code>. En la adopción del sistema Stitch (2026-11-22) la rampa se re-basó al matiz periwinkle→orquídea, oscurecido lo justo para seguir pasando AA (ver <em>Nota de reconciliación</em> en la sección de color). Ratios calculados con la fórmula WCAG 2.x:</p>
-<table><thead><tr><th>Token</th><th>Valor</th><th>Blanco en reposo</th><th>Blanco con <code>brightness(1.03)</code></th></tr></thead><tbody><tr><td><code>--color-gradient-1</code></td><td><code>#5c68d4</code></td><td>4.79:1</td><td>4.56:1</td></tr><tr><td><code>--color-gradient-2</code></td><td><code>#6a64d8</code></td><td>4.74:1</td><td>4.52:1</td></tr><tr><td><code>--color-gradient-3</code></td><td><code>#765fd4</code></td><td>4.82:1</td><td>4.58:1</td></tr><tr><td><code>--color-gradient-4</code></td><td><code>#8659d1</code></td><td>4.81:1</td><td>4.57:1</td></tr><tr><td><code>--color-gradient-5</code></td><td><code>#9654c9</code></td><td>4.76:1</td><td>4.53:1</td></tr><tr><td><code>--color-on-surface-variant</code></td><td><code>#6b7280</code></td><td>4.834:1 sobre <code>#ffffff</code></td><td>n/a</td></tr><tr><td><code>--color-primary</code> sobre <code>--color-surface-container-low</code></td><td><code>#484dc4</code> / <code>#f1f4fa</code></td><td>6.082:1</td><td>6.456:1</td></tr></tbody></table>
-<ul><li>El pie no cambia: <code>--color-on-surface</code> (<code>#2d3139</code>, 13.044:1) y <code>--color-accent</code> (<code>#585ce5</code>, 5.151:1) ya cumplen AA.</li><li>El cambio desplaza cada canal sRGB de los cinco tonos ≈13% hacia abajo, conservando el orden lavanda→violeta y la forma, altura y tipografía del botón.</li><li>El margen de hover/foco es obligatorio porque <code>.link-button:hover</code> y <code>:focus-visible</code> aplican <code>filter: brightness(1.03)</code>; cualquier token nuevo debe recalcular ambos estados y actualizar el gate de <code>./init.sh</code>.</li></ul>
-<h2>Do's and Don'ts</h2>
-<ul><li><strong>Sí:</strong> usar los tokens de color y la escala tipográfica de este documento.</li><li><strong>Sí:</strong> mantener una sola columna y botones de ancho completo.</li><li><strong>Sí:</strong> asegurar contraste y foco visible.</li><li><strong>No:</strong> introducir nuevas tipografías, colores fuera de la paleta o iconos con relleno de color distinto al blanco.</li><li><strong>No:</strong> añadir carruseles, animaciones llamativas ni más de una vista.</li><li><strong>No:</strong> usar el Carrd Template como especificación pixel-perfect.</li></ul>
-<h2>Open Design Questions</h2>
-<ul><li><del>Tratamiento final del botón "Guardar contacto" (neutro vs dentro del degradado).</del> <strong>Resuelto (2026-10-23, <code>save-contact-vcard</code>):</strong> misma forma que un Enlace con tratamiento neutro <code>#f1f4fa</code>/<code>#484dc4</code>, fuera de la rampa, entre los Enlaces y el pie.</li><li><del>Cómo se repite/extiende el degradado de 5 tonos para 8 botones.</del> <strong>Resuelto (2026-10-23, <code>links-order-gradient</code>):</strong> los 7 Enlaces usan los cinco tonos más dos intermedios 50/50; "Guardar contacto" queda neutro y fuera de la rampa.</li><li><del>Diseño definitivo de <code>assets/og-image.jpg</code>.</del> <strong>Resuelto (2026-10-23, <code>deploy-cloudflare-pages</code>):</strong> JPEG 1200×630 con la composición de la sección "Open Graph Image"; aprobada por el propietario el 2026-10-23.</li><li>¿Se necesita favicon y <code>theme-color</code>? (fuera del MVP por ahora).</li></ul>
-<h2>Dirección del rediseño acordado (2026-11-21)</h2>
-<p>Los tokens base y las mediciones históricas describen la Tarjeta publicada. Esta sección se ejecuta en slices: <code>redesign-card-profile</code> está implementado localmente en esta worktree, pero aún requiere revisión visual del propietario y validación independiente; no se ha publicado. Los cambios de Acciones rápidas, Enlaces, pie, QR, Compartir e imagen social siguen siendo features posteriores. La dirección partió de dos capturas aportadas por Fahed el 2026-11-21 (Tarjeta completa y Vista QR superpuesta); no están versionadas ni disponibles en el repositorio para comparación visual en esta sesión, y el <code>code.html</code>/<code>DESIGN.md</code> adjuntos son referencias parciales que no deben copiarse literalmente.</p>
-<h3>Jerarquía y composición objetivo</h3>
-<ul><li>Lienzo muy claro y tarjeta blanca centrada, con mayor aire, esquinas más redondeadas y sombra suave. Conservar una sola columna fluida y márgenes seguros en móvil.</li><li>Encabezado con rótulo «NFC CONNECT», avatar local, nombre prominente, Handle, Tagline espaciada y punto verde ornamental. El rótulo y el punto no anuncian conexión activa ni estado «En línea» a tecnologías de asistencia. No usar la foto remota del prototipo.</li><li>Fila de cuatro Acciones rápidas: Celular, Correo, Código QR y una única acción Compartir. Los controles tendrán nombre accesible, foco visible y área táctil de al menos 44×44 px; los 40×40 px del prototipo no son el objetivo final.</li><li>Cinco Enlaces grandes, en orden Instagram, Facebook, WhatsApp, LinkedIn y Portafolio, conservan la secuencia visual lavanda→violeta. Celular y Correo salen de esa pila sin perder sus destinos ni sus datos en la vCard.</li><li>Pie con la invitación «¿Tienes un proyecto en mente? Haz clic en mis redes o escríbeme directamente», donde el texto final enlaza a WhatsApp; Guardar contacto se presenta como acción visual discreta y sigue descargando la vCard estática; cerrar con «Tarjeta NFC &amp; QR».</li></ul>
-<h3>Vista QR y estados de interacción</h3>
-<ul><li>Al activar QR, mostrar un cuadro centrado sobre la Tarjeta con fondo atenuado, título, QR escaneable de la URL pública, cerrar, «Copiar Enlace» y «Guardar PNG». Su tamaño debe seguir siendo utilizable en un móvil estrecho. El cierre devuelve la atención al punto de apertura y el cuadro conserva navegación por teclado y lectura accesible.</li><li>Compartir usa la hoja nativa del dispositivo cuando existe. Si no está disponible, copia la URL canónica y muestra confirmación visible. La copia desde la Vista QR usa la misma URL. Definir una respuesta comprensible cuando el portapapeles no permita copiar.</li><li>Mantener <code>prefers-reduced-motion</code>, estados de foco visibles y contrastes AA en reposo y hover/foco. Los colores claros de las referencias son dirección cromática: sus valores exactos no son aprobados como tokens porque varios fallan AA con texto blanco.</li></ul>
-<h3>Tipografía, assets y límites</h3>
-<ul><li>Conservar Plus Jakarta Sans y los SVG propios. Ajustar pesos, tamaños, espaciado y geometría hacia las capturas; no adoptar Inter, Font Awesome ni Tailwind CDN.</li><li>Conservar la imagen de perfil local y el archivo <code>assets/fahedhermoza.vcf</code>; no generar la vCard mediante Blob. La imagen social se rediseñará para acompañar la nueva Tarjeta, seguirá siendo JPEG 1200×630 y necesitará aprobación visual de Fahed antes de publicar.</li><li>El QR descargable debe ser PNG y codificar exactamente <code>https://fahed-hermoza-card.fahedhermoza.workers.dev/</code>. El sitio sigue siendo estático, sin backend ni build; se admite JavaScript mínimo solo para las nuevas interacciones.</li></ul>
-<p><strong>Criterio visual:</strong> las capturas orientan jerarquía y sensación general, no una réplica pixel a pixel. Una revisión de Fahed en móvil y escritorio decide la aceptación visual; el contraste, la geometría responsive y la accesibilidad mantienen sus gates técnicos.</p>
-<h3>Acciones rápidas y Enlaces grandes — slice implementado (<code>redesign-contact-navigation</code>, 2026-11-21)</h3>
-<p>Este slice ejecuta la parte de navegación de la dirección anterior. Decisiones fijadas (el propietario aprueba visualmente por separado; aún <code>pending</code>):</p>
-<ul><li><strong>Cinco Enlaces grandes</strong> en <code>&lt;nav class="links"&gt;</code>, en orden Instagram, Facebook, WhatsApp, LinkedIn, Portafolio, con los tonos <code>--gradient-1</code>, <code>-2</code>, <code>-3</code>, <code>-3-4</code>, <code>-4</code> (rampa lavanda→violeta, etiqueta e icono blancos, 48px de alto, ancho completo). Las reglas <code>.link-button--gradient-5</code> y <code>--gradient-4-5</code> (incluida su interpolación <code>color-mix</code>/<code>@supports</code>) se conservan en <code>styles.css</code> como parte del sistema de tonos aunque ya no las use ningún Enlace; no son colores nuevos.</li><li><strong>Fila «Acciones rápidas»</strong> (<code>&lt;nav class="quick-actions" aria-label="Acciones rápidas"&gt;</code>) ubicada <strong>entre el encabezado de identidad y la lista de Enlaces</strong>. En este slice hospeda <strong>solo dos</strong> controles: Celular (<code>tel:+51955116562</code>) y Correo (<code>mailto:fahedhermoza@gmail.com</code>). QR y Compartir son features posteriores (<code>redesign-qr-panel</code>, <code>redesign-share-action</code>) que añadirán más círculos a la misma fila.</li><li><strong>Tono de las Acciones rápidas (decisión de diseño, vía neutra):</strong> botones circulares <strong>solo-icono</strong> con superficie neutra clara <code>--color-surface-container-low</code> (#f1f4fa) e icono oscuro <code>--color-primary</code> (#484dc4) — el mismo par neutro pineado de Guardar contacto (6.082:1 en reposo, 6.456:1 con <code>brightness(1.03)</code>), ya cubierto por el gate de contraste 15/15. <strong>No</strong> usan el degradado lavanda→violeta ni tokens nuevos.</li><li>Cada círculo es un <code>&lt;a&gt;</code> real con su destino canónico y nombre accesible vía <code>aria-label</code> («Celular: llamar al +51 955 116 562» / «Correo a fahedhermoza@gmail.com»); el SVG es decorativo (<code>aria-hidden="true"</code> + <code>focusable="false"</code>). Diámetro 48px (área táctil ≥44×44), <code>:focus-visible</code> con <code>outline: 2px solid var(--color-accent)</code> y <code>outline-offset: 2px</code>, hover <code>brightness(1.03)</code> y <code>prefers-reduced-motion</code> que anula <code>transition</code>/<code>transform</code>.</li><li>El encabezado ornamental, el botón Guardar contacto y el pie actual quedan <strong>sin cambios</strong> en este slice (el pie se rediseña en <code>redesign-footer-contact</code>). La duplicación transitoria de Correo (Acciones rápidas + pie) es aceptable aquí y se resolverá entonces.</li></ul>
+
+      <h2>Paleta de color</h2>
+      <p>Swatches generados directamente de <code>colors:</code> en el frontmatter de
+        <code>DESIGN.md</code>; ningún valor está inventado aquí. El resto del contenido de
+        <code>DESIGN.md</code> (tipografía, layout, componentes, dirección del rediseño) vive
+        únicamente en <code>DESIGN.md</code>.</p>
+      <div class="design-doc__swatches"><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#f7f9ff"></span><span class="design-doc__swatch-label"><code>background</code><br>#f7f9ff</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#ffffff"></span><span class="design-doc__swatch-label"><code>surface</code><br>#ffffff</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#f1f4fa"></span><span class="design-doc__swatch-label"><code>surface-container-low</code><br>#f1f4fa</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#ebeef2"></span><span class="design-doc__swatch-label"><code>border</code><br>#ebeef2</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#2d3139"></span><span class="design-doc__swatch-label"><code>on-surface</code><br>#2d3139</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#6b7280"></span><span class="design-doc__swatch-label"><code>on-surface-variant</code><br>#6b7280</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#767685"></span><span class="design-doc__swatch-label"><code>outline</code><br>#767685</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#484dc4"></span><span class="design-doc__swatch-label"><code>primary</code><br>#484dc4</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#ffffff"></span><span class="design-doc__swatch-label"><code>on-primary</code><br>#ffffff</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#585ce5"></span><span class="design-doc__swatch-label"><code>accent</code><br>#585ce5</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#5c68d4"></span><span class="design-doc__swatch-label"><code>gradient-1</code><br>#5c68d4</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#6a64d8"></span><span class="design-doc__swatch-label"><code>gradient-2</code><br>#6a64d8</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#765fd4"></span><span class="design-doc__swatch-label"><code>gradient-3</code><br>#765fd4</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#8659d1"></span><span class="design-doc__swatch-label"><code>gradient-4</code><br>#8659d1</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#9654c9"></span><span class="design-doc__swatch-label"><code>gradient-5</code><br>#9654c9</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#ba1a1a"></span><span class="design-doc__swatch-label"><code>error</code><br>#ba1a1a</span></div></div>
     </main>
   </body>
 </html>
