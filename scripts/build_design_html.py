@@ -35,6 +35,37 @@ def frontmatter_meta(frontmatter):
     )
 
 
+def parse_colors(frontmatter):
+    block = re.search(r"^colors:[ \t]*\n((?:[ \t]+\S.*\n?)+)", frontmatter, re.MULTILINE)
+    if not block:
+        return []
+    tokens = []
+    for line in block.group(1).splitlines():
+        m = re.match(r"^[ \t]+([A-Za-z0-9_-]+):\s*'?(#[0-9A-Fa-f]{3,8})'?", line)
+        if m:
+            tokens.append((m.group(1), m.group(2)))
+    return tokens
+
+
+def color_swatches_html(color_tokens):
+    if not color_tokens:
+        return ""
+    chips = []
+    for name, hexval in color_tokens:
+        chips.append(
+            '<div class="design-doc__swatch">'
+            f'<span class="design-doc__swatch-color" aria-hidden="true" style="background:{hexval}"></span>'
+            f'<span class="design-doc__swatch-label"><code>{name}</code><br>{hexval}</span>'
+            "</div>"
+        )
+    return (
+        "<h2>Paleta de color (preview)</h2>\n"
+        '<p>Swatches generados directamente de <code>colors:</code> en el frontmatter de '
+        "<code>DESIGN.md</code>; ningún valor está inventado aquí.</p>\n"
+        f'<div class="design-doc__swatches">{"".join(chips)}</div>'
+    )
+
+
 def inline(text):
     text = html.escape(text, quote=False)
     text = re.sub(r"`([^`]+)`", r"<code>\1</code>", text)
@@ -259,6 +290,53 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         white-space: pre-wrap;
         word-break: break-word;
       }}
+      .design-doc__preview {{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-sm);
+        margin: var(--space-md) 0 var(--space-xl);
+      }}
+      .design-doc__preview iframe {{
+        width: 420px;
+        max-width: 100%;
+        height: 860px;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        background: var(--color-background);
+      }}
+      .design-doc__preview-caption {{
+        font-size: var(--text-body-sm-font-size);
+        color: var(--color-on-surface-variant);
+        text-align: center;
+        max-width: 38rem;
+      }}
+      .design-doc__swatches {{
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+        gap: var(--space-sm);
+        margin: var(--space-md) 0;
+      }}
+      .design-doc__swatch {{
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        padding: var(--space-xs);
+      }}
+      .design-doc__swatch-color {{
+        display: block;
+        width: 2rem;
+        height: 2rem;
+        flex-shrink: 0;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--color-border);
+      }}
+      .design-doc__swatch-label {{
+        font-size: var(--text-body-sm-font-size);
+        line-height: 1.3;
+      }}
     </style>
   </head>
   <body>
@@ -266,6 +344,16 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
       <p class="design-doc__eyebrow">DESIGN.md — fuente de verdad</p>
       <h1>{title}</h1>
       <p class="design-doc__description">{description}</p>
+      <h2>Vista previa en vivo</h2>
+      <p>Renderiza el <code>index.html</code> publicado en este mismo worktree/servidor. Puede
+        no reflejar aún las secciones de "Dirección del rediseño" todavía no implementadas.</p>
+      <div class="design-doc__preview">
+        <iframe src="index.html" title="Vista previa en vivo de la Tarjeta digital (index.html)" loading="lazy"></iframe>
+        <p class="design-doc__preview-caption">390px de ancho simulado · si se sirve este archivo
+          sin servidor (<code>file://</code>), el iframe puede no cargar por restricciones del
+          navegador; usa <code>python3 -m http.server</code> para verlo en vivo.</p>
+      </div>
+{color_swatches_html}
       <h2>Metadata (frontmatter)</h2>
       <div class="design-doc__frontmatter"><pre>{frontmatter_escaped}</pre></div>
 {body_html}
@@ -280,10 +368,12 @@ def build():
     frontmatter, body = split_frontmatter(text)
     title, description = frontmatter_meta(frontmatter)
     body_html = parse_body(body)
+    color_tokens = parse_colors(frontmatter)
     return PAGE_TEMPLATE.format(
         title=html.escape(title, quote=False),
         description=html.escape(description, quote=False),
         frontmatter_escaped=html.escape(frontmatter.strip("\n"), quote=False),
+        color_swatches_html=color_swatches_html(color_tokens),
         body_html=body_html,
     )
 
