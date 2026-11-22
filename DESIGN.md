@@ -422,3 +422,34 @@ adjuntos son referencias parciales que no deben copiarse literalmente.
 **Criterio visual:** las capturas orientan jerarquía y sensación general, no una réplica
 pixel a pixel. Una revisión de Fahed en móvil y escritorio decide la aceptación visual;
 el contraste, la geometría responsive y la accesibilidad mantienen sus gates técnicos.
+
+### Acciones rápidas y Enlaces grandes — slice implementado (`redesign-contact-navigation`, 2026-11-21)
+
+Este slice ejecuta la parte de navegación de la dirección anterior. Decisiones fijadas
+(el propietario aprueba visualmente por separado; aún `pending`):
+
+- **Cinco Enlaces grandes** en `<nav class="links">`, en orden Instagram, Facebook,
+  WhatsApp, LinkedIn, Portafolio, con los tonos `--gradient-1`, `-2`, `-3`, `-3-4`, `-4`
+  (rampa lavanda→violeta, etiqueta e icono blancos, 48px de alto, ancho completo). Las
+  reglas `.link-button--gradient-5` y `--gradient-4-5` (incluida su interpolación
+  `color-mix`/`@supports`) se conservan en `styles.css` como parte del sistema de tonos
+  aunque ya no las use ningún Enlace; no son colores nuevos.
+- **Fila «Acciones rápidas»** (`<nav class="quick-actions" aria-label="Acciones rápidas">`)
+  ubicada **entre el encabezado de identidad y la lista de Enlaces**. En este slice hospeda
+  **solo dos** controles: Celular (`tel:+51955116562`) y Correo
+  (`mailto:fahedhermoza@gmail.com`). QR y Compartir son features posteriores
+  (`redesign-qr-panel`, `redesign-share-action`) que añadirán más círculos a la misma fila.
+- **Tono de las Acciones rápidas (decisión de diseño, vía neutra):** botones circulares
+  **solo-icono** con superficie neutra clara `--color-surface-container-low` (#f1f4fa) e
+  icono oscuro `--color-primary` (#484dc4) — el mismo par neutro pineado de Guardar
+  contacto (6.082:1 en reposo, 6.456:1 con `brightness(1.03)`), ya cubierto por el gate de
+  contraste 15/15. **No** usan el degradado lavanda→violeta ni tokens nuevos.
+- Cada círculo es un `<a>` real con su destino canónico y nombre accesible vía
+  `aria-label` («Celular: llamar al +51 955 116 562» / «Correo a fahedhermoza@gmail.com»);
+  el SVG es decorativo (`aria-hidden="true"` + `focusable="false"`). Diámetro 48px
+  (área táctil ≥44×44), `:focus-visible` con `outline: 2px solid var(--color-accent)` y
+  `outline-offset: 2px`, hover `brightness(1.03)` y `prefers-reduced-motion` que anula
+  `transition`/`transform`.
+- El encabezado ornamental, el botón Guardar contacto y el pie actual quedan **sin cambios**
+  en este slice (el pie se rediseña en `redesign-footer-contact`). La duplicación transitoria
+  de Correo (Acciones rápidas + pie) es aceptable aquí y se resolverá entonces.
