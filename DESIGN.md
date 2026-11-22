@@ -26,11 +26,11 @@ colors:
   primary: '#484dc4'
   on-primary: '#ffffff'
   accent: '#585ce5'
-  gradient-1: '#5a67d1'
-  gradient-2: '#645fcc'
-  gradient-3: '#705aca'
-  gradient-4: '#8055c8'
-  gradient-5: '#9252c5'
+  gradient-1: '#5c68d4'
+  gradient-2: '#6a64d8'
+  gradient-3: '#765fd4'
+  gradient-4: '#8659d1'
+  gradient-5: '#9654c9'
   error: '#ba1a1a'
 typography:
   headline-lg:
@@ -151,23 +151,25 @@ Minimalismo cálido y etéreo. Mucho aire, geometría refinada, autoridad tipogr
   conexión NFC ni presencia.
 - **Icono de enlace externo (tinta neutra):** usa `#6b7280` (`on-surface-variant`) vía
   `currentColor`; decorativo, sin relleno de color de marca.
-- **Degradado de botones** (secuencia descendente en la pila de Enlaces):
-  1. `#5a67d1`
-  2. `#645fcc`
-  3. `#705aca`
-  4. `#8055c8`
-  5. `#9252c5`
+- **Degradado de botones** (secuencia descendente en la pila de Enlaces), rampa adoptada del sistema Stitch (periwinkle→orquídea) y **ajustada para AA** (ver nota abajo):
+  1. `#5c68d4`
+  2. `#6a64d8`
+  3. `#765fd4`
+  4. `#8659d1`
+  5. `#9654c9`
   El texto y el icono de todos los botones van siempre en `#ffffff`.
+
+> **Nota de reconciliación (AA).** El export Stitch proponía la rampa `#6876F0 · #736DEB · #8168E8 · #9362E6 · #A85EE2`. Con texto blanco esos tonos dan 3.65–4.13:1, por debajo del mínimo AA de 4.5:1 (y peor en hover con `brightness(1.03)`). Para conservar el matiz periwinkle→orquídea sin romper la base AA de `CONSTRAINTS.md`, la rampa se oscurece ~10% a los valores de arriba, que pasan 4.52–4.82:1 en reposo y hover. Aprobado por el propietario el 2026-11-22.
 
 Tras `redesign-contact-navigation`, la pila de Enlaces son **cinco botones grandes** (Celular y Correo se movieron a la fila de Acciones rápidas, ver abajo). La progresión recorre la rampa desde `gradient-1` hasta `gradient-4`, insertando un intermedio 50/50 en el salto 3→4, sin repetir tonos ni superar 14/255 por canal entre botones consecutivos:
 
-1. Instagram — `gradient-1` `#5a67d1`
-2. Facebook — `gradient-2` `#645fcc`
-3. WhatsApp — `gradient-3` `#705aca`
-4. LinkedIn — intermedio `gradient-3`/`gradient-4` ≈ `#7858c9`
-5. Portafolio — `gradient-4` `#8055c8`
+1. Instagram — `gradient-1` `#5c68d4`
+2. Facebook — `gradient-2` `#6a64d8`
+3. WhatsApp — `gradient-3` `#765fd4`
+4. LinkedIn — intermedio `gradient-3`/`gradient-4` ≈ `#7e5cd2`
+5. Portafolio — `gradient-4` `#8659d1`
 
-El intermedio se deriva con `color-mix` a partir de los tokens existentes (con fallback al tono inferior). No se añaden colores ni tokens. Los tokens `gradient-5` (`#9252c5`) y el intermedio `gradient-4`/`gradient-5` **se conservan en la paleta pero ya no se asignan a ningún botón grande** (eran Celular y Correo, hoy Acciones rápidas); su regla CSS queda disponible por si una feature posterior la reutiliza.
+El intermedio se deriva con `color-mix` a partir de los tokens existentes (con fallback al tono inferior). No se añaden colores ni tokens. Los tokens `gradient-5` (`#9654c9`) y el intermedio `gradient-4`/`gradient-5` **se conservan en la paleta pero ya no se asignan a ningún botón grande** (eran Celular y Correo, hoy Acciones rápidas); su regla CSS queda disponible por si una feature posterior la reutiliza.
 
 - **Acciones rápidas (Celular, Correo):** fuera de la rampa de degradado. Botones **circulares neutros** (48×48, `rounded.full`), superficie `#f1f4fa` (`surface-container-low`) e icono en `#484dc4` (`primary`), con `aria-label` propio e icono SVG decorativo. Fila centrada entre la identidad y la pila de Enlaces. QR y Compartir se añaden a esta misma fila en features posteriores.
 
@@ -225,6 +227,65 @@ Familia única **Plus Jakarta Sans**, con pila de respaldo del sistema (`system-
 - **Botón de Enlace:** ancho completo, alto 48px, padding horizontal 1.25rem, flexbox `space-between` (etiqueta mayúsculas a la izquierda, icono SVG 18px a la derecha), fondo del degradado, sombra `0 2px 6px rgba(108,114,234,0.15)`. Hover/focus: `translateY(-1.5px)`, sombra `0 8px 18px rgba(108,114,234,0.28)`, `filter: brightness(1.03)`. Transición 180ms ease.
 - **Guardar contacto:** misma forma que un Enlace (`width: 100%`, 48px, padding horizontal 1.25rem, radio `rounded.md`, flexbox `space-between`, etiqueta `button-label` en mayúsculas e icono SVG 18px a la derecha), pero fuera de la rampa: fondo `#f1f4fa` (`surface-container-low`) y texto/icono `#484dc4` (`primary`). Sombra base `0 2px 6px rgba(25,30,48,0.08)`; hover/focus `translateY(-1.5px)`, sombra `0 8px 18px rgba(25,30,48,0.12)`, `filter: brightness(1.03)` y outline de acento 2px/offset 2px. Dispara la descarga de `assets/fahedhermoza.vcf` con un `<a download>`, sin JavaScript. Se separa del último Enlace con `space-sm` (12px) y del pie con el margen propio del pie.
 - **Pie:** borde superior `1px #ebeef2`, texto centrado, correo y handle con enlaces acentuados.
+
+## Sistema de diseño ampliado (export Stitch, adoptado 2026-11-22)
+
+Esta sección adopta como fuente de verdad el sistema "Serene Bio Card" del export Stitch,
+reconciliado con la base AA y responsive de este repositorio. Los tokens **efectivamente
+vinculados en `styles.css`** son los del front-matter `colors:` (contrato verificado por el
+gate `Design conformance checks:`); el resto de la escala se documenta aquí como paleta del
+sistema para componentes presentes y futuros, sin obligar a implementarla entera.
+
+### Marca y estética
+
+Minimalismo cálido y etéreo para marca personal, portafolio y link-in-bio: contenedor
+flotante y táctil sobre un lienzo neutro cálido, transiciones de botón periwinkle→orquídea
+por ítem, mucho aire, geometría refinada y autoridad tipográfica discreta. Claridad,
+elegancia y simplicidad táctil por encima del ruido digital.
+
+### Paleta extendida (escala del sistema; no todos los tokens se vinculan hoy)
+
+- Superficies: `surface-dim #d7dae1`, `surface-bright #f7f9ff`, `surface-container-lowest #ffffff`,
+  `surface-container-low #f1f4fa`, `surface-container #ebeef5`, `surface-container-high #e5e8ef`,
+  `surface-container-highest #e0e2e9`, `surface-variant #e0e2e9`.
+- Texto/contorno: `on-surface #2d3139`* , `on-surface-variant #6b7280`*, `outline #767685`,
+  `outline-variant #c6c5d6`, `inverse-surface #2d3136`, `inverse-on-surface #eef1f8`.
+- Primario: `primary #484dc4`, `on-primary #ffffff`, `primary-container #6167df`,
+  `on-primary-container #fffbff`, `inverse-primary #bfc1ff`, `primary-fixed #e1e0ff`.
+- Secundario/terciario (reservados para features futuras, aún no en el CSS):
+  `secondary #8338bb`, `on-secondary #ffffff`, `secondary-container #c57afe`,
+  `tertiary #5a5c5e`, `on-tertiary #ffffff`.
+- Enlace de texto/acento: `accent/link #585ce5`. Divisor/borde: `#ebeef2`.
+- Error: `error #ba1a1a`, `on-error #ffffff`, `error-container #ffdad6`.
+
+> *Reconciliación de neutros: el export traía `on-surface #181c21` y `on-surface-variant #464653`
+> en su front-matter M3, en conflicto con su propia prosa (`#2D3139` / `#717886`). Para no
+> regresar el texto a casi-negro ni cambiar el gris secundario ya verificado en AA, se conservan
+> los valores implementados `#2d3139` y `#6b7280` (aprobado por el propietario). Igualmente,
+> `surface` del sistema M3 nombra el lienzo; en el CSS `--color-surface` es la tarjeta (`#ffffff`)
+> y `--color-background` el lienzo (`#f7f9ff`). El front-matter `colors:` usa el naming del código.
+
+### Elevación y profundidad
+
+- Tarjeta (reposo): `0 18px 45px -10px rgba(25,30,48,0.08), 0 8px 16px -6px rgba(25,30,48,0.03)`;
+  borde ultrafino `1px solid rgba(0,0,0,0.04)`.
+- Botones de acción: reposo `0 2px 6px rgba(108,114,234,0.15)`; hover `0 8px 18px rgba(108,114,234,0.28)`
+  con `translateY(-1.5px)`.
+- Avatar: anillo blanco `3px solid #ffffff` con `0 4px 14px rgba(0,0,0,0.08)`.
+
+### Social Icon Bar (tier complementario)
+
+Fila horizontal de botones circulares monocromáticos para canales periféricos. Es la base
+de diseño de las **Acciones rápidas** ya implementadas (Celular/Correo) y de QR/Compartir
+futuros: fondo translúcido `#f0f2f6`/`surface-container-low`, pasa a blanco sólido con sombra
+ambiental en hover; tamaño `40–48px` con bordes circulares (`rounded.full`). En este repo los
+controles icon-only son anclas reales con `aria-label` y mínimo táctil ≥44×44.
+
+### Formularios y campos (modales de contacto/suscripción, feature futura)
+
+Relleno gris claro inset `#f4f6f9`, sin contorno duro; foco activo `1.5px solid #6c72ea` con
+halo difuso `0 0 0 3px rgba(108,114,234,0.12)`. Reservado para una futura vista modal; no hay
+formularios en la Tarjeta estática actual.
 
 ## Core Screens
 
@@ -330,18 +391,20 @@ restaurar el archivo original, la foto volvió a cargar normalmente.
 - Controles reales, sin `role="button"` ni manejadores inline; el viewport no deshabilita el zoom.
 - `./init.sh` incluye un gate de accesibilidad que no debe debilitarse (ver `CONSTRAINTS.md`).
 
-### Contraste AA de la base (remediación 2026-10-23)
+### Contraste AA de la base (remediación 2026-10-23; rampa re-basada al sistema Stitch 2026-11-22)
 
-Se mantienen las etiquetas e iconos en `#ffffff`; solo se oscurecieron los fondos de los
-cinco tonos y el token de texto secundario. Ratios calculados con la fórmula WCAG 2.x:
+Se mantienen las etiquetas e iconos en `#ffffff`. En la adopción del sistema Stitch
+(2026-11-22) la rampa se re-basó al matiz periwinkle→orquídea, oscurecido lo justo para
+seguir pasando AA (ver *Nota de reconciliación* en la sección de color). Ratios calculados
+con la fórmula WCAG 2.x:
 
 | Token | Valor | Blanco en reposo | Blanco con `brightness(1.03)` |
 | --- | --- | --- | --- |
-| `--color-gradient-1` | `#5a67d1` | 4.889:1 | 4.658:1 |
-| `--color-gradient-2` | `#645fcc` | 5.184:1 | 4.936:1 |
-| `--color-gradient-3` | `#705aca` | 5.244:1 | 4.993:1 |
-| `--color-gradient-4` | `#8055c8` | 5.184:1 | 4.920:1 |
-| `--color-gradient-5` | `#9252c5` | 4.958:1 | 4.743:1 |
+| `--color-gradient-1` | `#5c68d4` | 4.79:1 | 4.56:1 |
+| `--color-gradient-2` | `#6a64d8` | 4.74:1 | 4.52:1 |
+| `--color-gradient-3` | `#765fd4` | 4.82:1 | 4.58:1 |
+| `--color-gradient-4` | `#8659d1` | 4.81:1 | 4.57:1 |
+| `--color-gradient-5` | `#9654c9` | 4.76:1 | 4.53:1 |
 | `--color-on-surface-variant` | `#6b7280` | 4.834:1 sobre `#ffffff` | n/a |
 | `--color-primary` sobre `--color-surface-container-low` | `#484dc4` / `#f1f4fa` | 6.082:1 | 6.456:1 |
 
