@@ -518,3 +518,20 @@ Este slice ejecuta la parte de navegación de la dirección anterior. Decisiones
 - El encabezado ornamental, el botón Guardar contacto y el pie actual quedan **sin cambios**
   en este slice (el pie se rediseña en `redesign-footer-contact`). La duplicación transitoria
   de Correo (Acciones rápidas + pie) es aceptable aquí y se resolverá entonces.
+
+### Pie — decisión de diseño aprobada (`redesign-footer-contact`, 2026-11-22)
+
+El propietario revisó una captura de referencia y aprobó directamente estos tres puntos
+(estructura, no aún aceptación visual final de la feature completa):
+
+- **Enlace «escríbeme directamente»:** negrita (mismo peso que las etiquetas de Enlace,
+  sin introducir un token nuevo) y **sin subrayado**; conserva el color de acento
+  `--color-accent` y el `:focus-visible` con outline 2px/offset 2px ya validado.
+- **«Tarjeta NFC & QR» en línea propia:** deja de unirse al párrafo de invitación con el
+  separador `·`; pasa a ser un bloque/línea independiente debajo, precedido por un ícono
+  decorativo pequeño (`aria-hidden="true"` + `focusable="false"`, `stroke="currentColor"`,
+  `stroke-width="2"`, mismo lenguaje visual que los demás SVG de la Tarjeta). El `·` se
+  retira; no se mantiene como separador en ningún lugar del pie.
+- **Ícono nuevo:** no existe ningún asset para esto en el repo ni en `assets/`; se crea un
+  SVG inline simple (outline, geometría tipo tarjeta/chip NFC) sin depender de íconos
+  externos ni de una librería. No introduce tokens de color nuevos.
