@@ -696,25 +696,55 @@ echo "  [ok] decorative green dot on the avatar bottom-right (${#PROFILE_AVATAR_
 
 echo "Page footer checks:"
 
-if grep -qF '<footer class="page-footer">' index.html && grep -qF 'class="page-footer__link"' index.html; then
+FOOTER_BLOCK=$(awk '
+  /^[[:space:]]*<footer class="page-footer">/ { in_footer = 1 }
+  in_footer { print }
+  in_footer && /^[[:space:]]*<\/footer>/ { exit }
+' index.html)
+
+if [ -z "$FOOTER_BLOCK" ]; then
+  fail "index.html is missing the <footer class=\"page-footer\">...</footer> block"
+fi
+
+if printf '%s\n' "$FOOTER_BLOCK" | grep -qF 'class="page-footer__link"'; then
   echo "  [ok] page footer markup"
 else
   fail "index.html is missing the page footer markup"
 fi
 
-if grep -qF 'href="mailto:fahedhermoza@gmail.com"' index.html; then
+if printf '%s\n' "$FOOTER_BLOCK" | grep -qF 'href="https://wa.me/51955116562"'; then
   :
 else
-  fail "index.html is missing the page footer email destination mailto:fahedhermoza@gmail.com"
+  fail 'index.html footer is missing the WhatsApp destination href="https://wa.me/51955116562" on .page-footer__link'
 fi
 
-if grep -qF 'href="https://www.instagram.com/fahedhermoza/"' index.html; then
+if printf '%s\n' "$FOOTER_BLOCK" | grep -qF '>escríbeme directamente</a>'; then
   :
 else
-  fail "index.html is missing the page footer handle destination https://www.instagram.com/fahedhermoza/"
+  fail 'index.html footer is missing the "escríbeme directamente" link text'
 fi
 
-echo "  [ok] page footer destinations"
+if printf '%s\n' "$FOOTER_BLOCK" | grep -qF '¿Tienes un proyecto en mente? Haz clic en mis redes o'; then
+  :
+else
+  fail 'index.html footer is missing the invitation text "¿Tienes un proyecto en mente? Haz clic en mis redes o..."'
+fi
+
+if printf '%s\n' "$FOOTER_BLOCK" | grep -qF 'Tarjeta NFC &amp; QR'; then
+  :
+else
+  fail 'index.html footer is missing the "Tarjeta NFC &amp; QR" closing text'
+fi
+
+if printf '%s\n' "$FOOTER_BLOCK" | grep -qE 'mailto:|instagram\.com'; then
+  fail "index.html footer must not contain the mailto or Instagram destinations (Correo lives in Acciones rápidas; Instagram lives in the Enlaces grid)"
+fi
+
+if printf '%s\n' "$FOOTER_BLOCK" | grep -qF 'page-footer__separator'; then
+  fail 'index.html footer must not contain the retired .page-footer__separator element'
+fi
+
+echo "  [ok] page footer destinations (WhatsApp invitation + \"Tarjeta NFC & QR\" closing, no mailto/Instagram/separator)"
 
 PAGE_FOOTER_RULE=$(awk '
   /^[[:space:]]*\.page-footer[[:space:]]*\{/ { in_rule = 1 }
@@ -768,8 +798,8 @@ fi
 
 PAGE_FOOTER_LINK_CONTRACT=(
   'color: var(--color-accent);'
-  'text-decoration: underline;'
-  'text-underline-offset: 2px;'
+  'text-decoration: none;'
+  'font-weight: var(--text-button-label-font-weight);'
 )
 
 link_total=${#PAGE_FOOTER_LINK_CONTRACT[@]}
@@ -1823,15 +1853,15 @@ else
   fail "index.html profile avatar must keep a non-empty alt"
 fi
 
-# 3. Real controls: 10 anchors (5 link buttons + 2 quick actions + 1 save contact button + 2 footer links)
+# 3. Real controls: 9 anchors (5 link buttons + 2 quick actions + 1 save contact button + 1 footer link)
 ANCHOR_TAGS=$(grep -oE '<a[[:space:]][^>]*>' index.html || true)
 anchor_total=$(printf '%s\n' "$ANCHOR_TAGS" | grep -cE '<a[[:space:]]' || true)
 link_button_total=$(grep -oE '<a[^>]*class="link-button( [^"]*)?"' index.html | wc -l | tr -d ' ')
 quick_action_total=$(grep -oE '<a[^>]*class="quick-action"' index.html | wc -l | tr -d ' ')
 footer_link_total=$(grep -oE '<a[^>]*class="page-footer__link"' index.html | wc -l | tr -d ' ')
 
-if [ "$anchor_total" -ne 10 ]; then
-  fail "index.html must contain exactly 10 anchor controls (found $anchor_total)"
+if [ "$anchor_total" -ne 9 ]; then
+  fail "index.html must contain exactly 9 anchor controls (found $anchor_total)"
 fi
 if [ "$link_button_total" -ne 5 ]; then
   fail "index.html must contain exactly 5 link-button anchors (found $link_button_total)"
@@ -1842,8 +1872,8 @@ fi
 if [ "$save_contact_anchors" -ne 1 ]; then
   fail "index.html must contain exactly 1 save-contact-button anchor (found $save_contact_anchors)"
 fi
-if [ "$footer_link_total" -ne 2 ]; then
-  fail "index.html must contain exactly 2 page-footer link anchors (found $footer_link_total)"
+if [ "$footer_link_total" -ne 1 ]; then
+  fail "index.html must contain exactly 1 page-footer link anchor (found $footer_link_total)"
 fi
 
 link_button_class_total=$(grep -oE 'class="link-button( |")' index.html | wc -l | tr -d ' ')
@@ -1886,7 +1916,7 @@ fi
 if grep -qE '(^|[[:space:]])href="(#)?"' index.html; then
   fail 'index.html must not use href="#" or href=""'
 fi
-echo "  [ok] 10 real anchor controls (5 link buttons + 2 quick actions + 1 save contact button + 2 footer links)"
+echo "  [ok] 9 real anchor controls (5 link buttons + 2 quick actions + 1 save contact button + 1 footer link)"
 
 # 4. Decorative icons
 SVG_TAGS=$(grep -oE '<svg[^>]*>' index.html || true)
@@ -1913,17 +1943,13 @@ while IFS= read -r svg_tag; do
   esac
 done <<< "$SVG_TAGS"
 
-if [ "$svg_total" -ne 10 ]; then
-  fail "index.html must contain exactly 10 decorative SVG icons (found $svg_total)"
+if [ "$svg_total" -ne 11 ]; then
+  fail "index.html must contain exactly 11 decorative SVG icons (found $svg_total)"
 fi
 if [ "$svg_bad" -gt 0 ]; then
   fail "accessibility SVG contract is missing $svg_bad required attributes"
 fi
-if grep -qE '<span class="page-footer__separator"[^>]*aria-hidden="true"' index.html; then
-  echo "  [ok] 10 decorative SVG icons and footer separator are hidden from assistive technology"
-else
-  fail 'the page footer separator must keep aria-hidden="true"'
-fi
+echo "  [ok] 11 decorative SVG icons are hidden from assistive technology"
 
 # 5. Visible focus
 LINK_FOCUS_RULE=$(awk '
