@@ -25,9 +25,9 @@ These rules are durable: every future change to the Tarjeta digital must preserv
 `./init.sh` enforces the technically checkable subset; do not remove, weaken or reorder
 its `Accessibility checks:`.
 
-- **MUST** keep every control a real `<a>` with a non-empty `href`: exactly 10 anchors
+- **MUST** keep every control a real `<a>` with a non-empty `href`: exactly 9 anchors
   today (5 `.link-button` + 2 `.quick-action` + 1 `.save-contact-button` +
-  2 `.page-footer__link`). The two `.quick-action` controls are the icon-only Celular
+  1 `.page-footer__link`). The two `.quick-action` controls are the icon-only Celular
   (`href="tel:+51955116562"`) and Correo (`href="mailto:fahedhermoza@gmail.com"`) in the
   `.quick-actions` row; each gets its accessible name from `aria-label`, not visible text.
 - **MUST NOT** use `role="button"`, inline `onclick`/`onkeydown`/`onkeypress`,
@@ -52,9 +52,9 @@ its `Accessibility checks:`.
   (same 6.082:1 rest / 6.456:1 hover ratios, already covered by the 15/15 contrast gate);
   they are NOT gradient chips. Do not give them white-on-gradient tones or new colors.
 - **MUST** keep every decorative `<svg>` with both `aria-hidden="true"` and
-  `focusable="false"`: exactly 10 decorative SVG icons today (5 Enlaces + 2 quick-action
-  icons + the save contact icon + 2 header icons: NFC label and open), and the footer
-  separator with `aria-hidden="true"`.
+  `focusable="false"`: exactly 11 decorative SVG icons today (5 Enlaces + 2 quick-action
+  icons + the save contact icon + 2 header icons: NFC label and open + 1 footer NFC/QR
+  closing icon).
 - **MUST** keep the Contacto vCard as the static `assets/fahedhermoza.vcf`: UTF-8
   without BOM, CRLF line endings (including the final `END:VCARD`), VCARD 3.0 with the
   canonical name, title, phone, email and five external URLs, at most 4096 bytes.
@@ -74,8 +74,9 @@ its `Accessibility checks:`.
 - **MUST NOT** add JavaScript, frameworks, bundlers, dependencies or generated assets
   to satisfy accessibility rules (see `docs/technical-discovery.md`).
 
-The two inline footer links are shorter than 44px; they stay covered by the WCAG 2.5.8
-inline/link-in-text exception. Re-evaluate that exception if the footer layout changes.
+The one inline footer link (WhatsApp) is shorter than 44px; it stays covered by the
+WCAG 2.5.8 inline/link-in-text exception. Re-evaluate that exception if the footer
+layout changes.
 
 ## Responsive Baseline
 
@@ -102,8 +103,8 @@ remove, weaken or reorder it.
 - **MUST** re-run the eight-width browser matrix and the `Responsive checks:` gate after any
   change to layout, typography, card width, Enlace button or footer; the runtime proof cannot
   be replaced by static grep alone.
-- The two inline footer links stay under the WCAG 2.5.8 inline/link-in-text exception; do not
-  evaluate them against the 44×44 target unless the footer layout changes.
+- The one inline footer link (WhatsApp) stays under the WCAG 2.5.8 inline/link-in-text
+  exception; do not evaluate it against the 44×44 target unless the footer layout changes.
 
 ## Publicación (Cloudflare Workers static assets)
 
