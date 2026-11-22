@@ -105,8 +105,13 @@ Run these steps for each selected feature, in order.
 
 ### 4. Independent session (one per feature)
 
-- Launch exactly one unattended session per feature, rooted in the worktree:
-  - `opencode run --dir "../devexpert-project-worktrees/<feature-id>" "<prompt>"`.
+- Launch exactly one unattended session per feature, rooted in the worktree.
+- **Match the runtime to the orchestrator.** This repo is a dual harness: the skills and `AGENTS.md` are shared via symlink, but each runtime pins its own subagent models — `.claude/agents/*` use Claude models (opus/sonnet) and `.opencode/agent/*` pin OpenAI models (`gpt-6*-sol`/`-luna`). The session MUST run in the **same runtime as the orchestrator**, so the feature-flow subagents resolve to that runtime's available models. Launching a session in the other runtime silently crosses into its model pins and fails when that provider/model is unavailable (e.g. `gpt-6.1-sol … not supported`), which neither the orchestrator nor the feature owns.
+  - **Under Claude Code**, launch a headless session rooted in the worktree:
+    - `claude -p "<prompt>" --permission-mode bypassPermissions` run with the worktree as the working directory (the subagents are `.claude/agents/{planner,implementer,validator}`).
+  - **Under OpenCode**, launch:
+    - `opencode run --dir "../devexpert-project-worktrees/<feature-id>" "<prompt>"` (the subagents are `.opencode/agent/{planner,implementer,validator}`).
+  - Detect the current runtime rather than assuming one; if it cannot be determined, default to the runtime whose CLI is on `PATH` and whose `*/agent` model pins resolve to an available provider, and report which was chosen.
 - The prompt must instruct the session to run `feature-flow` for the single feature id until the flow reaches an explicit stop condition, working only inside this worktree, and to return the selected feature id, the validator verdict, the final `feature_list.json` status, the commit hash, and the recorded evidence.
 - Never batch two feature ids into one session. Run the sessions sequentially (or as explicitly separated processes), never sharing a worktree.
 
