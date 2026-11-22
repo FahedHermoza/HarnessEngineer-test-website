@@ -109,6 +109,7 @@ Validate the spec's `Durable Documentation Impact` section:
 - `../../../CONSTRAINTS.md` uses operational MUST/MUST NOT rules rather than vague preferences,
 - docs do not contradict the implemented behavior.
 - UI or visual changes follow `../../../DESIGN.md` when the feature involves product screens, public verification pages, or generated design assets.
+- `../../../DESIGN.md` is the read-only design source of truth. Diff it against the base (`git diff <base>..HEAD -- DESIGN.md`) and treat any implementer edit as suspect: flag it as a finding unless it records an owner-approved design decision referenced in the spec, `PROGRESS.md`, or the feature evidence. An edit that merely rewrites `DESIGN.md` to describe what the code does (instead of the code conforming to `DESIGN.md`) is a `revise`/`block`-level defect, not an acceptable sync. Confirm `DESIGN.md` stays internally consistent (no section still describing a superseded layout/ramp/component count) and that the implemented tokens/colors match its front-matter — if a `Design conformance checks:` gate exists in `./init.sh`, confirm it ran green and was not weakened.
 
 ### 6. Produce Verdict
 

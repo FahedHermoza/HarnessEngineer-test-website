@@ -31,6 +31,7 @@ Antes de escribir código:
 - Actualizar los artefactos durables del repo en lugar de depender de resúmenes de chat.
 - No introducir frameworks, bundlers ni dependencias nuevas sin justificarlo (ver `docs/technical-discovery.md`).
 - Mantener la base de accesibilidad AA de `CONSTRAINTS.md` y el gate `Accessibility checks:` de `./init.sh`; no debilitar sus checks, tokens de contraste, foco, `aria-hidden`, `alt`, idioma ni reduced motion.
+- `DESIGN.md` es la **fuente de verdad del diseño** y es **de solo lectura para quien implementa**: el código se ajusta a `DESIGN.md`, nunca al revés. No edites `DESIGN.md` para que calce con lo que codeaste. Si la implementación necesita diferir del diseño (nuevo valor, cambio de layout, tono, geometría), **detente y plantea una decisión de diseño** al propietario/planner *antes* de codear; el cambio se refleja primero en `DESIGN.md` (con aprobación) y luego se implementa. El gate `Design conformance checks:` de `./init.sh` falla si los colores declarados en `DESIGN.md` no coinciden con los tokens de `styles.css`.
 - Toda feature con UI se valida también en navegador, en móvil (390×844) y escritorio (1280×800), sin errores de consola ni peticiones fallidas, antes de aceptarla.
 
 ## Required Artifacts
