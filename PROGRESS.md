@@ -811,3 +811,12 @@
 - State change: `feature_list.json` → `redesign-contact-navigation` pasa de `passing` a `accepted` con evidencia de aprobación fechada; `docs/validations/redesign-contact-navigation.md` → verdict `accept`/`accepted`.
 - Publicación: commit único en `feature/redesign-contact-navigation`; push a origin; PR contra `demo/seed` referenciando el issue #47. Sin merge.
 - Next best step: tras revisar/mezclar el PR, continuar con `redesign-footer-contact` (depende de este slice) o `redesign-qr-panel`/`redesign-share-action` (dependen de este slice).
+
+### Session 066 — adopción del sistema de diseño Stitch (DESIGN.md como fuente de verdad)
+
+- Date: 2026-11-22.
+- Goal: adoptar el export "Serene Bio Card" (Stitch) como fuente de verdad de `DESIGN.md` y conformar el código, siguiendo la regla "DESIGN.md manda, el código se ajusta".
+- Hallazgo AA: la rampa del export (`#6876F0…#A85EE2`) no pasa AA con texto blanco (3.65–4.13:1). Decisión del propietario: adoptar el matiz periwinkle→orquídea **oscurecido a AA-safe** (`#5c68d4 #6a64d8 #765fd4 #8659d1 #9654c9`, 4.51–4.82:1).
+- Changes: `styles.css` rampa → AA-safe; `init.sh` tokens de contraste fijados → AA-safe; `DESIGN.md` adopta el sistema (rampa AA-safe + nota de reconciliación + tabla de contraste + sección "Sistema de diseño ampliado": paleta extendida M3, elevación, Social Icon Bar, Formularios), conservando todas las secciones de producto. Neutros `on-surface #2d3139` y `on-surface-variant #6b7280` conservados (el front-matter M3 del export se contradecía con su prosa).
+- Verification: `./init.sh` exit 0, 124 `[ok]`; `Design conformance checks:` 16/16; contraste 8/8 y calculado 4.51–4.82:1. Navegador 390×844 y 1280×800: 0 consola, red 200, rampa nueva visible, sin overflow. Aprobación visual del propietario 2026-11-22.
+- Final state: cambio de diseño/harness (no es una feature de `feature_list.json`); sin merge. Pendiente: mezclar el PR.

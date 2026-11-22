@@ -1992,11 +1992,11 @@ token_value() {
 }
 
 CONTRAST_TOKENS=(
-  '--color-gradient-1|#5a67d1'
-  '--color-gradient-2|#645fcc'
-  '--color-gradient-3|#705aca'
-  '--color-gradient-4|#8055c8'
-  '--color-gradient-5|#9252c5'
+  '--color-gradient-1|#5c68d4'
+  '--color-gradient-2|#6a64d8'
+  '--color-gradient-3|#765fd4'
+  '--color-gradient-4|#8659d1'
+  '--color-gradient-5|#9654c9'
   '--color-on-surface-variant|#6b7280'
   '--color-primary|#484dc4'
   '--color-surface-container-low|#f1f4fa'
