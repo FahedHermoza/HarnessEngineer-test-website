@@ -73,6 +73,7 @@ Rules:
 - Follow existing repository patterns.
 - Keep WIP=1.
 - Do not implement adjacent features from `feature_list.json`.
+- Treat `DESIGN.md` (when the repo has one) as the **read-only design source of truth**: implement the code to match it. **Never edit `DESIGN.md` to make it describe what you built.** If the implementation needs to diverge from the design — a new token/value, a different layout, tone, geometry, or component count — stop and raise it as a design decision for the owner/planner to resolve in `DESIGN.md` *first*; do not invent a visual style or silently rewrite the design doc. The only `DESIGN.md` edits allowed here are ones the spec explicitly assigns to this feature *and* that record an owner-approved design decision, not a post-hoc description of the code. If a `Design conformance checks:` gate exists in `./init.sh`, it must stay green by changing the code, not by editing `DESIGN.md`.
 - Add regression/unit/integration/smoke tests when they fit the feature and current repo maturity.
 - If the repo has a persistent E2E command such as `pnpm test:e2e` and the selected feature changes user-visible behavior, authentication, authorization, routing, or API flows, add or update focused E2E coverage unless the spec explicitly justifies not doing so.
 - Use `references/implementation-rules.md` for durable documentation rules.

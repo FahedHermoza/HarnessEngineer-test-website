@@ -126,6 +126,62 @@ fi
 
 echo "  [ok] design tokens present ($present_tokens/$total_tokens)"
 
+echo "Design conformance checks:"
+
+# DESIGN.md is the design source of truth. Every color declared in its
+# front-matter `colors:` map MUST match the corresponding `--color-<name>`
+# token in styles.css. This fails the gate on any drift in either direction
+# (code changed without DESIGN.md, or DESIGN.md changed without code), so the
+# implementation can never silently diverge from the design document.
+if [ ! -f "DESIGN.md" ]; then
+  fail "DESIGN.md is missing (design source of truth)"
+fi
+
+design_colors=$(awk '
+  /^colors:[[:space:]]*$/ { inblock = 1; next }
+  inblock && /^[^[:space:]#]/ { inblock = 0 }
+  inblock && /^[[:space:]]+[A-Za-z0-9_-]+:[[:space:]]*.?#[0-9A-Fa-f]+/ {
+    line = $0
+    sub(/^[[:space:]]+/, "", line)
+    key = line; sub(/:.*/, "", key)
+    hex = line; sub(/^[^#]*#/, "#", hex); sub(/[^#0-9A-Fa-f].*$/, "", hex)
+    print key "\t" hex
+  }
+' DESIGN.md)
+
+if [ -z "$design_colors" ]; then
+  fail "DESIGN.md front-matter has no parseable colors: block (design source of truth)"
+fi
+
+conf_total=0
+conf_ok=0
+conf_drift=0
+while IFS=$'\t' read -r key hex; do
+  [ -z "$key" ] && continue
+  conf_total=$((conf_total + 1))
+  css_line=$(grep -iE -- "--color-${key}[[:space:]]*:" styles.css | head -1 || true)
+  css_hex=$(printf '%s' "$css_line" | grep -oiE '#[0-9A-Fa-f]{3,8}' | head -1 || true)
+  want=$(printf '%s' "$hex" | tr 'A-F' 'a-f')
+  got=$(printf '%s' "$css_hex" | tr 'A-F' 'a-f')
+  if [ -z "$css_hex" ]; then
+    echo "FAILED - DESIGN.md declares color '${key}' (${hex}) but styles.css has no --color-${key}" >&2
+    conf_drift=$((conf_drift + 1))
+  elif [ "$want" = "$got" ]; then
+    conf_ok=$((conf_ok + 1))
+  else
+    echo "FAILED - color '${key}' drift: DESIGN.md=${hex} vs styles.css --color-${key}=${css_hex}" >&2
+    conf_drift=$((conf_drift + 1))
+  fi
+done <<EOF
+$design_colors
+EOF
+
+if [ "$conf_drift" -gt 0 ]; then
+  fail "$conf_drift design color(s) drift between DESIGN.md (source of truth) and styles.css"
+fi
+
+echo "  [ok] DESIGN.md colors match styles.css tokens ($conf_ok/$conf_total)"
+
 echo "Component checks:"
 
 LINK_BUTTON_RULE=$(awk '
