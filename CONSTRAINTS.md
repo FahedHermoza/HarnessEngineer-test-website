@@ -7,13 +7,16 @@ These rules are durable: every future change to the Tarjeta digital must preserv
 its `Accessibility checks:`.
 
 - **MUST** keep every control a real `<a>` with a non-empty `href`: exactly 10 anchors
-  today (7 `.link-button` + 1 `.save-contact-button` + 2 `.page-footer__link`).
+  today (5 `.link-button` + 2 `.quick-action` + 1 `.save-contact-button` +
+  2 `.page-footer__link`). The two `.quick-action` controls are the icon-only Celular
+  (`href="tel:+51955116562"`) and Correo (`href="mailto:fahedhermoza@gmail.com"`) in the
+  `.quick-actions` row; each gets its accessible name from `aria-label`, not visible text.
 - **MUST NOT** use `role="button"`, inline `onclick`/`onkeydown`/`onkeypress`,
   `href="#"` or `href=""` for controls.
 - **MUST** keep a visible keyboard focus on every control:
   `outline: 2px solid var(--color-accent);` and `outline-offset: 2px;` on
-  `.link-button:focus-visible`, `.save-contact-button:focus-visible` and
-  `.page-footer__link:focus-visible`.
+  `.link-button:focus-visible`, `.quick-action:focus-visible`,
+  `.save-contact-button:focus-visible` and `.page-footer__link:focus-visible`.
 - **MUST NOT** declare `outline: none` or `outline: 0` in `styles.css`.
 - **MUST** keep text and icon contrast at or above 4.5:1, including the hover/focus
   `filter: brightness(1.03)` state. Current pinned values:
@@ -25,10 +28,14 @@ its `Accessibility checks:`.
 - **MUST** keep `.link-button` labels and icons `#ffffff`; if contrast fails, darken the
   background token, not the label color or the `button-label` scale. The neutral
   `.save-contact-button` keeps `#484dc4` text/icon on `#f1f4fa` (6.082:1 rest,
-  6.456:1 with `brightness(1.03)`).
+  6.456:1 with `brightness(1.03)`). The two `.quick-action` circles reuse that same
+  pinned neutral pair — `--color-primary` icon on `--color-surface-container-low` surface
+  (same 6.082:1 rest / 6.456:1 hover ratios, already covered by the 15/15 contrast gate);
+  they are NOT gradient chips. Do not give them white-on-gradient tones or new colors.
 - **MUST** keep every decorative `<svg>` with both `aria-hidden="true"` and
-  `focusable="false"`: exactly 8 decorative SVG icons today (7 Enlaces + the save
-  contact icon), and the footer separator with `aria-hidden="true"`.
+  `focusable="false"`: exactly 10 decorative SVG icons today (5 Enlaces + 2 quick-action
+  icons + the save contact icon + 2 header icons: NFC label and open), and the footer
+  separator with `aria-hidden="true"`.
 - **MUST** keep the Contacto vCard as the static `assets/fahedhermoza.vcf`: UTF-8
   without BOM, CRLF line endings (including the final `END:VCARD`), VCARD 3.0 with the
   canonical name, title, phone, email and five external URLs, at most 4096 bytes.
@@ -40,7 +47,11 @@ its `Accessibility checks:`.
   (WCAG 3.1.2, Language of Parts).
 - **MUST** keep the viewport zoomable: no `user-scalable=no` and no `maximum-scale`.
 - **MUST** keep `@media (prefers-reduced-motion: reduce)` disabling `transition` and
-  `transform` for `.link-button` and `.save-contact-button`; do not add other animations.
+  `transform` for `.link-button`, `.save-contact-button` and `.quick-action`; do not add
+  other animations.
+- **MUST** keep each `.quick-action` circle a tap target of at least 44×44 (diameter
+  `width`/`height` >= 44px; currently 48×48) at every audited width; it is an icon-only
+  control and the 44×44 target applies (it is not covered by the inline-link exception).
 - **MUST NOT** add JavaScript, frameworks, bundlers, dependencies or generated assets
   to satisfy accessibility rules (see `docs/technical-discovery.md`).
 

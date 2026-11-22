@@ -739,24 +739,47 @@ fi
 
 echo "Link checks:"
 
-if grep -qF 'class="links"' index.html \
-  && grep -qE 'class="link-button[^"]*"' index.html \
-  && grep -qF '<span class="link-button__label">Celular</span>' index.html; then
-  echo "  [ok] celular link markup"
-else
-  fail "index.html is missing the Celular link markup"
+QUICK_ACTIONS_BLOCK=$(awk '
+  /<nav class="quick-actions"/ { in_nav = 1 }
+  in_nav { print }
+  in_nav && /<\/nav>/ { exit }
+' index.html)
+
+if [ -z "$QUICK_ACTIONS_BLOCK" ]; then
+  fail 'index.html is missing the quick actions row (<nav class="quick-actions" aria-label="Acciones rápidas">)'
 fi
 
-if grep -qF 'href="tel:+51955116562"' index.html; then
-  echo "  [ok] celular link destination"
+QUICK_ACTION_CELULAR=$(printf '%s\n' "$QUICK_ACTIONS_BLOCK" | awk '
+  /<a[^>]*href="tel:\+51955116562"/ { in_anchor = 1 }
+  in_anchor { print }
+  in_anchor && /<\/a>/ { exit }
+')
+
+if [ -n "$QUICK_ACTION_CELULAR" ] \
+  && printf '%s\n' "$QUICK_ACTION_CELULAR" | grep -qF 'class="quick-action"'; then
+  echo "  [ok] celular quick action markup"
 else
-  fail "index.html is missing the Celular link destination tel:+51955116562"
+  fail "index.html is missing the Celular quick action (<a class=\"quick-action\" href=\"tel:+51955116562\">) inside the quick-actions row"
 fi
 
-if grep -qF 'aria-label="Celular: llamar al +51 955 116 562"' index.html; then
-  echo "  [ok] celular link accessible label"
+if printf '%s\n' "$QUICK_ACTION_CELULAR" | grep -qF 'href="tel:+51955116562"'; then
+  echo "  [ok] celular quick action destination"
 else
-  fail "index.html is missing the Celular link accessible label"
+  fail "index.html is missing the Celular quick action destination tel:+51955116562"
+fi
+
+if printf '%s\n' "$QUICK_ACTION_CELULAR" | grep -qF 'aria-label="Celular: llamar al +51 955 116 562"'; then
+  echo "  [ok] celular quick action accessible label"
+else
+  fail "index.html is missing the Celular quick action accessible label"
+fi
+
+if printf '%s\n' "$QUICK_ACTION_CELULAR" | grep -qF 'class="quick-action__icon"' \
+  && printf '%s\n' "$QUICK_ACTION_CELULAR" | grep -qF 'aria-hidden="true"' \
+  && printf '%s\n' "$QUICK_ACTION_CELULAR" | grep -qF 'focusable="false"'; then
+  echo "  [ok] celular quick action decorative icon"
+else
+  fail "index.html Celular quick action is missing its decorative icon (quick-action__icon, aria-hidden or focusable)"
 fi
 
 LINKS_RULE=$(awk '
@@ -1029,7 +1052,7 @@ else
   fail "LinkedIn icon must declare aria-hidden=\"true\" and focusable=\"false\""
 fi
 
-echo "Link Correo checks:"
+echo "Quick action Correo checks:"
 
 LINK_CORREO_ANCHOR=$(awk '
   /<a[^>]*href="mailto:fahedhermoza@gmail\.com"/ { in_anchor = 1 }
@@ -1038,15 +1061,14 @@ LINK_CORREO_ANCHOR=$(awk '
 ' index.html)
 
 if [ -z "$LINK_CORREO_ANCHOR" ]; then
-  fail "index.html is missing the link Correo anchor"
+  fail "index.html is missing the Correo quick action anchor"
 fi
 
 LINK_CORREO_CONTRACT=(
-  'class="link-button link-button--gradient-4-5"'
+  'class="quick-action"'
   'href="mailto:fahedhermoza@gmail.com"'
   'aria-label="Correo a fahedhermoza@gmail.com"'
-  '<span class="link-button__label">Correo</span>'
-  'class="link-button__icon"'
+  'class="quick-action__icon"'
   'aria-hidden="true"'
   'focusable="false"'
 )
@@ -1060,18 +1082,18 @@ for entry in "${LINK_CORREO_CONTRACT[@]}"; do
       correo_present=$((correo_present + 1))
       ;;
     *)
-      echo "FAILED - link Correo anchor missing: $entry" >&2
+      echo "FAILED - Correo quick action anchor missing: $entry" >&2
       correo_missing=$((correo_missing + 1))
       ;;
   esac
 done
 
 if [ "$correo_missing" -gt 0 ]; then
-  echo "Harness status: FAILED - link Correo contract is missing $correo_missing of $correo_total required items" >&2
+  echo "Harness status: FAILED - Correo quick action contract is missing $correo_missing of $correo_total required items" >&2
   exit 1
 fi
 
-echo "  [ok] link Correo contract ($correo_present/$correo_total)"
+echo "  [ok] Correo quick action contract ($correo_present/$correo_total)"
 
 echo "Sharing metadata checks:"
 
@@ -1358,18 +1380,18 @@ echo "  [ok] whatsapp icon contract ($whatsapp_icon_present/$whatsapp_icon_total
 echo "Order and gradient checks:"
 
 LINK_ANCHOR_COUNT=$(printf '%s\n' "$LINKS_BLOCK" | grep -oE '<a[[:space:]]' | wc -l | tr -d '[:space:]')
-if [ "$LINK_ANCHOR_COUNT" -eq 7 ]; then
-  echo "  [ok] links anchors (7/7)"
+if [ "$LINK_ANCHOR_COUNT" -eq 5 ]; then
+  echo "  [ok] links anchors (5/5)"
 else
-  fail "the links navigation must contain exactly 7 anchors; found $LINK_ANCHOR_COUNT"
+  fail "the links navigation must contain exactly 5 anchors; found $LINK_ANCHOR_COUNT"
 fi
 
 LINK_LABELS=$(printf '%s\n' "$LINKS_BLOCK" \
   | grep -oE '<span class="link-button__label">[^<]+</span>' \
   | sed -E 's/^.*>([^<]+)<.*$/\1/' | paste -sd '|' -) || true
-EXPECTED_LINK_LABELS='Instagram|Facebook|WhatsApp|LinkedIn|Portafolio|Correo|Celular'
+EXPECTED_LINK_LABELS='Instagram|Facebook|WhatsApp|LinkedIn|Portafolio'
 if [ "$LINK_LABELS" = "$EXPECTED_LINK_LABELS" ]; then
-  echo "  [ok] links order (7/7)"
+  echo "  [ok] links order (5/5)"
 else
   fail "links order mismatch: expected $EXPECTED_LINK_LABELS, found ${LINK_LABELS:-<none>}"
 fi
@@ -1377,9 +1399,9 @@ fi
 LINK_CLASSES=$(printf '%s\n' "$LINKS_BLOCK" \
   | grep -oE '<a[^>]*class="link-button[^"]*"' \
   | sed -E 's/^.*class="([^"]+)".*$/\1/' | paste -sd '|' -) || true
-EXPECTED_LINK_CLASSES='link-button link-button--gradient-1|link-button link-button--gradient-2|link-button link-button--gradient-3|link-button link-button--gradient-3-4|link-button link-button--gradient-4|link-button link-button--gradient-4-5|link-button link-button--gradient-5'
+EXPECTED_LINK_CLASSES='link-button link-button--gradient-1|link-button link-button--gradient-2|link-button link-button--gradient-3|link-button link-button--gradient-3-4|link-button link-button--gradient-4'
 if [ "$LINK_CLASSES" = "$EXPECTED_LINK_CLASSES" ]; then
-  echo "  [ok] links tone progression (7/7)"
+  echo "  [ok] links tone progression (5/5)"
 else
   fail "links tone progression mismatch: expected $EXPECTED_LINK_CLASSES, found ${LINK_CLASSES:-<none>}"
 fi
@@ -1508,13 +1530,13 @@ done
 
 if ! grep -qF 'TEL;TYPE=CELL:+51955116562' "$VCF_FILE" \
   || ! grep -qF 'href="tel:+51955116562"' index.html \
-  || ! grep -qF '>Celular<' index.html; then
+  || ! grep -qF 'aria-label="Celular: llamar al +51 955 116 562"' index.html; then
   fail "vCard TEL does not match the Celular control"
 fi
 
 if ! grep -qF 'EMAIL;TYPE=INTERNET:fahedhermoza@gmail.com' "$VCF_FILE" \
   || ! grep -qF 'href="mailto:fahedhermoza@gmail.com"' index.html \
-  || ! grep -qF '>Correo<' index.html; then
+  || ! grep -qF 'aria-label="Correo a fahedhermoza@gmail.com"' index.html; then
   fail "vCard EMAIL does not match the Correo control"
 fi
 echo "  [ok] vCard URLs, phone and email match the page controls"
@@ -1732,17 +1754,21 @@ else
   fail "index.html profile avatar must keep a non-empty alt"
 fi
 
-# 3. Real controls: 10 anchors (7 link buttons + 1 save contact button + 2 footer links)
+# 3. Real controls: 10 anchors (5 link buttons + 2 quick actions + 1 save contact button + 2 footer links)
 ANCHOR_TAGS=$(grep -oE '<a[[:space:]][^>]*>' index.html || true)
 anchor_total=$(printf '%s\n' "$ANCHOR_TAGS" | grep -cE '<a[[:space:]]' || true)
 link_button_total=$(grep -oE '<a[^>]*class="link-button( [^"]*)?"' index.html | wc -l | tr -d ' ')
+quick_action_total=$(grep -oE '<a[^>]*class="quick-action"' index.html | wc -l | tr -d ' ')
 footer_link_total=$(grep -oE '<a[^>]*class="page-footer__link"' index.html | wc -l | tr -d ' ')
 
 if [ "$anchor_total" -ne 10 ]; then
   fail "index.html must contain exactly 10 anchor controls (found $anchor_total)"
 fi
-if [ "$link_button_total" -ne 7 ]; then
-  fail "index.html must contain exactly 7 link-button anchors (found $link_button_total)"
+if [ "$link_button_total" -ne 5 ]; then
+  fail "index.html must contain exactly 5 link-button anchors (found $link_button_total)"
+fi
+if [ "$quick_action_total" -ne 2 ]; then
+  fail "index.html must contain exactly 2 quick-action anchors (found $quick_action_total)"
 fi
 if [ "$save_contact_anchors" -ne 1 ]; then
   fail "index.html must contain exactly 1 save-contact-button anchor (found $save_contact_anchors)"
@@ -1752,10 +1778,14 @@ if [ "$footer_link_total" -ne 2 ]; then
 fi
 
 link_button_class_total=$(grep -oE 'class="link-button( |")' index.html | wc -l | tr -d ' ')
+quick_action_class_total=$(grep -oE 'class="quick-action"' index.html | wc -l | tr -d ' ')
 save_contact_class_total=$(grep -oE 'class="save-contact-button( |")' index.html | wc -l | tr -d ' ')
 footer_link_class_total=$(grep -oE 'class="page-footer__link( |")' index.html | wc -l | tr -d ' ')
 if [ "$link_button_class_total" -ne "$link_button_total" ]; then
   fail "a non-anchor element uses class link-button (or an anchor duplicates the class)"
+fi
+if [ "$quick_action_class_total" -ne "$quick_action_total" ]; then
+  fail "a non-anchor element uses class quick-action (or an anchor duplicates the class)"
 fi
 if [ "$save_contact_class_total" -ne "$save_contact_anchors" ]; then
   fail "a non-anchor element uses class save-contact-button (or an anchor duplicates the class)"
@@ -1787,7 +1817,7 @@ fi
 if grep -qE '(^|[[:space:]])href="(#)?"' index.html; then
   fail 'index.html must not use href="#" or href=""'
 fi
-echo "  [ok] 10 real anchor controls (7 link buttons + 1 save contact button + 2 footer links)"
+echo "  [ok] 10 real anchor controls (5 link buttons + 2 quick actions + 1 save contact button + 2 footer links)"
 
 # 4. Decorative icons
 SVG_TAGS=$(grep -oE '<svg[^>]*>' index.html || true)
@@ -1839,12 +1869,26 @@ FOOTER_FOCUS_RULE=$(awk '
   in_rule && /}/ { exit }
 ' styles.css)
 
+QUICK_ACTION_FOCUS_RULE=$(awk '
+  /^[[:space:]]*\.quick-action:focus-visible[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
 if [ -n "$LINK_FOCUS_RULE" ] \
   && printf '%s\n' "$LINK_FOCUS_RULE" | grep -qF 'outline: 2px solid var(--color-accent);' \
   && printf '%s\n' "$LINK_FOCUS_RULE" | grep -qF 'outline-offset: 2px;'; then
   :
 else
   fail 'styles.css .link-button:focus-visible must declare outline: 2px solid var(--color-accent); and outline-offset: 2px;'
+fi
+
+if [ -n "$QUICK_ACTION_FOCUS_RULE" ] \
+  && printf '%s\n' "$QUICK_ACTION_FOCUS_RULE" | grep -qF 'outline: 2px solid var(--color-accent);' \
+  && printf '%s\n' "$QUICK_ACTION_FOCUS_RULE" | grep -qF 'outline-offset: 2px;'; then
+  :
+else
+  fail 'styles.css .quick-action:focus-visible must declare outline: 2px solid var(--color-accent); and outline-offset: 2px;'
 fi
 
 if [ -n "$FOOTER_FOCUS_RULE" ] \
@@ -1870,11 +1914,12 @@ REDUCED_MOTION_BLOCK=$(awk '
 if [ -n "$REDUCED_MOTION_BLOCK" ] \
   && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF '.link-button' \
   && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF '.save-contact-button' \
+  && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF '.quick-action' \
   && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF 'transition: none;' \
   && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF 'transform: none;'; then
   echo "  [ok] reduced motion contract"
 else
-  fail 'styles.css reduced-motion block must set transition: none; and transform: none; for .link-button and .save-contact-button'
+  fail 'styles.css reduced-motion block must set transition: none; and transform: none; for .link-button, .save-contact-button and .quick-action'
 fi
 
 # 7. Contrast: pinned tokens plus calculated WCAG ratios
@@ -2125,6 +2170,35 @@ if [ "$label_missing" -gt 0 ]; then
   fail ".link-button__label contract is missing $label_missing of ${#LABEL_DECLARATIONS[@]} required declarations"
 fi
 echo "  [ok] link label shrink guard ($label_present/${#LABEL_DECLARATIONS[@]})"
+
+# 4b. Quick action tap target: the circular icon-only control must stay >=44x44.
+QUICK_ACTION_RULE=$(awk '
+  /^[[:space:]]*\.quick-action[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /^}/ { exit }
+' styles.css)
+
+if [ -z "$QUICK_ACTION_RULE" ]; then
+  fail 'styles.css is missing the .quick-action base rule'
+fi
+
+if printf '%s\n' "$QUICK_ACTION_RULE" | awk '
+  {
+    if (match($0, /width:[[:space:]]*[0-9]+px/)) {
+      v = substr($0, RSTART, RLENGTH); sub(/width:[[:space:]]*/, "", v); sub(/px.*/, "", v)
+      if (v + 0 >= 44) has_w = 1; else small_w = 1
+    }
+    if (match($0, /height:[[:space:]]*[0-9]+px/)) {
+      v = substr($0, RSTART, RLENGTH); sub(/height:[[:space:]]*/, "", v); sub(/px.*/, "", v)
+      if (v + 0 >= 44) has_h = 1; else small_h = 1
+    }
+  }
+  END { if (has_w && has_h && !small_w && !small_h) exit 0; else exit 1 }
+'; then
+  echo "  [ok] quick action tap target >=44x44 (circular icon-only control)"
+else
+  fail 'styles.css .quick-action must declare width and height of at least 44px (circular tap target >=44x44)'
+fi
 
 # 5. Never mask horizontal overflow: fix the layout instead.
 BODY_OR_PAGE_RULES=$(awk '
