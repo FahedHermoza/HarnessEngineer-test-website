@@ -140,3 +140,21 @@ still `pending` per `feature_list.json`/`PROGRESS.md`, and must be collected by
 the orchestrator before status flips to `accepted`. The structural approval for
 these 3 specific adjustments was already given via the `DESIGN.md` addendum and
 is satisfied by this validation.
+
+## Owner Final Visual Acceptance (2026-11-22)
+
+Fahed Hermoza reviewed fresh renders of the live page (isolated server, port
+3610, `python3 -m http.server 3610 --directory .`) in both required viewports
+and approved the feature as a whole in chat. Screenshots captured via Chrome
+DevTools MCP (`take_screenshot`, `fullPage: true`) and committed alongside this
+record as the durable evidence of that approval:
+
+- `docs/validations/redesign-footer-contact-owner-approval-mobile.png` — 390×844
+  (full page).
+- `docs/validations/redesign-footer-contact-owner-approval-desktop.png` —
+  1280×800 (full page).
+
+Both confirm the bold/no-underline link, "Tarjeta NFC & QR" on its own line with
+the new card/chip icon, and no `·` separator anywhere in the footer, matching
+the owner-approved `DESIGN.md` addendum. This closes the only remaining
+external condition; the feature moves from `passing` to `accepted`.
