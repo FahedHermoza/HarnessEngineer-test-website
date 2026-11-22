@@ -627,14 +627,19 @@
       "links-order-gradient",
       "save-contact-vcard"
     ],
-    "status": "not_started",
+    "status": "accepted",
     "verification": [
       "Confirmar los siete href canónicos, el orden de los cinco botones grandes y la presencia única de Celular y Correo; la vCard estática mantiene teléfono, correo y cinco URLs externas.",
       "Revisar explícitamente en CONSTRAINTS.md e init.sh los conteos y selectores ligados a los siete .link-button, conservando comprobaciones de anclas reales, iconos decorativos, foco, reduced motion, contraste AA y tamaños táctiles ≥44×44.",
       "Ejecutar ./init.sh y casos negativos de ausencia/destino alterado; validar navegador 390×844 y 1280×800 con consola/red limpias, matriz de ocho anchos sin scroll horizontal y Lighthouse móvil Accessibility ≥95 sin fallos critical/serious.",
       "Verificar que los tonos lavanda→violeta, incluidas sus variantes de hover/foco, cumplen contraste AA y que Celular/Correo abren el destino esperado en un dispositivo real."
     ],
-    "evidence": [],
+    "evidence": [
+      "Implementado en worktree feature/redesign-contact-navigation (puerto 3602). index.html: nueva `<nav class=\"quick-actions\">` con dos controles circulares neutros ANTES de `<nav class=\"links\">` — Celular `<a href=\"tel:+51955116562\" aria-label=\"Celular: llamar al +51 955 116 562\">` y Correo `<a href=\"mailto:fahedhermoza@gmail.com\" aria-label=\"Correo a fahedhermoza@gmail.com\">`, iconos SVG decorativos (aria-hidden, focusable=false). `.links` queda con CINCO botones grandes en orden de rampa aceptado: Instagram (gradient-1), Facebook (gradient-2), WhatsApp (gradient-3), LinkedIn (gradient-3-4), Portafolio (gradient-4), con sus href canónicos intactos. Guardar contacto, pie y la cabecera ornamental de redesign-card-profile sin cambios; vCard (tel/mailto/5 URLs) intacta.",
+      "Verificación de gate (orquestador, recuperando el cierre tras stall del implementer): `bash -n init.sh` ok; `./init.sh` exit 0 con 123 `[ok]`, 0 `[warn]`/`[fail]`; `Accessibility checks:` y `Responsive checks:` presentes; no arranca servidor. init.sh/CONSTRAINTS.md actualizados al nuevo desglose de anclas (5 .link-button + 2 quick-action + 1 .save-contact-button + 2 .page-footer__link = 10 anclas; 10 SVG decorativos).",
+      "Navegador (Chrome vía CDP, recarga fresca, único servidor 127.0.0.1:3602) a 390×844 y 1280×800: 0 mensajes de consola, todas las peticiones 200, un solo `h1`; fila de dos círculos neutros (teléfono/correo) bajo la identidad y sobre los cinco botones grandes; sin overflow horizontal. Capturas tomadas para revisión del propietario. Validación independiente del validator y aprobación visual del propietario (móvil+escritorio) pendientes antes de `accepted`.",
+      "Aprobación visual del propietario (Fahed Hermoza, 2026-11-21): el orquestador github-flow sirvió la worktree en 3602 y capturó la nueva navegación a 390×844 y 1280×800 (0 mensajes de consola en ambos); el propietario revisó las capturas y respondió «Apruebo, publicar» para móvil y escritorio. Se resuelve la única condición externa de aceptación. Validator independiente: verdict técnico `accept`, sin defectos (Lighthouse móvil Accessibility 100; 8 mutaciones negativas exit 1; cabecera/Guardar contacto/pie/vCard byte-idénticos al base). Diseño aprobado: fila de dos Acciones rápidas como círculos neutros (Celular `tel:`, Correo `mailto:`) sobre cinco botones grandes (Instagram/Facebook/WhatsApp/LinkedIn/Portafolio) en la rampa lavanda→violeta."
+    ],
     "notes": "La fila rápida contiene solo Celular y Correo en esta etapa; QR y Compartir se añaden en features posteriores, sin controles inertes. El pie anterior aún puede repetir Correo hasta `redesign-footer-contact`; esa duplicación transitoria no se publica. Los 40×40 px del prototipo no cumplen el mínimo táctil acordado."
   },
   {
