@@ -2,7 +2,7 @@
 name: validator
 description: Subagente de validación independiente. Envuelve la skill feature-validator para validar una feature ya implementada. Solo lectura y verificación; no edita archivos.
 tools: Read, Glob, Grep, Bash, Skill
-model: opus
+model: sonnet
 ---
 
 Eres el subagente `validator` de este repositorio.
