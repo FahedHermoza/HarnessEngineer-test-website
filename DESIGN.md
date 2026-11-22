@@ -159,17 +159,19 @@ Minimalismo cálido y etéreo. Mucho aire, geometría refinada, autoridad tipogr
   5. `#9252c5`
   El texto y el icono de todos los botones van siempre en `#ffffff`.
 
-Con 7 Enlaces, la progresión se resuelve recorriendo los cinco tonos e insertando dos intermedios 50/50 en los saltos mayores (3→4 y 4→5), sin repetir tonos ni superar 14/255 por canal entre botones consecutivos:
+Tras `redesign-contact-navigation`, la pila de Enlaces son **cinco botones grandes** (Celular y Correo se movieron a la fila de Acciones rápidas, ver abajo). La progresión recorre la rampa desde `gradient-1` hasta `gradient-4`, insertando un intermedio 50/50 en el salto 3→4, sin repetir tonos ni superar 14/255 por canal entre botones consecutivos:
 
 1. Instagram — `gradient-1` `#5a67d1`
 2. Facebook — `gradient-2` `#645fcc`
 3. WhatsApp — `gradient-3` `#705aca`
 4. LinkedIn — intermedio `gradient-3`/`gradient-4` ≈ `#7858c9`
 5. Portafolio — `gradient-4` `#8055c8`
-6. Correo — intermedio `gradient-4`/`gradient-5` ≈ `#8954c6`
-7. Celular — `gradient-5` `#9252c5`
 
-Los intermedios se derivan con `color-mix` a partir de los tokens existentes (con fallback al tono inferior). No se añaden colores ni tokens. El botón "Guardar contacto" queda fuera de la rampa con tratamiento neutro (superficie `#f1f4fa` con texto `#484dc4`) para diferenciarse de los Enlaces externos.
+El intermedio se deriva con `color-mix` a partir de los tokens existentes (con fallback al tono inferior). No se añaden colores ni tokens. Los tokens `gradient-5` (`#9252c5`) y el intermedio `gradient-4`/`gradient-5` **se conservan en la paleta pero ya no se asignan a ningún botón grande** (eran Celular y Correo, hoy Acciones rápidas); su regla CSS queda disponible por si una feature posterior la reutiliza.
+
+- **Acciones rápidas (Celular, Correo):** fuera de la rampa de degradado. Botones **circulares neutros** (48×48, `rounded.full`), superficie `#f1f4fa` (`surface-container-low`) e icono en `#484dc4` (`primary`), con `aria-label` propio e icono SVG decorativo. Fila centrada entre la identidad y la pila de Enlaces. QR y Compartir se añaden a esta misma fila en features posteriores.
+
+El botón "Guardar contacto" queda fuera de la rampa con tratamiento neutro (superficie `#f1f4fa` con texto `#484dc4`) para diferenciarse de los Enlaces externos.
 
 ## Typography
 
