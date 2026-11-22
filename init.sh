@@ -182,6 +182,19 @@ fi
 
 echo "  [ok] DESIGN.md colors match styles.css tokens ($conf_ok/$conf_total)"
 
+# DESIGN.html is a generated, read-only mirror of DESIGN.md (scripts/build_design_html.py).
+# Any edit to DESIGN.md must regenerate it in the same commit; this gate fails otherwise.
+if [ ! -f "scripts/build_design_html.py" ]; then
+  fail "scripts/build_design_html.py is missing (DESIGN.html generator)"
+fi
+if ! python3 scripts/build_design_html.py --check >/tmp/design_html_check.$$ 2>&1; then
+  cat /tmp/design_html_check.$$ >&2
+  rm -f /tmp/design_html_check.$$
+  fail "DESIGN.html is out of sync with DESIGN.md (run: python3 scripts/build_design_html.py)"
+fi
+rm -f /tmp/design_html_check.$$
+echo "  [ok] DESIGN.html is in sync with DESIGN.md"
+
 echo "Component checks:"
 
 LINK_BUTTON_RULE=$(awk '
