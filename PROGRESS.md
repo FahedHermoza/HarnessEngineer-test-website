@@ -792,3 +792,22 @@
 - Publicación: commit único en `feature/redesign-card-profile`; push a `origin`; PR abierto contra `demo/seed` referenciando el issue #45. No se hizo merge.
 - Known risk: el icono de enlace externo es decorativo; cuando `redesign-share-action`/`redesign-qr-panel` lo conviertan en control real necesitará nombre accesible y manejo AA propios.
 - Next best step: tras revisar/mezclar el PR en GitHub, continuar con `redesign-contact-navigation` (depende de este slice aceptado).
+
+### Session 064 — redesign-contact-navigation (implementer + recuperación de cierre)
+
+- Date: 2026-11-21.
+- Goal: reestructurar la navegación: cinco botones grandes (Instagram, Facebook, WhatsApp, LinkedIn, Portafolio) y una fila de Acciones rápidas con Celular y Correo como círculos neutros, conservando destinos y vCard.
+- Decisión de diseño del propietario: Acciones rápidas = botones circulares neutros (gris claro, icono oscuro), fila entre la identidad y los enlaces. QR y Compartir quedan para features posteriores.
+- Completed: `index.html` con `<nav class="quick-actions">` (2 círculos: Celular `tel:` y Correo `mailto:`, con `aria-label` y SVG decorativo) antes de `<nav class="links">`; `.links` reducido a 5 botones grandes con href canónicos intactos. `styles.css`, `DESIGN.md`, `CONSTRAINTS.md` e `init.sh` actualizados al nuevo desglose de anclas (5 .link-button + 2 quick-action + 1 save-contact + 2 footer = 10; 10 SVG decorativos). Cabecera ornamental, Guardar contacto y pie actuales sin tocar (el pie se sustituye en `redesign-footer-contact`).
+- Nota de proceso: el subagente implementer se quedó sin stream (watchdog 600s) justo al actualizar `feature_list.json`; el orquestador recuperó el cierre: verificó el gate, registró evidencia y fijó `passing`. Falta la validación independiente del validator.
+- Verification run: `bash -n init.sh` ok; `./init.sh` exit 0, 123 `[ok]`, 0 `[warn]`/`[fail]`, sin servidor. Navegador 390×844 y 1280×800 (servidor 3602): 0 consola, red 200, un solo `h1`, 2 círculos + 5 botones grandes, sin overflow horizontal.
+- Final state: `redesign-contact-navigation` en `passing`; owner visual approval (móvil+escritorio) y verdict del validator pendientes; no se creó commit.
+- Next best step: ejecutar el validator independiente; luego entregar capturas 390×844/1280×800 al propietario para aprobación; si aprueba, marcar `accepted`, commit, push y PR contra demo/seed (sin merge).
+
+### Session 065 — redesign-contact-navigation (orquestador: aprobación + publicación)
+
+- Date: 2026-11-21.
+- Owner approval: capturas 390×844 y 1280×800 de la nueva navegación revisadas por el propietario (Fahed Hermoza) → «Apruebo, publicar» para móvil y escritorio. Resuelve la condición externa de aceptación tras el verdict técnico `accept` del validator.
+- State change: `feature_list.json` → `redesign-contact-navigation` pasa de `passing` a `accepted` con evidencia de aprobación fechada; `docs/validations/redesign-contact-navigation.md` → verdict `accept`/`accepted`.
+- Publicación: commit único en `feature/redesign-contact-navigation`; push a origin; PR contra `demo/seed` referenciando el issue #47. Sin merge.
+- Next best step: tras revisar/mezclar el PR, continuar con `redesign-footer-contact` (depende de este slice) o `redesign-qr-panel`/`redesign-share-action` (dependen de este slice).
