@@ -113,6 +113,53 @@
         white-space: pre-wrap;
         word-break: break-word;
       }
+      .design-doc__preview {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-sm);
+        margin: var(--space-md) 0 var(--space-xl);
+      }
+      .design-doc__preview iframe {
+        width: 420px;
+        max-width: 100%;
+        height: 860px;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        background: var(--color-background);
+      }
+      .design-doc__preview-caption {
+        font-size: var(--text-body-sm-font-size);
+        color: var(--color-on-surface-variant);
+        text-align: center;
+        max-width: 38rem;
+      }
+      .design-doc__swatches {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+        gap: var(--space-sm);
+        margin: var(--space-md) 0;
+      }
+      .design-doc__swatch {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        padding: var(--space-xs);
+      }
+      .design-doc__swatch-color {
+        display: block;
+        width: 2rem;
+        height: 2rem;
+        flex-shrink: 0;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--color-border);
+      }
+      .design-doc__swatch-label {
+        font-size: var(--text-body-sm-font-size);
+        line-height: 1.3;
+      }
     </style>
   </head>
   <body>
@@ -120,6 +167,18 @@
       <p class="design-doc__eyebrow">DESIGN.md — fuente de verdad</p>
       <h1>Serene Bio Card</h1>
       <p class="design-doc__description">Tarjeta digital de enlaces personales con estética minimalista cálida, tarjeta blanca flotante y botones en degradado lavanda→violeta.</p>
+      <h2>Vista previa en vivo</h2>
+      <p>Renderiza el <code>index.html</code> publicado en este mismo worktree/servidor. Puede
+        no reflejar aún las secciones de "Dirección del rediseño" todavía no implementadas.</p>
+      <div class="design-doc__preview">
+        <iframe src="index.html" title="Vista previa en vivo de la Tarjeta digital (index.html)" loading="lazy"></iframe>
+        <p class="design-doc__preview-caption">390px de ancho simulado · si se sirve este archivo
+          sin servidor (<code>file://</code>), el iframe puede no cargar por restricciones del
+          navegador; usa <code>python3 -m http.server</code> para verlo en vivo.</p>
+      </div>
+<h2>Paleta de color (preview)</h2>
+<p>Swatches generados directamente de <code>colors:</code> en el frontmatter de <code>DESIGN.md</code>; ningún valor está inventado aquí.</p>
+<div class="design-doc__swatches"><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#f7f9ff"></span><span class="design-doc__swatch-label"><code>background</code><br>#f7f9ff</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#ffffff"></span><span class="design-doc__swatch-label"><code>surface</code><br>#ffffff</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#f1f4fa"></span><span class="design-doc__swatch-label"><code>surface-container-low</code><br>#f1f4fa</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#ebeef2"></span><span class="design-doc__swatch-label"><code>border</code><br>#ebeef2</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#2d3139"></span><span class="design-doc__swatch-label"><code>on-surface</code><br>#2d3139</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#6b7280"></span><span class="design-doc__swatch-label"><code>on-surface-variant</code><br>#6b7280</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#767685"></span><span class="design-doc__swatch-label"><code>outline</code><br>#767685</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#484dc4"></span><span class="design-doc__swatch-label"><code>primary</code><br>#484dc4</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#ffffff"></span><span class="design-doc__swatch-label"><code>on-primary</code><br>#ffffff</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#585ce5"></span><span class="design-doc__swatch-label"><code>accent</code><br>#585ce5</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#5c68d4"></span><span class="design-doc__swatch-label"><code>gradient-1</code><br>#5c68d4</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#6a64d8"></span><span class="design-doc__swatch-label"><code>gradient-2</code><br>#6a64d8</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#765fd4"></span><span class="design-doc__swatch-label"><code>gradient-3</code><br>#765fd4</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#8659d1"></span><span class="design-doc__swatch-label"><code>gradient-4</code><br>#8659d1</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#9654c9"></span><span class="design-doc__swatch-label"><code>gradient-5</code><br>#9654c9</span></div><div class="design-doc__swatch"><span class="design-doc__swatch-color" aria-hidden="true" style="background:#ba1a1a"></span><span class="design-doc__swatch-label"><code>error</code><br>#ba1a1a</span></div></div>
       <h2>Metadata (frontmatter)</h2>
       <div class="design-doc__frontmatter"><pre>name: Serene Bio Card
 description: Tarjeta digital de enlaces personales con estética minimalista cálida, tarjeta blanca flotante y botones en degradado lavanda→violeta.
