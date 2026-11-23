@@ -103,6 +103,27 @@
 - **Excepción WCAG 2.5.8 documentada:** el único enlace inline del pie («escríbeme directamente» → WhatsApp canónico `https://wa.me/51955116562`) es más bajo que 44px; queda cubierto por la excepción de enlaces dentro de una frase. El pie ya no repite correo (vive en Acciones rápidas) ni el Handle de Instagram (vive en los Enlaces grandes). Reevaluar si cambia el pie.
 - **Resuelto — Pie rediseñado (2026-11-22, `redesign-footer-contact`):** el pie pasa de «correo · Handle» a una invitación («¿Tienes un proyecto en mente?...») con «escríbeme directamente» enlazando al WhatsApp canónico, conserva el separador `·` y cierra con «Tarjeta NFC & QR» como texto descriptivo (sin iconos, sin control interactivo). Guardar contacto conserva su contrato estático (`href`/`download` a `assets/fahedhermoza.vcf`, sin Blob/script). Anclas totales 10→9 (5 Enlaces + 2 Acciones rápidas + 1 Guardar contacto + 1 enlace de pie); el conteo de SVG decorativos no cambia (10, texto solo sin iconos NFC/QR). Pendiente: aprobación visual del propietario (móvil + escritorio).
 - **Resuelto — Ajuste post-passing del pie (2026-11-22, `redesign-footer-contact`):** sobre el pie anterior, el propietario aprobó (vía `DESIGN.md` líneas 522-537) 3 ajustes de estructura, ya implementados: (1) `.page-footer__link` pasa a negrita (`font-weight: var(--text-button-label-font-weight)`) y sin subrayado (`text-decoration: none`), conservando `--color-accent` y su `:focus-visible`; (2) el separador `·` (`.page-footer__separator`) se retira por completo del `<footer>` y «Tarjeta NFC & QR» pasa a su propia línea/bloque (`.page-footer__nfc`) debajo del párrafo de invitación; (3) se añade un nuevo `<svg class="page-footer__nfc-icon">` decorativo (outline tipo tarjeta/chip NFC, `aria-hidden="true"`/`focusable="false"`/`stroke="currentColor"`/`stroke-width="2"`) a la izquierda de ese texto. El conteo de SVG decorativos pasa de 10 a 11; el conteo de anclas reales no cambia (9). La aprobación visual final completa (móvil + escritorio) de la feature sigue pendiente; la feature permanece `passing`, no `accepted`.
+- **Resuelto (técnicamente) — Vista QR (2026-11-22/23, `redesign-qr-panel`):** tercera Acción
+  rápida QR (`<a class="quick-action" href="assets/qr.png" data-qr-trigger>`) que abre un
+  `<dialog class="qr-panel">` con QR, Cerrar, Copiar Enlace y Guardar PNG; JavaScript mínimo
+  (`scripts.js`, solo `addEventListener`) con degradación sin JS al PNG estático.
+  `CANONICAL_URL` en `scripts.js` es byte-idéntica a `PRODUCTION_URL`. Decisión de diseño del
+  scrim: `::backdrop` usa un literal `rgba(45, 49, 57, 0.5)` derivado de `--color-on-surface`
+  (mismo patrón que las sombras existentes), **sin** token de color nuevo, para no romper
+  `Design conformance checks:`. Anclas 9→11 (+1 `.quick-action` QR, +1 `.qr-panel__save`);
+  SVG decorativos 11→12 (+1 icono QR del trigger; el `<img>` del QR no cuenta). Se añadió la
+  única relajación explícita de "todo control es `<a>`": los 2 `<button type="button">`
+  in-page del cuadro (Cerrar, Copiar), con `role="button"`/`href="#"`/manejadores inline
+  siempre prohibidos. Verificación real en navegador completada en una sesión posterior
+  (chrome-devtools MCP): consola/red limpias, apertura/cierre por ratón/teclado/Escape/backdrop
+  con retorno de foco, Copiar Enlace con confirmación anunciada, 8 anchos sin scroll horizontal,
+  Lighthouse móvil Accessibility 100/100; esa misma sesión encontró y corrigió dos bugs de CSS
+  (solape visual título/botón Cerrar; animación de apertura no anulada bajo reduced-motion por
+  orden de cascada). Validación técnica independiente también completada (`accept` técnico).
+  **Resuelto (2026-11-23):** (1) escaneo real del QR en un teléfono físico confirmado por el
+  propietario, resuelve exactamente `https://fahed-hermoza-card.fahedhermoza.workers.dev/`;
+  (2) aprobación visual fechada del propietario en móvil y escritorio, panel cerrado y abierto,
+  con capturas registradas en `docs/validations/redesign-qr-panel.md`. Feature `accepted`.
 - **Lighthouse móvil es manual:** el gate `./init.sh` no ejecuta Lighthouse. Repetir la auditoría de accesibilidad en `http://localhost:3601` (móvil, puerto aislado de esta worktree) tras cambios de color, foco o estructura; objetivo ≥95 sin fallos `critical`/`serious`.
 - **Prueba responsive runtime-only:** "sin scroll horizontal" no se demuestra solo con grep. `Responsive checks:` fija los invariantes de CSS, pero la prueba real es la matriz de ocho anchos en el navegador con recarga fresca; repetirla tras cualquier cambio de layout, tipografía, tarjeta, botones o pie. No existe harness E2E persistente y añadirlo introduciría dependencias prohibidas por `docs/technical-discovery.md`.
 - **Octavo botón integrado:** `save-contact-vcard` añadió un botón de ancho completo y 48px. Tras el rebase de `responsive-baseline` sobre `demo/seed` se repitió la matriz (320, 390, 768 y 1280): los ocho botones miden 48px, no hay etiquetas truncadas ni scroll horizontal; a 320 el pie sigue ocupando dos líneas sin recorte. Repetir la matriz completa si cambia el layout.
