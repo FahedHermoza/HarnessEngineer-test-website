@@ -10,8 +10,10 @@ Este repositorio contiene la **Tarjeta digital** de Fahed Hermoza: una página e
 - `docs/domain-model.md` — entidades, relaciones, escenarios y edge cases.
 - `docs/risks-and-open-questions.md` — riesgos, supuestos y preguntas abiertas.
 - `DESIGN.md` — sistema visual "Serene Bio Card": tokens de color, tipografía, layout y componentes (fuente de verdad de diseño).
-- `DESIGN.html` — espejo HTML generado de `DESIGN.md` (`scripts/build_design_html.py`), solo para lectura visual; no es una fuente de verdad distinta.
 - `docs/technical-discovery.md` — stack, datos, integraciones, despliegue y verificación.
+- `visual/` — espejos HTML generados, de **solo lectura visual**; ninguno es fuente de verdad distinta:
+  - `visual/DESIGN.html` — espejo de `DESIGN.md` (`scripts/build_design_html.py`): preview en vivo + paleta.
+  - `visual/harness-status.html` — espejo de `feature_list.json` (`scripts/build_status_html.py`): avance, conteo por estado y readiness/bloqueo por dependencias.
 
 ## Startup Workflow
 
@@ -33,7 +35,8 @@ Antes de escribir código:
 - No introducir frameworks, bundlers ni dependencias nuevas sin justificarlo (ver `docs/technical-discovery.md`).
 - Mantener la base de accesibilidad AA de `CONSTRAINTS.md` y el gate `Accessibility checks:` de `./init.sh`; no debilitar sus checks, tokens de contraste, foco, `aria-hidden`, `alt`, idioma ni reduced motion.
 - `DESIGN.md` es la **fuente de verdad del diseño** y es **de solo lectura para quien implementa**: el código se ajusta a `DESIGN.md`, nunca al revés. No edites `DESIGN.md` para que calce con lo que codeaste. Si la implementación necesita diferir del diseño (nuevo valor, cambio de layout, tono, geometría), **detente y plantea una decisión de diseño** al propietario/planner *antes* de codear; el cambio se refleja primero en `DESIGN.md` (con aprobación) y luego se implementa. El gate `Design conformance checks:` de `./init.sh` falla si los colores declarados en `DESIGN.md` no coinciden con los tokens de `styles.css`.
-- Toda edición a `DESIGN.md` debe regenerar `DESIGN.html` en el mismo commit ejecutando `python3 scripts/build_design_html.py`; el gate `Design conformance checks:` de `./init.sh` falla si quedan desincronizados. `DESIGN.html` es solo un espejo de lectura (generado); no se edita a mano ni es una fuente de verdad alternativa.
+- Toda edición a `DESIGN.md` debe regenerar `visual/DESIGN.html` en el mismo commit ejecutando `python3 scripts/build_design_html.py`; el gate `Design conformance checks:` de `./init.sh` falla si quedan desincronizados. `visual/DESIGN.html` es solo un espejo de lectura (generado); no se edita a mano ni es una fuente de verdad alternativa.
+- Toda edición a `feature_list.json` debe regenerar `visual/harness-status.html` en el mismo commit ejecutando `python3 scripts/build_status_html.py`; el mismo gate de `./init.sh` falla si quedan desincronizados. `visual/harness-status.html` es solo un espejo de lectura (generado); no se edita a mano ni es una fuente de verdad alternativa.
 - Toda feature con UI se valida también en navegador, en móvil (390×844) y escritorio (1280×800), sin errores de consola ni peticiones fallidas, antes de aceptarla.
 
 ## Required Artifacts

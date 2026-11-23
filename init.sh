@@ -182,18 +182,32 @@ fi
 
 echo "  [ok] DESIGN.md colors match styles.css tokens ($conf_ok/$conf_total)"
 
-# DESIGN.html is a generated, read-only mirror of DESIGN.md (scripts/build_design_html.py).
+# visual/DESIGN.html is a generated, read-only mirror of DESIGN.md (scripts/build_design_html.py).
 # Any edit to DESIGN.md must regenerate it in the same commit; this gate fails otherwise.
 if [ ! -f "scripts/build_design_html.py" ]; then
-  fail "scripts/build_design_html.py is missing (DESIGN.html generator)"
+  fail "scripts/build_design_html.py is missing (visual/DESIGN.html generator)"
 fi
 if ! python3 scripts/build_design_html.py --check >/tmp/design_html_check.$$ 2>&1; then
   cat /tmp/design_html_check.$$ >&2
   rm -f /tmp/design_html_check.$$
-  fail "DESIGN.html is out of sync with DESIGN.md (run: python3 scripts/build_design_html.py)"
+  fail "visual/DESIGN.html is out of sync with DESIGN.md (run: python3 scripts/build_design_html.py)"
 fi
 rm -f /tmp/design_html_check.$$
-echo "  [ok] DESIGN.html is in sync with DESIGN.md"
+echo "  [ok] visual/DESIGN.html is in sync with DESIGN.md"
+
+# visual/harness-status.html is a generated, read-only mirror of feature_list.json
+# (scripts/build_status_html.py). Any edit to feature_list.json must regenerate it in the
+# same commit; this gate fails otherwise.
+if [ ! -f "scripts/build_status_html.py" ]; then
+  fail "scripts/build_status_html.py is missing (visual/harness-status.html generator)"
+fi
+if ! python3 scripts/build_status_html.py --check >/tmp/status_html_check.$$ 2>&1; then
+  cat /tmp/status_html_check.$$ >&2
+  rm -f /tmp/status_html_check.$$
+  fail "visual/harness-status.html is out of sync with feature_list.json (run: python3 scripts/build_status_html.py)"
+fi
+rm -f /tmp/status_html_check.$$
+echo "  [ok] visual/harness-status.html is in sync with feature_list.json"
 
 echo "Component checks:"
 

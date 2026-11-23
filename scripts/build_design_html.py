@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Generate DESIGN.html from DESIGN.md (durable mirror; see AGENTS.md).
+"""Generate visual/DESIGN.html from DESIGN.md (durable mirror; see AGENTS.md).
 
 Shows only a live preview (iframe of index.html) and a color palette
 generated from DESIGN.md's frontmatter `colors:` block. The rest of
 DESIGN.md's content lives in DESIGN.md itself; this page does not duplicate it.
 
 Usage:
-  python3 scripts/build_design_html.py          # (re)writes DESIGN.html
-  python3 scripts/build_design_html.py --check  # exit 1 if DESIGN.html is stale
+  python3 scripts/build_design_html.py          # (re)writes visual/DESIGN.html
+  python3 scripts/build_design_html.py --check  # exit 1 if visual/DESIGN.html is stale
 """
 import html
 import re
@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DESIGN_MD = ROOT / "DESIGN.md"
-DESIGN_HTML = ROOT / "DESIGN.html"
+DESIGN_HTML = ROOT / "visual" / "DESIGN.html"
 
 
 def split_frontmatter(text):
@@ -69,7 +69,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../styles.css">
     <style>
       body {{
         background: var(--color-background);
@@ -176,7 +176,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
       <p>Renderiza el <code>index.html</code> publicado en este mismo worktree/servidor. Puede
         no reflejar aún las secciones de "Dirección del rediseño" todavía no implementadas.</p>
       <div class="design-doc__preview">
-        <iframe src="index.html" title="Vista previa en vivo de la Tarjeta digital (index.html)" loading="lazy"></iframe>
+        <iframe src="../index.html" title="Vista previa en vivo de la Tarjeta digital (index.html)" loading="lazy"></iframe>
         <p class="design-doc__preview-caption">390px de ancho simulado · si se sirve este archivo
           sin servidor (<code>file://</code>), el iframe puede no cargar por restricciones del
           navegador; usa <code>python3 -m http.server</code> para verlo en vivo.</p>
@@ -210,11 +210,12 @@ def main():
     if "--check" in sys.argv[1:]:
         current = DESIGN_HTML.read_text(encoding="utf-8") if DESIGN_HTML.exists() else None
         if current != generated:
-            print("FAILED - DESIGN.html is stale relative to DESIGN.md; "
+            print("FAILED - visual/DESIGN.html is stale relative to DESIGN.md; "
                   "run: python3 scripts/build_design_html.py", file=sys.stderr)
             sys.exit(1)
-        print("[ok] DESIGN.html matches DESIGN.md")
+        print("[ok] visual/DESIGN.html matches DESIGN.md")
         return
+    DESIGN_HTML.parent.mkdir(parents=True, exist_ok=True)
     DESIGN_HTML.write_text(generated, encoding="utf-8")
     print(f"wrote {DESIGN_HTML}")
 
