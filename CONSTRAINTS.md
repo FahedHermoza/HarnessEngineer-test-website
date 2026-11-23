@@ -25,17 +25,30 @@ These rules are durable: every future change to the Tarjeta digital must preserv
 `./init.sh` enforces the technically checkable subset; do not remove, weaken or reorder
 its `Accessibility checks:`.
 
-- **MUST** keep every control a real `<a>` with a non-empty `href`: exactly 9 anchors
-  today (5 `.link-button` + 2 `.quick-action` + 1 `.save-contact-button` +
-  1 `.page-footer__link`). The two `.quick-action` controls are the icon-only Celular
-  (`href="tel:+51955116562"`) and Correo (`href="mailto:fahedhermoza@gmail.com"`) in the
-  `.quick-actions` row; each gets its accessible name from `aria-label`, not visible text.
+- **MUST** keep every control a real `<a>` with a non-empty `href`, with exactly one
+  explicit exception (below) for the two in-page QR panel buttons: exactly 11 anchors
+  today (5 `.link-button` + 3 `.quick-action` + 1 `.save-contact-button` +
+  1 `.page-footer__link` + 1 `.qr-panel__save`). The three `.quick-action` controls are
+  the icon-only Celular (`href="tel:+51955116562"`), Correo
+  (`href="mailto:fahedhermoza@gmail.com"`) and QR (`href="assets/qr.png"`, the no-JS
+  fallback to the static PNG) in the `.quick-actions` row; each gets its accessible name
+  from `aria-label`, not visible text. `.qr-panel__save` ("Guardar PNG") is a real anchor
+  with `href="assets/qr.png"` and `download="fahed-hermoza-card-qr.png"`.
+- **MUST** allow exactly 2 non-anchor controls, and no more: `<button type="button"
+  class="qr-panel__close">` and `<button type="button" class="qr-panel__copy">`, both
+  in-page actions inside the `<dialog class="qr-panel">` (close the dialog; copy the
+  canonical URL to the clipboard) that have no meaningful `href` to navigate to. This is
+  the one explicit, scoped relaxation of the "every control is an `<a>`" rule; it does
+  **not** extend to any other control, and every other interactive element MUST stay a
+  real `<a>`.
 - **MUST NOT** use `role="button"`, inline `onclick`/`onkeydown`/`onkeypress`,
-  `href="#"` or `href=""` for controls.
+  `href="#"` or `href=""` for controls — including the two `.qr-panel` buttons above.
 - **MUST** keep a visible keyboard focus on every control:
   `outline: 2px solid var(--color-accent);` and `outline-offset: 2px;` on
   `.link-button:focus-visible`, `.quick-action:focus-visible`,
-  `.save-contact-button:focus-visible` and `.page-footer__link:focus-visible`.
+  `.save-contact-button:focus-visible`, `.page-footer__link:focus-visible` and
+  `.qr-panel__close:focus-visible` / `.qr-panel__copy:focus-visible` /
+  `.qr-panel__save:focus-visible`.
 - **MUST NOT** declare `outline: none` or `outline: 0` in `styles.css`.
 - **MUST** keep text and icon contrast at or above 4.5:1, including the hover/focus
   `filter: brightness(1.03)` state. Current pinned values:
@@ -52,27 +65,56 @@ its `Accessibility checks:`.
   (same 6.082:1 rest / 6.456:1 hover ratios, already covered by the 15/15 contrast gate);
   they are NOT gradient chips. Do not give them white-on-gradient tones or new colors.
 - **MUST** keep every decorative `<svg>` with both `aria-hidden="true"` and
-  `focusable="false"`: exactly 11 decorative SVG icons today (5 Enlaces + 2 quick-action
-  icons + the save contact icon + 2 header icons: NFC label and open + 1 footer NFC/QR
-  closing icon).
+  `focusable="false"`: exactly 12 decorative SVG icons today (5 Enlaces + 3 quick-action
+  icons (Celular, Correo, QR) + the save contact icon + 2 header icons: NFC label and
+  open + 1 footer NFC/QR closing icon). The `<img class="qr-panel__code">` inside the QR
+  panel is content, not decoration, and does not count toward this total.
+- **MUST** keep the static QR asset `assets/qr.png`: a real PNG (magic bytes
+  `\x89PNG\r\n\x1a\n`), non-empty, pre-generated **offline** (no runtime/client-side QR
+  generation, no QR library shipped to the browser) and committed as a binary like
+  `assets/og-image.jpg`/`assets/avatar.jpg`. It encodes the exact canonical production
+  URL (byte-identical to `PRODUCTION_URL`); confirm with a real-device scan before
+  calling the feature accepted — `./init.sh` cannot decode PNG content, only its
+  existence/format.
 - **MUST** keep the Contacto vCard as the static `assets/fahedhermoza.vcf`: UTF-8
   without BOM, CRLF line endings (including the final `END:VCARD`), VCARD 3.0 with the
   canonical name, title, phone, email and five external URLs, at most 4096 bytes.
   The save contact control MUST stay a real anchor with
   `href="assets/fahedhermoza.vcf"` and `download="fahedhermoza.vcf"`; do not replace it
-  with `data:text/vcard`, Blob, a `<script>` or an inline handler.
+  with `data:text/vcard`, Blob, a `<script>` or an inline handler. This still applies
+  only to the save-contact control itself: the QR panel's own `<script>` (below) is a
+  separate, explicitly allowed exception and must not be grepped against as if it were
+  a vCard violation (scope any such check to the save-contact block, not the whole
+  document).
 - **MUST** keep the avatar `alt` descriptive and non-empty.
 - **MUST** keep `<html lang="es">` and mark the English Tagline with `lang="en"`
   (WCAG 3.1.2, Language of Parts).
 - **MUST** keep the viewport zoomable: no `user-scalable=no` and no `maximum-scale`.
 - **MUST** keep `@media (prefers-reduced-motion: reduce)` disabling `transition` and
-  `transform` for `.link-button`, `.save-contact-button` and `.quick-action`; do not add
-  other animations.
+  `transform` for `.link-button`, `.save-contact-button`, `.quick-action` and
+  `.qr-panel__close`/`.qr-panel__copy`/`.qr-panel__save`, plus `animation: none;` for the
+  `<dialog class="qr-panel">` open animation; do not add other animations.
 - **MUST** keep each `.quick-action` circle a tap target of at least 44×44 (diameter
   `width`/`height` >= 44px; currently 48×48) at every audited width; it is an icon-only
   control and the 44×44 target applies (it is not covered by the inline-link exception).
+  `.qr-panel__close` is the same fixed 44×44 circle. `.qr-panel__copy`/`.qr-panel__save`
+  share a flexible row (`flex: 1 1 0%`, `height: 48px`) inside a dialog capped at
+  `min(320px, calc(100vw - 2rem))`; their height is statically asserted, their rendered
+  width (always well above 44px for a two-button row) is verified in the browser.
 - **MUST NOT** add JavaScript, frameworks, bundlers, dependencies or generated assets
-  to satisfy accessibility rules (see `docs/technical-discovery.md`).
+  to satisfy accessibility rules (see `docs/technical-discovery.md`), **except** the one
+  explicitly scoped exception below for the QR panel interaction.
+- **MUST** keep the QR panel's JavaScript minimal, dependency-free and scoped only to
+  opening/closing the `<dialog class="qr-panel">` and copying the canonical URL to the
+  clipboard: a single `<script>` (inline or `scripts.js`) using only `addEventListener`
+  (no inline `onclick`/`onkeydown`/`onkeypress`, no `.onclick =`-style assignment, no
+  third-party/CDN script `src`). It MUST declare a `CANONICAL_URL` constant
+  byte-identical to `PRODUCTION_URL`, and MUST NOT be used as a crutch for base
+  accessibility (focus order, labeling, contrast) that HTML/CSS already provide.
+- **MUST** keep a no-JS degradation path for the QR action: without JavaScript (or
+  without `HTMLDialogElement`/`showModal` support), the QR quick action and
+  `.qr-panel__save` stay real anchors to the static `assets/qr.png`; they must never
+  become inert controls.
 
 The one inline footer link (WhatsApp) is shorter than 44px; it stays covered by the
 WCAG 2.5.8 inline/link-in-text exception. Re-evaluate that exception if the footer

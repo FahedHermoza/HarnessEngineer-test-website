@@ -1194,6 +1194,208 @@ fi
 
 echo "  [ok] Correo quick action contract ($correo_present/$correo_total)"
 
+echo "Quick action QR checks:"
+
+LINK_QR_ANCHOR=$(awk '
+  /<a[^>]*href="assets\/qr\.png"[^>]*data-qr-trigger/ { in_anchor = 1 }
+  in_anchor { print }
+  in_anchor && /<\/a>/ { exit }
+' index.html)
+
+if [ -z "$LINK_QR_ANCHOR" ]; then
+  fail "index.html is missing the QR quick action anchor"
+fi
+
+LINK_QR_CONTRACT=(
+  'class="quick-action"'
+  'href="assets/qr.png"'
+  'aria-label="Mostrar Código QR de la Tarjeta"'
+  'data-qr-trigger'
+  'class="quick-action__icon"'
+  'aria-hidden="true"'
+  'focusable="false"'
+)
+
+qr_action_total=${#LINK_QR_CONTRACT[@]}
+qr_action_present=0
+qr_action_missing=0
+for entry in "${LINK_QR_CONTRACT[@]}"; do
+  case "$LINK_QR_ANCHOR" in
+    *"$entry"*)
+      qr_action_present=$((qr_action_present + 1))
+      ;;
+    *)
+      echo "FAILED - QR quick action anchor missing: $entry" >&2
+      qr_action_missing=$((qr_action_missing + 1))
+      ;;
+  esac
+done
+
+if [ "$qr_action_missing" -gt 0 ]; then
+  echo "Harness status: FAILED - QR quick action contract is missing $qr_action_missing of $qr_action_total required items" >&2
+  exit 1
+fi
+
+echo "  [ok] QR quick action contract ($qr_action_present/$qr_action_total)"
+
+# The QR quick action must be the third control of .quick-actions, after Celular and Correo.
+# Structural check: extract every <a class="quick-action"> opening tag inside the block, in
+# document order, and confirm the LAST one carries data-qr-trigger. This does not depend on
+# how many lines the icon's inline SVG occupies (a naive tail -N heuristic breaks as soon as
+# the icon markup grows, e.g. a multi-shape QR glyph pushes data-qr-trigger out of the window).
+QUICK_ACTIONS_BLOCK=$(awk '
+  /<nav class="quick-actions"/ { in_block = 1 }
+  in_block { print }
+  in_block && /<\/nav>/ { exit }
+' index.html)
+
+if [ -z "$QUICK_ACTIONS_BLOCK" ]; then
+  fail "index.html is missing the .quick-actions block"
+fi
+
+QUICK_ACTION_ANCHOR_TAGS=$(printf '%s\n' "$QUICK_ACTIONS_BLOCK" | grep -oE '<a[[:space:]][^>]*class="quick-action"[^>]*>' || true)
+quick_action_anchor_order_count=$(printf '%s\n' "$QUICK_ACTION_ANCHOR_TAGS" | grep -cE '<a[[:space:]]' || true)
+QUICK_ACTION_LAST_ANCHOR=$(printf '%s\n' "$QUICK_ACTION_ANCHOR_TAGS" | tail -n 1)
+
+if [ "$quick_action_anchor_order_count" -ne 3 ] || ! printf '%s\n' "$QUICK_ACTION_LAST_ANCHOR" | grep -qF 'data-qr-trigger'; then
+  fail "the QR quick action must be the third (last) control inside .quick-actions, after Celular and Correo"
+fi
+echo "  [ok] QR quick action is the third control of .quick-actions (structural anchor order, not line count)"
+
+echo "QR panel dialog checks:"
+
+QR_PANEL_BLOCK=$(awk '
+  /<dialog class="qr-panel"/ { in_block = 1 }
+  in_block { print }
+  in_block && /<\/dialog>/ { exit }
+' index.html)
+
+if [ -z "$QR_PANEL_BLOCK" ]; then
+  fail 'index.html is missing the <dialog class="qr-panel"> element'
+fi
+
+if ! printf '%s\n' "$QR_PANEL_BLOCK" | head -n 1 | grep -qF 'aria-labelledby="qr-panel-title"'; then
+  fail '<dialog class="qr-panel"> must declare aria-labelledby="qr-panel-title"'
+fi
+
+if ! printf '%s\n' "$QR_PANEL_BLOCK" | grep -qE 'id="qr-panel-title"'; then
+  fail 'the .qr-panel dialog is missing its labelled title element (id="qr-panel-title")'
+fi
+
+QR_CODE_IMG=$(printf '%s\n' "$QR_PANEL_BLOCK" | awk '
+  /<img/ { in_img = 1 }
+  in_img { print }
+  in_img && />/ { exit }
+')
+if [ -z "$QR_CODE_IMG" ] \
+  || ! printf '%s\n' "$QR_CODE_IMG" | grep -qF 'class="qr-panel__code"' \
+  || ! printf '%s\n' "$QR_CODE_IMG" | grep -qF 'src="assets/qr.png"' \
+  || ! printf '%s\n' "$QR_CODE_IMG" | grep -qE 'alt="[^"]+"'; then
+  fail 'the .qr-panel dialog must contain <img class="qr-panel__code" src="assets/qr.png" alt="..."> with a non-empty alt'
+fi
+
+if ! printf '%s\n' "$QR_PANEL_BLOCK" | grep -qE '<button[^>]*type="button"[^>]*class="qr-panel__close"'; then
+  fail 'the .qr-panel dialog must contain <button type="button" class="qr-panel__close">'
+fi
+
+if ! printf '%s\n' "$QR_PANEL_BLOCK" | grep -qF 'aria-label="Cerrar"'; then
+  fail 'the .qr-panel__close button must declare aria-label="Cerrar"'
+fi
+
+if ! printf '%s\n' "$QR_PANEL_BLOCK" | grep -qE '<button[^>]*type="button"[^>]*class="qr-panel__copy"'; then
+  fail 'the .qr-panel dialog must contain <button type="button" class="qr-panel__copy">'
+fi
+
+if ! printf '%s\n' "$QR_PANEL_BLOCK" | grep -qE '<a[^>]*class="qr-panel__save"[^>]*href="assets/qr\.png"[^>]*download="fahed-hermoza-card-qr\.png"'; then
+  fail 'the .qr-panel dialog must contain <a class="qr-panel__save" href="assets/qr.png" download="fahed-hermoza-card-qr.png">'
+fi
+
+if ! printf '%s\n' "$QR_PANEL_BLOCK" | grep -qF 'aria-live="polite"'; then
+  fail 'the .qr-panel dialog must contain a status element with aria-live="polite" for the copy confirmation'
+fi
+
+echo "  [ok] qr-panel dialog markup (title, QR image, close, copy, save, aria-live status)"
+
+echo "QR asset checks:"
+
+if [ ! -f "assets/qr.png" ]; then
+  fail "assets/qr.png is missing (required static PNG QR code asset)"
+fi
+
+qr_png_size=$(wc -c < "assets/qr.png" | tr -d '[:space:]')
+if [ "$qr_png_size" -eq 0 ]; then
+  fail "assets/qr.png is empty"
+fi
+
+qr_png_magic=$(od -An -tx1 -N 8 "assets/qr.png" | tr -d ' \n')
+if [ "$qr_png_magic" != "89504e470d0a1a0a" ]; then
+  fail "assets/qr.png is not a real PNG (magic bytes must be 89 50 4e 47 0d 0a 1a 0a, found $qr_png_magic)"
+fi
+
+if command -v file >/dev/null 2>&1; then
+  qr_png_info=$(file -b "assets/qr.png")
+  if ! printf '%s\n' "$qr_png_info" | grep -qE 'PNG image data'; then
+    fail "assets/qr.png is not reported as PNG image data (file reported: $qr_png_info)"
+  fi
+fi
+
+echo "  [ok] assets/qr.png exists, is non-empty and is a real PNG ($qr_png_size bytes)"
+
+echo "QR panel script checks:"
+
+if [ ! -f "scripts.js" ]; then
+  fail "scripts.js is missing (required minimal JS for the QR panel interaction)"
+fi
+
+if ! grep -qF '<script src="scripts.js" defer></script>' index.html; then
+  fail 'index.html must load the QR panel script via <script src="scripts.js" defer></script>'
+fi
+
+QR_SCRIPT_CANONICAL_LINE=$(grep -E 'CANONICAL_URL[[:space:]]*=' scripts.js | head -n 1 || true)
+if [ -z "$QR_SCRIPT_CANONICAL_LINE" ]; then
+  fail "scripts.js is missing a CANONICAL_URL constant"
+fi
+
+# Pure bash parameter-expansion extraction (no sed/awk hex-escape regex, which BSD sed
+# does not interpret the same way as GNU sed and silently corrupts the extracted value).
+QR_SCRIPT_CANONICAL_VALUE=${QR_SCRIPT_CANONICAL_LINE#*=}
+QR_SCRIPT_CANONICAL_VALUE=${QR_SCRIPT_CANONICAL_VALUE%%;*}
+while [ "${QR_SCRIPT_CANONICAL_VALUE# }" != "$QR_SCRIPT_CANONICAL_VALUE" ]; do
+  QR_SCRIPT_CANONICAL_VALUE=${QR_SCRIPT_CANONICAL_VALUE# }
+done
+while [ "${QR_SCRIPT_CANONICAL_VALUE% }" != "$QR_SCRIPT_CANONICAL_VALUE" ]; do
+  QR_SCRIPT_CANONICAL_VALUE=${QR_SCRIPT_CANONICAL_VALUE% }
+done
+case "$QR_SCRIPT_CANONICAL_VALUE" in
+  \"*\")
+    QR_SCRIPT_CANONICAL_VALUE=${QR_SCRIPT_CANONICAL_VALUE#\"}
+    QR_SCRIPT_CANONICAL_VALUE=${QR_SCRIPT_CANONICAL_VALUE%\"}
+    ;;
+  \'*\')
+    QR_SCRIPT_CANONICAL_VALUE=${QR_SCRIPT_CANONICAL_VALUE#\'}
+    QR_SCRIPT_CANONICAL_VALUE=${QR_SCRIPT_CANONICAL_VALUE%\'}
+    ;;
+esac
+
+if [ "$QR_SCRIPT_CANONICAL_VALUE" != "$PRODUCTION_URL" ]; then
+  fail "scripts.js CANONICAL_URL ($QR_SCRIPT_CANONICAL_VALUE) must be byte-identical to PRODUCTION_URL ($PRODUCTION_URL)"
+fi
+echo "  [ok] scripts.js CANONICAL_URL matches PRODUCTION_URL byte-for-byte"
+
+if ! grep -qF 'addEventListener' scripts.js; then
+  fail "scripts.js must use addEventListener for the QR panel interaction"
+fi
+
+if grep -qE '\.on(click|keydown|keypress)[[:space:]]*=' scripts.js; then
+  fail "scripts.js must use addEventListener, not .onclick/.onkeydown/.onkeypress assignment"
+fi
+
+if grep -qE '<script[^>]*src="https?://' index.html; then
+  fail "index.html must not load third-party script dependencies (QR generation must stay offline/static)"
+fi
+
+echo "  [ok] minimal addEventListener-only script with no third-party dependencies"
+
 echo "Sharing metadata checks:"
 
 SHARING_METADATA_CONTRACT=(
@@ -1688,7 +1890,7 @@ if [ "$block_anchor_total" -ne 1 ]; then
   fail "index.html .save-contact block must contain exactly one anchor (found $block_anchor_total)"
 fi
 
-if grep -qE 'data:text/vcard|<script|new Blob' index.html styles.css; then
+if printf '%s\n' "$SAVE_CONTACT_BLOCK" | grep -qE 'data:text/vcard|<script|new Blob'; then
   fail "the save contact control must not use data:text/vcard, <script> or Blob"
 fi
 echo "  [ok] save contact markup, label, icon and static href/download"
@@ -1853,21 +2055,23 @@ else
   fail "index.html profile avatar must keep a non-empty alt"
 fi
 
-# 3. Real controls: 9 anchors (5 link buttons + 2 quick actions + 1 save contact button + 1 footer link)
+# 3. Real controls: 11 anchors (5 link buttons + 3 quick actions + 1 save contact button
+#    + 1 footer link + 1 qr-panel save PNG link)
 ANCHOR_TAGS=$(grep -oE '<a[[:space:]][^>]*>' index.html || true)
 anchor_total=$(printf '%s\n' "$ANCHOR_TAGS" | grep -cE '<a[[:space:]]' || true)
 link_button_total=$(grep -oE '<a[^>]*class="link-button( [^"]*)?"' index.html | wc -l | tr -d ' ')
 quick_action_total=$(grep -oE '<a[^>]*class="quick-action"' index.html | wc -l | tr -d ' ')
 footer_link_total=$(grep -oE '<a[^>]*class="page-footer__link"' index.html | wc -l | tr -d ' ')
+qr_panel_save_total=$(grep -oE '<a[^>]*class="qr-panel__save"' index.html | wc -l | tr -d ' ')
 
-if [ "$anchor_total" -ne 9 ]; then
-  fail "index.html must contain exactly 9 anchor controls (found $anchor_total)"
+if [ "$anchor_total" -ne 11 ]; then
+  fail "index.html must contain exactly 11 anchor controls (found $anchor_total)"
 fi
 if [ "$link_button_total" -ne 5 ]; then
   fail "index.html must contain exactly 5 link-button anchors (found $link_button_total)"
 fi
-if [ "$quick_action_total" -ne 2 ]; then
-  fail "index.html must contain exactly 2 quick-action anchors (found $quick_action_total)"
+if [ "$quick_action_total" -ne 3 ]; then
+  fail "index.html must contain exactly 3 quick-action anchors (found $quick_action_total)"
 fi
 if [ "$save_contact_anchors" -ne 1 ]; then
   fail "index.html must contain exactly 1 save-contact-button anchor (found $save_contact_anchors)"
@@ -1875,11 +2079,15 @@ fi
 if [ "$footer_link_total" -ne 1 ]; then
   fail "index.html must contain exactly 1 page-footer link anchor (found $footer_link_total)"
 fi
+if [ "$qr_panel_save_total" -ne 1 ]; then
+  fail "index.html must contain exactly 1 .qr-panel__save anchor (found $qr_panel_save_total)"
+fi
 
 link_button_class_total=$(grep -oE 'class="link-button( |")' index.html | wc -l | tr -d ' ')
 quick_action_class_total=$(grep -oE 'class="quick-action"' index.html | wc -l | tr -d ' ')
 save_contact_class_total=$(grep -oE 'class="save-contact-button( |")' index.html | wc -l | tr -d ' ')
 footer_link_class_total=$(grep -oE 'class="page-footer__link( |")' index.html | wc -l | tr -d ' ')
+qr_panel_save_class_total=$(grep -oE 'class="qr-panel__save"' index.html | wc -l | tr -d ' ')
 if [ "$link_button_class_total" -ne "$link_button_total" ]; then
   fail "a non-anchor element uses class link-button (or an anchor duplicates the class)"
 fi
@@ -1891,6 +2099,9 @@ if [ "$save_contact_class_total" -ne "$save_contact_anchors" ]; then
 fi
 if [ "$footer_link_class_total" -ne "$footer_link_total" ]; then
   fail "a non-anchor element uses class page-footer__link (or an anchor duplicates the class)"
+fi
+if [ "$qr_panel_save_class_total" -ne "$qr_panel_save_total" ]; then
+  fail "a non-anchor element uses class qr-panel__save (or an anchor duplicates the class)"
 fi
 
 missing_href=0
@@ -1916,7 +2127,37 @@ fi
 if grep -qE '(^|[[:space:]])href="(#)?"' index.html; then
   fail 'index.html must not use href="#" or href=""'
 fi
-echo "  [ok] 9 real anchor controls (5 link buttons + 2 quick actions + 1 save contact button + 1 footer link)"
+echo "  [ok] 11 real anchor controls (5 link buttons + 3 quick actions + 1 save contact button + 1 footer link + 1 qr-panel save)"
+
+# 3b. The only non-anchor interactive controls allowed are the two in-page .qr-panel
+# buttons (Cerrar, Copiar). Every other control must stay a real <a>; role="button",
+# href="#"/"" and inline on(click|keydown|keypress)= handlers stay prohibited above
+# (checked across the whole document, so they also cover these buttons).
+BUTTON_TAGS=$(grep -oE '<button[^>]*>' index.html || true)
+button_total=$(printf '%s\n' "$BUTTON_TAGS" | grep -cE '<button' || true)
+qr_panel_button_total=$(grep -oE '<button[^>]*class="qr-panel__(close|copy)"' index.html | wc -l | tr -d ' ')
+
+if [ "$button_total" -ne 2 ]; then
+  fail "index.html must contain exactly 2 <button> elements (.qr-panel__close and .qr-panel__copy); found $button_total"
+fi
+if [ "$qr_panel_button_total" -ne 2 ]; then
+  fail "index.html <button> elements must be exactly .qr-panel__close and .qr-panel__copy (found $qr_panel_button_total matching)"
+fi
+
+button_type_missing=0
+while IFS= read -r button_tag; do
+  [ -n "$button_tag" ] || continue
+  if printf '%s\n' "$button_tag" | grep -qF 'type="button"'; then
+    :
+  else
+    echo "FAILED - <button> must declare type=\"button\" (found: $button_tag)" >&2
+    button_type_missing=$((button_type_missing + 1))
+  fi
+done <<< "$BUTTON_TAGS"
+if [ "$button_type_missing" -gt 0 ]; then
+  fail "the in-page .qr-panel buttons must all declare type=\"button\" (not submit)"
+fi
+echo "  [ok] the only non-anchor controls are the 2 in-page .qr-panel buttons (type=\"button\")"
 
 # 4. Decorative icons
 SVG_TAGS=$(grep -oE '<svg[^>]*>' index.html || true)
@@ -1943,13 +2184,13 @@ while IFS= read -r svg_tag; do
   esac
 done <<< "$SVG_TAGS"
 
-if [ "$svg_total" -ne 11 ]; then
-  fail "index.html must contain exactly 11 decorative SVG icons (found $svg_total)"
+if [ "$svg_total" -ne 12 ]; then
+  fail "index.html must contain exactly 12 decorative SVG icons (found $svg_total)"
 fi
 if [ "$svg_bad" -gt 0 ]; then
   fail "accessibility SVG contract is missing $svg_bad required attributes"
 fi
-echo "  [ok] 11 decorative SVG icons are hidden from assistive technology"
+echo "  [ok] 12 decorative SVG icons are hidden from assistive technology"
 
 # 5. Visible focus
 LINK_FOCUS_RULE=$(awk '
@@ -1999,6 +2240,24 @@ if grep -qE 'outline:[[:space:]]*(none|0)[[:space:]]*;' styles.css; then
 fi
 echo "  [ok] visible focus contract"
 
+# 5b. QR panel controls (Cerrar, Copiar, Guardar PNG) must keep visible focus too.
+QR_PANEL_FOCUS_RULE=$(awk '
+  /^\.qr-panel__close:focus-visible,[[:space:]]*$/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -n "$QR_PANEL_FOCUS_RULE" ] \
+  && printf '%s\n' "$QR_PANEL_FOCUS_RULE" | grep -qF '.qr-panel__close:focus-visible' \
+  && printf '%s\n' "$QR_PANEL_FOCUS_RULE" | grep -qF '.qr-panel__copy:focus-visible' \
+  && printf '%s\n' "$QR_PANEL_FOCUS_RULE" | grep -qF '.qr-panel__save:focus-visible' \
+  && printf '%s\n' "$QR_PANEL_FOCUS_RULE" | grep -qF 'outline: 2px solid var(--color-accent);' \
+  && printf '%s\n' "$QR_PANEL_FOCUS_RULE" | grep -qF 'outline-offset: 2px;'; then
+  echo "  [ok] qr-panel controls focus-visible contract (.qr-panel__close/__copy/__save)"
+else
+  fail 'styles.css .qr-panel__close/__copy/__save:focus-visible must declare outline: 2px solid var(--color-accent); and outline-offset: 2px;'
+fi
+
 # 6. Reduced motion
 REDUCED_MOTION_BLOCK=$(awk '
   /@media \(prefers-reduced-motion: reduce\)/ { in_block = 1 }
@@ -2010,11 +2269,16 @@ if [ -n "$REDUCED_MOTION_BLOCK" ] \
   && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF '.link-button' \
   && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF '.save-contact-button' \
   && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF '.quick-action' \
+  && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF '.qr-panel' \
+  && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF '.qr-panel__close' \
+  && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF '.qr-panel__copy' \
+  && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF '.qr-panel__save' \
+  && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF 'animation: none;' \
   && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF 'transition: none;' \
   && printf '%s\n' "$REDUCED_MOTION_BLOCK" | grep -qF 'transform: none;'; then
-  echo "  [ok] reduced motion contract"
+  echo "  [ok] reduced motion contract (incl. qr-panel open animation and its controls)"
 else
-  fail 'styles.css reduced-motion block must set transition: none; and transform: none; for .link-button, .save-contact-button and .quick-action'
+  fail 'styles.css reduced-motion block must set transition: none; and transform: none; for .link-button, .save-contact-button, .quick-action and .qr-panel__close/__copy/__save (plus animation: none; for .qr-panel)'
 fi
 
 # 7. Contrast: pinned tokens plus calculated WCAG ratios
@@ -2293,6 +2557,46 @@ if printf '%s\n' "$QUICK_ACTION_RULE" | awk '
   echo "  [ok] quick action tap target >=44x44 (circular icon-only control)"
 else
   fail 'styles.css .quick-action must declare width and height of at least 44px (circular tap target >=44x44)'
+fi
+
+# 4c. QR panel controls tap target: .qr-panel__close is a fixed 44x44 circle, asserted the
+# same way as .quick-action above. .qr-panel__copy/.qr-panel__save share a flexible row
+# (flex: 1 1 0%, no fixed width) inside a dialog capped at min(320px, calc(100vw - 2rem)),
+# so only their explicit height can be asserted statically here; their rendered width
+# (always well above 44px for a two-button row) is proven at runtime via the browser
+# measurement, not by this static grep.
+QR_CLOSE_RULE=$(awk '
+  /^[[:space:]]*\.qr-panel__close[[:space:]]*\{/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /^}/ { exit }
+' styles.css)
+
+if [ -z "$QR_CLOSE_RULE" ]; then
+  fail 'styles.css is missing the .qr-panel__close base rule'
+fi
+
+if printf '%s\n' "$QR_CLOSE_RULE" | grep -qF 'width: 44px;' \
+  && printf '%s\n' "$QR_CLOSE_RULE" | grep -qF 'height: 44px;'; then
+  echo "  [ok] qr-panel close tap target >=44x44"
+else
+  fail 'styles.css .qr-panel__close must declare width: 44px; and height: 44px; (tap target >=44x44)'
+fi
+
+QR_COPY_SAVE_RULE=$(awk '
+  /^\.qr-panel__copy,[[:space:]]*$/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /^}/ { exit }
+' styles.css)
+
+if [ -z "$QR_COPY_SAVE_RULE" ]; then
+  fail 'styles.css is missing the .qr-panel__copy, .qr-panel__save base rule'
+fi
+
+if printf '%s\n' "$QR_COPY_SAVE_RULE" | grep -qF 'height: 48px;' \
+  && printf '%s\n' "$QR_COPY_SAVE_RULE" | grep -qF 'flex: 1 1 0%;'; then
+  echo "  [ok] qr-panel copy/save height >=44px (flex-filled row width verified in browser)"
+else
+  fail 'styles.css .qr-panel__copy, .qr-panel__save must declare height: 48px; and flex: 1 1 0%; (tap target height >=44px; width is flex-filled)'
 fi
 
 # 5. Never mask horizontal overflow: fix the layout instead.
