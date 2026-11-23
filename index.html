@@ -78,6 +78,14 @@
               <path d="m3 7 9 6 9-6"/>
             </svg>
           </a>
+          <a class="quick-action" href="assets/qr.png" aria-label="Mostrar Código QR de la Tarjeta" data-qr-trigger>
+            <svg class="quick-action__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <rect x="3" y="3" width="7" height="7"/>
+              <rect x="14" y="3" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/>
+              <path d="M14 14h3v3h-3zM19 14v3M14 19h3M17.5 17.5h.01M19 19h2M21 14v2"/>
+            </svg>
+          </a>
         </nav>
 
         <nav class="links" aria-label="Enlaces de contacto">
@@ -139,7 +147,27 @@
             Tarjeta NFC &amp; QR
           </p>
         </footer>
+
+        <dialog class="qr-panel" aria-labelledby="qr-panel-title">
+          <button type="button" class="qr-panel__close" aria-label="Cerrar">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h2 id="qr-panel-title" class="qr-panel__title">Escanea para abrir la Tarjeta</h2>
+          <img
+            class="qr-panel__code"
+            src="assets/qr.png"
+            alt="Código QR que abre la Tarjeta digital de Fahed Hermoza"
+            width="200"
+            height="200"
+          >
+          <div class="qr-panel__actions">
+            <button type="button" class="qr-panel__copy">Copiar Enlace</button>
+            <a class="qr-panel__save" href="assets/qr.png" download="fahed-hermoza-card-qr.png">Guardar PNG</a>
+          </div>
+          <p class="qr-panel__status" aria-live="polite"></p>
+        </dialog>
       </article>
     </main>
+    <script src="scripts.js" defer></script>
   </body>
 </html>
