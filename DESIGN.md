@@ -500,10 +500,11 @@ Este slice ejecuta la parte de navegación de la dirección anterior. Decisiones
   `color-mix`/`@supports`) se conservan en `styles.css` como parte del sistema de tonos
   aunque ya no las use ningún Enlace; no son colores nuevos.
 - **Fila «Acciones rápidas»** (`<nav class="quick-actions" aria-label="Acciones rápidas">`)
-  ubicada **entre el encabezado de identidad y la lista de Enlaces**. En este slice hospeda
-  **solo dos** controles: Celular (`tel:+51955116562`) y Correo
-  (`mailto:fahedhermoza@gmail.com`). QR y Compartir son features posteriores
-  (`redesign-qr-panel`, `redesign-share-action`) que añadirán más círculos a la misma fila.
+  ubicada **entre el encabezado de identidad y la lista de Enlaces**. Hospeda Celular
+  (`tel:+51955116562`), Correo (`mailto:fahedhermoza@gmail.com`) y, desde
+  `redesign-share-action`, **Compartir** como tercer control: un `<button>` semántico de
+  mejora progresiva (no un `<a>`, porque no tiene un destino de navegación propio). QR es
+  una feature posterior (`redesign-qr-panel`) que añadirá otro círculo a la misma fila.
 - **Tono de las Acciones rápidas (decisión de diseño, vía neutra):** botones circulares
   **solo-icono** con superficie neutra clara `--color-surface-container-low` (#f1f4fa) e
   icono oscuro `--color-primary` (#484dc4) — el mismo par neutro pineado de Guardar
@@ -535,3 +536,24 @@ El propietario revisó una captura de referencia y aprobó directamente estos tr
 - **Ícono nuevo:** no existe ningún asset para esto en el repo ni en `assets/`; se crea un
   SVG inline simple (outline, geometría tipo tarjeta/chip NFC) sin depender de íconos
   externos ni de una librería. No introduce tokens de color nuevos.
+
+### Compartir — decisión de diseño aprobada (`redesign-share-action`, 2026-11-23)
+
+El propietario aprobó directamente estos tres puntos, resolviendo la nota pendiente
+«Definir una respuesta comprensible cuando el portapapeles no permita copiar»:
+
+- **Confirmación/error de Compartir:** una línea de estado inline debajo de la fila de
+  Acciones rápidas, `role="status"` + `aria-live="polite"` (anunciada a lectores de
+  pantalla sin robar el foco). Éxito en `--color-accent` (`#585ce5`); error en
+  `--color-error` (`#ba1a1a`, ya declarado en el frontmatter de este documento, sin usar
+  hasta ahora en el producto). Tipografía `body-sm`. Si el portapapeles rechaza la copia,
+  el mensaje de error muestra la URL canónica en texto para que el visitante la copie a
+  mano.
+- **Compartir es el tercer control de Acciones rápidas:** `<button>` semántico de mejora
+  progresiva (no `<a>`, sin destino de navegación propio); usa la API nativa de compartir
+  cuando existe, y si no, copia la URL canónica de producción al portapapeles. Sin
+  JavaScript, el control no debe mostrarse (no hay Compartir inerte).
+- **Tratamiento visual confirmado:** mismo círculo neutro `.quick-action` ya usado por
+  Celular/Correo (superficie `--color-surface-container-low` `#f1f4fa`, icono
+  `--color-primary` `#484dc4`, 48px, `:focus-visible` acento 2px/offset 2px). **No**
+  introduce color, tono de degradado ni token nuevo.

@@ -86,7 +86,18 @@
               <path d="M14 14h3v3h-3zM19 14v3M14 19h3M17.5 17.5h.01M19 19h2M21 14v2"/>
             </svg>
           </a>
+          <button type="button" class="quick-action quick-action--share" aria-label="Compartir esta tarjeta" hidden>
+            <svg class="quick-action__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+          </button>
         </nav>
+
+        <p class="share-status" role="status" aria-live="polite" hidden></p>
 
         <nav class="links" aria-label="Enlaces de contacto">
           <a class="link-button link-button--gradient-1" href="https://www.instagram.com/fahedhermoza/">
@@ -169,5 +180,6 @@
       </article>
     </main>
     <script src="scripts.js" defer></script>
+    <script src="share.js" defer></script>
   </body>
 </html>
