@@ -25,24 +25,29 @@ These rules are durable: every future change to the Tarjeta digital must preserv
 `./init.sh` enforces the technically checkable subset; do not remove, weaken or reorder
 its `Accessibility checks:`.
 
-- **MUST** keep every control a real `<a>` with a non-empty `href`, with exactly one
-  explicit exception (below) for the two in-page QR panel buttons: exactly 11 anchors
-  today (5 `.link-button` + 3 `.quick-action` + 1 `.save-contact-button` +
-  1 `.page-footer__link` + 1 `.qr-panel__save`). The three `.quick-action` controls are
-  the icon-only Celular (`href="tel:+51955116562"`), Correo
-  (`href="mailto:fahedhermoza@gmail.com"`) and QR (`href="assets/qr.png"`, the no-JS
-  fallback to the static PNG) in the `.quick-actions` row; each gets its accessible name
-  from `aria-label`, not visible text. `.qr-panel__save` ("Guardar PNG") is a real anchor
-  with `href="assets/qr.png"` and `download="fahed-hermoza-card-qr.png"`.
-- **MUST** allow exactly 2 non-anchor controls, and no more: `<button type="button"
-  class="qr-panel__close">` and `<button type="button" class="qr-panel__copy">`, both
-  in-page actions inside the `<dialog class="qr-panel">` (close the dialog; copy the
-  canonical URL to the clipboard) that have no meaningful `href` to navigate to. This is
-  the one explicit, scoped relaxation of the "every control is an `<a>`" rule; it does
-  **not** extend to any other control, and every other interactive element MUST stay a
-  real `<a>`.
+- **MUST** keep every control that has its own navigation destination a real `<a>` with a
+  non-empty `href`, with three explicit scoped exceptions (below) for non-anchor
+  `<button>` controls: exactly 11 anchors today (5 `.link-button` + 3 `.quick-action`
+  + 1 `.save-contact-button` + 1 `.page-footer__link` + 1 `.qr-panel__save`). The three
+  anchor `.quick-action` controls are the icon-only Celular (`href="tel:+51955116562"`),
+  Correo (`href="mailto:fahedhermoza@gmail.com"`) and QR (`href="assets/qr.png"`, the
+  no-JS fallback to the static PNG) in the `.quick-actions` row; each gets its accessible
+  name from `aria-label`, not visible text. `.qr-panel__save` ("Guardar PNG") is a real
+  anchor with `href="assets/qr.png"` and `download="fahed-hermoza-card-qr.png"`.
+- **MUST** allow exactly 3 non-anchor controls, and no more: `<button type="button"
+  class="qr-panel__close">` and `<button type="button" class="qr-panel__copy">` (in-page
+  actions inside the `<dialog class="qr-panel">`: close the dialog; copy the canonical
+  URL to the clipboard), plus `<button type="button" class="quick-action quick-action--share">`
+  (Compartir, a fourth `.quick-actions` control with no navigation destination of its
+  own — it uses the Web Share API or falls back to clipboard copy). A semantic `<button>`
+  is native, keyboard-operable and reported correctly to assistive tech without extra
+  ARIA. This is the complete, explicit, scoped relaxation of the "every control is an
+  `<a>`" rule; it does **not** extend to any other control, and every other interactive
+  element MUST stay a real `<a>`. None of the three count toward the anchor total above,
+  and none carry `href`; each handler is bound with `addEventListener` in a real script
+  file, never an inline attribute.
 - **MUST NOT** use `role="button"`, inline `onclick`/`onkeydown`/`onkeypress`,
-  `href="#"` or `href=""` for controls — including the two `.qr-panel` buttons above.
+  `href="#"` or `href=""` for controls — including the three buttons above.
 - **MUST** keep a visible keyboard focus on every control:
   `outline: 2px solid var(--color-accent);` and `outline-offset: 2px;` on
   `.link-button:focus-visible`, `.quick-action:focus-visible`,
@@ -65,10 +70,11 @@ its `Accessibility checks:`.
   (same 6.082:1 rest / 6.456:1 hover ratios, already covered by the 15/15 contrast gate);
   they are NOT gradient chips. Do not give them white-on-gradient tones or new colors.
 - **MUST** keep every decorative `<svg>` with both `aria-hidden="true"` and
-  `focusable="false"`: exactly 12 decorative SVG icons today (5 Enlaces + 3 quick-action
-  icons (Celular, Correo, QR) + the save contact icon + 2 header icons: NFC label and
-  open + 1 footer NFC/QR closing icon). The `<img class="qr-panel__code">` inside the QR
-  panel is content, not decoration, and does not count toward this total.
+  `focusable="false"`: exactly 13 decorative SVG icons today (5 Enlaces + 3 quick-action
+  icons (Celular, Correo, QR) + 1 quick-action Share icon + the save contact icon +
+  2 header icons: NFC label and open + 1 footer NFC/QR closing icon). The
+  `<img class="qr-panel__code">` inside the QR panel is content, not decoration, and does
+  not count toward this total.
 - **MUST** keep the static QR asset `assets/qr.png`: a real PNG (magic bytes
   `\x89PNG\r\n\x1a\n`), non-empty, pre-generated **offline** (no runtime/client-side QR
   generation, no QR library shipped to the browser) and committed as a binary like
@@ -80,12 +86,27 @@ its `Accessibility checks:`.
   without BOM, CRLF line endings (including the final `END:VCARD`), VCARD 3.0 with the
   canonical name, title, phone, email and five external URLs, at most 4096 bytes.
   The save contact control MUST stay a real anchor with
-  `href="assets/fahedhermoza.vcf"` and `download="fahedhermoza.vcf"`; do not replace it
-  with `data:text/vcard`, Blob, a `<script>` or an inline handler. This still applies
-  only to the save-contact control itself: the QR panel's own `<script>` (below) is a
-  separate, explicitly allowed exception and must not be grepped against as if it were
-  a vCard violation (scope any such check to the save-contact block, not the whole
-  document).
+  `href="assets/fahedhermoza.vcf"` and `download="fahedhermoza.vcf"`. The prohibition on
+  `data:text/vcard`, Blob, a `<script>` or an inline handler applies specifically to this
+  vCard mechanism (the `.save-contact` block): it MUST NOT ever be regenerated or invoked
+  via Blob, `data:` URI, inline handler or any `<script>` inside that block. This does not
+  forbid the QR panel's own `<script>` (`scripts.js`) or Compartir's `share.js` elsewhere
+  on the page — both are separate, explicitly allowed exceptions for unrelated, non-vCard
+  interactions and must not be grepped against as if they were a vCard violation (scope
+  any such check to the save-contact block, not the whole document); neither script may
+  ever construct the vCard via Blob or `data:text/vcard`.
+- **MUST** keep the Share control (`.quick-action--share`) as mejora progresiva: it is
+  `hidden` by default in the static HTML, CSS MUST hide `[hidden]` explicitly
+  (`.quick-action[hidden], .share-status[hidden] { display: none; }`, because
+  `.quick-action { display: flex }` alone would override the UA default), and only
+  `share.js` (or an equivalent inline script, loaded with `defer`) may remove `hidden`
+  after detecting `navigator.share` or `navigator.clipboard.writeText` support. Without
+  JavaScript, or without either API, the control MUST stay absent — never an inert,
+  unclickable button.
+- **MUST** always use the production canonical URL
+  (`document.querySelector('link[rel="canonical"]').href`) as the Compartir/QR share
+  target: never `location.href`, never a query string (`?utm`, `?debug` or similar), never
+  an alternate domain.
 - **MUST** keep the avatar `alt` descriptive and non-empty.
 - **MUST** keep `<html lang="es">` and mark the English Tagline with `lang="en"`
   (WCAG 3.1.2, Language of Parts).
@@ -102,8 +123,11 @@ its `Accessibility checks:`.
   `min(320px, calc(100vw - 2rem))`; their height is statically asserted, their rendered
   width (always well above 44px for a two-button row) is verified in the browser.
 - **MUST NOT** add JavaScript, frameworks, bundlers, dependencies or generated assets
-  to satisfy accessibility rules (see `docs/technical-discovery.md`), **except** the one
-  explicitly scoped exception below for the QR panel interaction.
+  to satisfy accessibility rules (see `docs/technical-discovery.md`), **except** the two
+  explicitly scoped exceptions below for the QR panel interaction and for Compartir.
+  Neither exists to patch an accessibility gap — the AA baseline holds with JavaScript
+  disabled in both cases (see the no-JS degradation paths below and the mejora
+  progresiva rule above).
 - **MUST** keep the QR panel's JavaScript minimal, dependency-free and scoped only to
   opening/closing the `<dialog class="qr-panel">` and copying the canonical URL to the
   clipboard: a single `<script>` (inline or `scripts.js`) using only `addEventListener`
@@ -115,6 +139,8 @@ its `Accessibility checks:`.
   without `HTMLDialogElement`/`showModal` support), the QR quick action and
   `.qr-panel__save` stay real anchors to the static `assets/qr.png`; they must never
   become inert controls.
+- **MUST** keep Compartir's `share.js` minimal and dependency-free (see the mejora
+  progresiva rule above for its no-JS degradation path: the control simply stays absent).
 
 The one inline footer link (WhatsApp) is shorter than 44px; it stays covered by the
 WCAG 2.5.8 inline/link-in-text exception. Re-evaluate that exception if the footer

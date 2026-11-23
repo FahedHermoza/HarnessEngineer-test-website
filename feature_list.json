@@ -714,13 +714,22 @@
     "depends_on": [
       "redesign-contact-navigation"
     ],
-    "status": "not_started",
+    "status": "accepted",
     "verification": [
       "Comprobar que existe una sola acción Compartir y que siempre usa la URL canónica de producción, sin parámetros de prueba ni destinos alternativos.",
       "Probar las ramas con API nativa disponible, ausente, cancelada y con portapapeles denegado; verificar confirmación visible, semántica del botón, foco y ausencia de errores de consola. Sin JavaScript no debe mostrarse un control Compartir inerte.",
       "Ejecutar ./init.sh y validar navegador 390×844 y 1280×800 sin peticiones fallidas, matriz responsive y Lighthouse móvil Accessibility ≥95 sin fallos critical/serious; documentar el resultado en dispositivo real."
     ],
-    "evidence": [],
+    "evidence": [
+      "bash -n init.sh OK; ./init.sh exit 0 sin servidor, con 'Share action checks:' (6 [ok]) nuevos, 12 SVG decorativos, 9 anclas reales sin cambio, Accessibility/Responsive checks intactos.",
+      "6 casos negativos en copia temporal aislada fuera del repo (sin .git, via rsync) exit 1 con diagnostico especifico: boton ausente, role=button inline, location.href en share.js, CSS que no oculta [hidden], SVG sin aria-hidden/focusable, <script> dentro del bloque .save-contact.",
+      "Navegador real (Chrome DevTools MCP) en http://localhost:3630/, recarga fresca por rama: (1) navigator.share disponible -> invocado con la URL canonica https://fahed-hermoza-card.fahedhermoza.workers.dev/, consola 0; (2) share ausente + clipboard -> copia + 'Enlace copiado.' visible (share-status--success), consola 0; (3) AbortError -> silencioso, sin fallback ni mensaje, consola 0; (4) clipboard denegado (NotAllowedError) -> error comprensible con la URL para copiar a mano (share-status--error), consola 0; (5) sin soporte (share y clipboard ausentes) -> boton hidden, 0x0, no enfocable, consola 0.",
+      "390x844 y 1280x800: foco visible (outline 2px) en el boton Compartir, tap target 48x48, sin scroll horizontal (scrollWidth===clientWidth); verificacion adicional sin overflow en 320 y 768. Network: 6/6 peticiones 2xx, sin /favicon.ico.",
+      "Lighthouse movil (CDP) en http://localhost:3630/: Accessibility 100, Best Practices 100, Agentic Browsing 100, SEO 92 (unico fallo meta-description, preexistente y fuera de alcance); 48 audits pasados, 0 criticos/serios.",
+      "Prueba en dispositivo real (fisico) NO realizada en esta sesion: todas las ramas se verificaron mockeando navigator.share/navigator.clipboard en Chrome via Chrome DevTools MCP (contexto seguro localhost). Declarado con honestidad conforme al Verification Plan del spec; queda pendiente del propietario.",
+      "owner visual review: pending (incluye la prueba en dispositivo real con Web Share nativo).",
+      "Owner final acceptance (2026-11-23): Fahed Hermoza confirmó en chat que probó el botón Compartir en un dispositivo físico real y la hoja nativa abre correctamente con la URL canónica, y revisó capturas en vivo 390x844 y 1280x800 (puerto aislado 3630), estado inactivo y confirmado (fallback de portapapeles), aprobando la feature completa. Capturas en docs/validations/redesign-share-action-owner-approval-{mobile,desktop}-{closed,confirmed}.png; detalle en docs/validations/redesign-share-action.md (sección \"Owner Final Acceptance\"). Status pasa de passing a accepted."
+    ],
     "notes": "La acción superior duplicada de code.html no se incorpora. Mantener JavaScript mínimo sin dependencias ni cambio de la vCard estática."
   },
   {
