@@ -1396,6 +1396,136 @@ fi
 
 echo "  [ok] minimal addEventListener-only script with no third-party dependencies"
 
+echo "Share action checks:"
+
+SHARE_BUTTON_GLOBAL_COUNT=$(grep -cE '<button[^>]*class="quick-action quick-action--share"' index.html || true)
+if [ "$SHARE_BUTTON_GLOBAL_COUNT" -ne 1 ]; then
+  fail "index.html must contain exactly one Share button (<button class=\"quick-action quick-action--share\">), found $SHARE_BUTTON_GLOBAL_COUNT"
+fi
+
+if grep -qE '<a[^>]*quick-action--share' index.html; then
+  fail "index.html Share control must be a <button>, not an <a> (no navigation destination of its own)"
+fi
+
+SHARE_BUTTON_IN_NAV=$(printf '%s\n' "$QUICK_ACTIONS_BLOCK" | grep -oE '<button[^>]*class="quick-action quick-action--share"[^>]*>' || true)
+if [ -z "$SHARE_BUTTON_IN_NAV" ]; then
+  fail 'index.html Share button must be the third control inside <nav class="quick-actions">'
+fi
+
+SHARE_BUTTON_TAG=$(grep -oE '<button[^>]*class="quick-action quick-action--share"[^>]*>' index.html | head -n 1 || true)
+for attribute in 'type="button"' 'hidden'; do
+  case "$SHARE_BUTTON_TAG" in
+    *"$attribute"*)
+      ;;
+    *)
+      fail "index.html Share button is missing $attribute"
+      ;;
+  esac
+done
+
+if ! printf '%s\n' "$SHARE_BUTTON_TAG" | grep -qE 'aria-label="[^"]+"'; then
+  fail "index.html Share button is missing a non-empty aria-label"
+fi
+
+if printf '%s\n' "$SHARE_BUTTON_TAG" | grep -qE '[[:space:]]href='; then
+  fail "index.html Share button must not have an href (it is a <button>, not an anchor)"
+fi
+
+if printf '%s\n' "$SHARE_BUTTON_TAG" | grep -qE 'role='; then
+  fail 'index.html Share button must not use a role attribute (it is already a real <button>)'
+fi
+
+if printf '%s\n' "$SHARE_BUTTON_TAG" | grep -qE 'on(click|keydown|keypress)[[:space:]]*='; then
+  fail "index.html Share button must not use inline event handlers; bind with addEventListener in share.js"
+fi
+echo "  [ok] share button markup (type=\"button\", aria-label, hidden, no href/role/inline handler)"
+
+correo_line=$(grep -nF 'href="mailto:fahedhermoza@gmail.com"' index.html | head -n 1 | cut -d: -f1 || true)
+share_button_line=$(grep -nE '<button[^>]*class="quick-action quick-action--share"' index.html | head -n 1 | cut -d: -f1 || true)
+if [ -z "$correo_line" ] || [ -z "$share_button_line" ] || [ "$share_button_line" -le "$correo_line" ]; then
+  fail 'index.html Share button must come after Correo inside <nav class="quick-actions">'
+fi
+echo "  [ok] share button sits after Correo as the third quick action"
+
+SHARE_BUTTON_BLOCK=$(awk '
+  /<button[^>]*class="quick-action quick-action--share"/ { in_block = 1 }
+  in_block { print }
+  in_block && /<\/button>/ { exit }
+' index.html)
+
+SHARE_ICON_TAG=$(printf '%s\n' "$SHARE_BUTTON_BLOCK" | grep -oE '<svg[^>]*class="quick-action__icon"[^>]*>' | head -n 1 || true)
+if [ -z "$SHARE_ICON_TAG" ]; then
+  fail "index.html Share button is missing its decorative icon (quick-action__icon)"
+fi
+for attribute in 'aria-hidden="true"' 'focusable="false"'; do
+  case "$SHARE_ICON_TAG" in
+    *"$attribute"*)
+      ;;
+    *)
+      fail "index.html Share button icon is missing $attribute"
+      ;;
+  esac
+done
+echo "  [ok] share button decorative icon"
+
+SHARE_STATUS_TAG=$(grep -oE '<p class="share-status"[^>]*>' index.html | head -n 1 || true)
+if [ -z "$SHARE_STATUS_TAG" ]; then
+  fail 'index.html is missing the share status region (<p class="share-status" role="status" aria-live="polite" hidden>)'
+fi
+for attribute in 'role="status"' 'aria-live="polite"' 'hidden'; do
+  case "$SHARE_STATUS_TAG" in
+    *"$attribute"*)
+      ;;
+    *)
+      fail "index.html share status region is missing $attribute"
+      ;;
+  esac
+done
+
+quick_actions_open_line=$(grep -nF '<nav class="quick-actions"' index.html | head -n 1 | cut -d: -f1 || true)
+links_open_line=$(grep -nF '<nav class="links"' index.html | head -n 1 | cut -d: -f1 || true)
+share_status_line=$(grep -nF 'class="share-status"' index.html | head -n 1 | cut -d: -f1 || true)
+if [ -z "$share_status_line" ] || [ "$share_status_line" -le "$quick_actions_open_line" ] || [ "$share_status_line" -ge "$links_open_line" ]; then
+  fail 'index.html share status region must sit between the quick actions row and the links navigation'
+fi
+echo "  [ok] share status region markup (role=status, aria-live=polite, hidden by default)"
+
+# Progressive enhancement: the Share control and its status region must stay
+# inert without JavaScript (hidden by markup + CSS) and only a real script
+# can reveal them; no inert control is ever shown.
+HIDDEN_RULE=$(awk '
+  /\.quick-action\[hidden\]/ { in_rule = 1 }
+  in_rule { print }
+  in_rule && /}/ { exit }
+' styles.css)
+
+if [ -n "$HIDDEN_RULE" ] \
+  && printf '%s\n' "$HIDDEN_RULE" | grep -qF '.share-status[hidden]' \
+  && printf '%s\n' "$HIDDEN_RULE" | grep -qF 'display: none;'; then
+  :
+else
+  fail 'styles.css must explicitly hide .quick-action[hidden] and .share-status[hidden] with display: none; (the [hidden] attribute alone can be overridden by .quick-action { display: flex })'
+fi
+
+if [ ! -f "share.js" ]; then
+  fail "share.js is missing (the progressive-enhancement script that reveals the Share button)"
+fi
+if ! grep -qF '<script src="share.js" defer></script>' index.html; then
+  fail 'index.html must load <script src="share.js" defer></script> before </body>'
+fi
+echo "  [ok] progressive enhancement: hidden by default in CSS, revealed only by share.js"
+
+if grep -qE 'location\.href' share.js; then
+  fail "share.js must not use location.href as the share URL; it must read link[rel=\"canonical\"]"
+fi
+if grep -qE '\?(utm|debug)' share.js; then
+  fail "share.js must not append test query parameters (?utm/?debug) to the share URL"
+fi
+if ! grep -qF 'link[rel="canonical"]' share.js; then
+  fail "share.js must derive the share URL from link[rel=canonical]"
+fi
+echo "  [ok] share.js uses the canonical URL, never location.href or test parameters"
+
 echo "Sharing metadata checks:"
 
 SHARING_METADATA_CONTRACT=(
@@ -1893,6 +2023,14 @@ fi
 if printf '%s\n' "$SAVE_CONTACT_BLOCK" | grep -qE 'data:text/vcard|<script|new Blob'; then
   fail "the save contact control must not use data:text/vcard, <script> or Blob"
 fi
+
+BLOB_SCAN_FILES=(index.html styles.css)
+if [ -f "share.js" ]; then
+  BLOB_SCAN_FILES+=(share.js)
+fi
+if grep -qE 'data:text/vcard|new Blob' "${BLOB_SCAN_FILES[@]}"; then
+  fail "the vCard mechanism must not use data:text/vcard or Blob anywhere in the site"
+fi
 echo "  [ok] save contact markup, label, icon and static href/download"
 
 nav_close_line=$(grep -nF '</nav>' index.html | head -n 1 | cut -d: -f1 || true)
@@ -2130,18 +2268,23 @@ fi
 echo "  [ok] 11 real anchor controls (5 link buttons + 3 quick actions + 1 save contact button + 1 footer link + 1 qr-panel save)"
 
 # 3b. The only non-anchor interactive controls allowed are the two in-page .qr-panel
-# buttons (Cerrar, Copiar). Every other control must stay a real <a>; role="button",
-# href="#"/"" and inline on(click|keydown|keypress)= handlers stay prohibited above
-# (checked across the whole document, so they also cover these buttons).
+# buttons (Cerrar, Copiar) and the Share quick action button. Every other control must
+# stay a real <a>; role="button", href="#"/"" and inline on(click|keydown|keypress)=
+# handlers stay prohibited above (checked across the whole document, so they also cover
+# these buttons).
 BUTTON_TAGS=$(grep -oE '<button[^>]*>' index.html || true)
 button_total=$(printf '%s\n' "$BUTTON_TAGS" | grep -cE '<button' || true)
 qr_panel_button_total=$(grep -oE '<button[^>]*class="qr-panel__(close|copy)"' index.html | wc -l | tr -d ' ')
+share_button_total=$(grep -oE '<button[^>]*class="quick-action quick-action--share"' index.html | wc -l | tr -d ' ')
 
-if [ "$button_total" -ne 2 ]; then
-  fail "index.html must contain exactly 2 <button> elements (.qr-panel__close and .qr-panel__copy); found $button_total"
+if [ "$button_total" -ne 3 ]; then
+  fail "index.html must contain exactly 3 <button> elements (.qr-panel__close, .qr-panel__copy and .quick-action--share); found $button_total"
 fi
 if [ "$qr_panel_button_total" -ne 2 ]; then
-  fail "index.html <button> elements must be exactly .qr-panel__close and .qr-panel__copy (found $qr_panel_button_total matching)"
+  fail "index.html must contain exactly 2 .qr-panel buttons (.qr-panel__close and .qr-panel__copy), found $qr_panel_button_total matching"
+fi
+if [ "$share_button_total" -ne 1 ]; then
+  fail "index.html must contain exactly 1 Share button (.quick-action--share), found $share_button_total"
 fi
 
 button_type_missing=0
@@ -2155,9 +2298,9 @@ while IFS= read -r button_tag; do
   fi
 done <<< "$BUTTON_TAGS"
 if [ "$button_type_missing" -gt 0 ]; then
-  fail "the in-page .qr-panel buttons must all declare type=\"button\" (not submit)"
+  fail "every <button> (.qr-panel__close, .qr-panel__copy, .quick-action--share) must declare type=\"button\" (not submit)"
 fi
-echo "  [ok] the only non-anchor controls are the 2 in-page .qr-panel buttons (type=\"button\")"
+echo "  [ok] the only non-anchor controls are the 2 in-page .qr-panel buttons plus the Share button (all type=\"button\")"
 
 # 4. Decorative icons
 SVG_TAGS=$(grep -oE '<svg[^>]*>' index.html || true)
@@ -2184,13 +2327,13 @@ while IFS= read -r svg_tag; do
   esac
 done <<< "$SVG_TAGS"
 
-if [ "$svg_total" -ne 12 ]; then
-  fail "index.html must contain exactly 12 decorative SVG icons (found $svg_total)"
+if [ "$svg_total" -ne 13 ]; then
+  fail "index.html must contain exactly 13 decorative SVG icons (found $svg_total)"
 fi
 if [ "$svg_bad" -gt 0 ]; then
   fail "accessibility SVG contract is missing $svg_bad required attributes"
 fi
-echo "  [ok] 12 decorative SVG icons are hidden from assistive technology"
+echo "  [ok] 13 decorative SVG icons are hidden from assistive technology"
 
 # 5. Visible focus
 LINK_FOCUS_RULE=$(awk '

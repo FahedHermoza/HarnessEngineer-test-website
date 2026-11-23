@@ -275,6 +275,43 @@ body {
   outline-offset: 2px;
 }
 
+/* Share is a <button>, not an <a>; reset the few UA button defaults that
+   .quick-action does not already cover. No new color/geometry. */
+.quick-action--share {
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* Progressive enhancement: the [hidden] attribute can be overridden by
+   .quick-action/.share-status display rules (higher specificity), so hiding
+   must be explicit here, not left to the UA default. */
+.quick-action[hidden],
+.share-status[hidden] {
+  display: none;
+}
+
+/* Share status region (confirmation/error), DESIGN.md > Compartir — decisión
+   de diseño aprobada (redesign-share-action, 2026-11-23). */
+.share-status {
+  margin: 0 var(--space-lg) var(--space-lg);
+  font-size: var(--text-body-sm-font-size);
+  font-weight: var(--text-body-sm-font-weight);
+  line-height: var(--text-body-sm-line-height);
+  text-align: center;
+}
+
+.share-status--success {
+  color: var(--color-accent);
+}
+
+.share-status--error {
+  color: var(--color-error);
+}
+
 /* Components — Links list (DESIGN.md > layout, spacing) */
 .links {
   display: flex;

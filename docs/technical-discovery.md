@@ -7,8 +7,16 @@ Sitio web estático de una sola página, móvil-first, sin estado ni sesión. Se
 ## Candidate Stack
 
 - HTML5 semántico + CSS moderno (custom properties, flexbox, grid mínimo).
-- JavaScript mínimo: solo el `onerror` inline del fallback del avatar; la vCard es un asset
-  estático y no necesita JavaScript.
+- JavaScript mínimo: el `onerror` inline del fallback del avatar, y desde
+  `redesign-share-action` el primer script real del sitio, `share.js` (cargado con
+  `<script src="share.js" defer>`, sin dependencias, sin build). Su alcance es estricto:
+  detectar soporte de `navigator.share`/`navigator.clipboard.writeText`, revelar el botón
+  Compartir solo si hay soporte y manejar las cuatro ramas de compartir/copiar. No se usa
+  para cumplir reglas de accesibilidad (la base AA se sostiene con JavaScript
+  deshabilitado, porque el control simplemente no aparece) ni para generar la vCard, que
+  sigue siendo un asset estático sin JavaScript. El panel QR (`redesign-qr-panel`, feature
+  posterior) puede ampliar este mismo script mínimo para abrir/cerrar su panel y copiar el
+  mismo enlace canónico, dentro del mismo límite sin dependencias.
 - Sin framework, sin bundler, sin build step.
 - Tipografía Plus Jakarta Sans vía Google Fonts con pila de respaldo del sistema.
 - Iconos como SVG inline (evita dependencias y peticiones extra).
