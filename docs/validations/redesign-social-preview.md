@@ -5,6 +5,7 @@
 - **Base:** `demo/seed` @ `8e2eb36`
 - **Verdict del `feature-validator` (independiente):** `block` — **exclusivamente por insumos del propietario, sin defecto técnico**.
 - **Resolución del orquestador (github-flow):** `accepted` sobre aprobación visual del propietario, con confirmación de vistas previas reservada a post-deploy (ver abajo).
+- **Confirmación post-deploy (2026-11-24):** CERRADA. Ver sección final.
 
 ## Qué cambió
 
@@ -29,4 +30,19 @@ Sin hallazgos Critical/High/Medium. Sin superficie de seguridad nueva (no JS, no
 ## Base de aceptación y confirmación post-deploy
 
 - **Cerrado antes de aceptar:** aprobación visual explícita del propietario (Fahed Hermoza, 2026-11-24, móvil y escritorio) + validación técnica independiente verde.
-- **Reservado a post-deploy (no verificable antes del despliegue):** el deploy a producción se dispara en el salto `demo/seed → main`; por tanto la verificación live por HTTPS (cinco paths/MIME/hashes) y las **vistas previas reales en WhatsApp/Facebook/iMessage** del binario nuevo solo pueden comprobarse **después** de mergear a `main` y desplegar. Esa confirmación queda como paso de cierre del propietario; si fallara, se abre un follow-up. El reporte positivo del propietario del 2026-11-21 cubría la imagen **anterior**, ya reemplazada.
+- **Reservado a post-deploy (no verificable antes del despliegue):** el deploy a producción se dispara en el salto `demo/seed → main`; por tanto la verificación live por HTTPS (cinco paths/MIME/hashes) y las **vistas previas reales en WhatsApp/Facebook/iMessage** del binario nuevo solo pueden comprobarse **después** de mergear a `main` y desplegar. El reporte positivo del propietario del 2026-11-21 cubría la imagen **anterior**, ya reemplazada.
+
+## Confirmación post-deploy (2026-11-24)
+
+Tras mergear PR #59 (`demo/seed → main`) y el deploy automático a Cloudflare Workers static assets:
+
+- Verificación live por HTTPS sobre `https://fahed-hermoza-card.fahedhermoza.workers.dev`: los cinco paths (`/`, `/styles.css`, `/assets/avatar.jpg`, `/assets/og-image.jpg`, `/assets/fahedhermoza.vcf`) → HTTP 200 con `content-type` correcto (`text/html`, `text/css`, `image/jpeg` ×2, `text/x-vcard`).
+- Hash SHA-256 **local vs live idéntico** para `og-image.jpg` (`3571ba255cb281897635caf7e50b7643f3076f4bcc834e9ac2e89d092c08adf3`), `avatar.jpg` y `fahedhermoza.vcf` — confirma que el deploy propagó el binario nuevo (no un caché stale ni comparación solo por tamaño).
+- Dimensiones live del og-image: 1200×630 JPEG.
+- Meta-tags `canonical`/`og:url`/`og:image`/`twitter:image` en producción apuntan a la URL pública real con el og-image nuevo.
+- **El propietario (Fahed Hermoza) confirmó** vistas previas reales correctas en WhatsApp, Facebook e iMessage con el binario rediseñado.
+
+Con esto queda **cerrada** la confirmación post-deploy. No quedan pendientes abiertos de `redesign-social-preview`.
+
+### Nota operativa (fuera de alcance de esta feature, sin cambios)
+Checks heredados observados durante la verificación live, ya documentados antes como pendientes operativos de `deploy-cloudflare-pages` (no introducidos ni agravados por esta feature): `http://` sigue respondiendo 200 sin forzar HTTPS; `/PROGRESS.md` y `/AGENTS.md` siguen públicos.
