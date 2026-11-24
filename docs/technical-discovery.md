@@ -27,11 +27,16 @@ Sitio web estático de una sola página, móvil-first, sin estado ni sesión. Se
 - Contenido hardcodeado en `index.html`.
 - Assets estáticos:
   - `assets/avatar.jpg` — foto de perfil (presente en el repositorio).
-  - `assets/og-image.jpg` — imagen Open Graph JPEG 1200×630 (37 214 bytes), generada con la
-    receta reproducible de `docs/specs/deploy-cloudflare-pages.md`: HTML temporal fuera del
-    repo, composición con tokens de `DESIGN.md`, viewport Chrome `1200x630x1`, captura JPEG
-    calidad 90 y validación con `sips`/`file`. No se commitea el HTML temporal ni se reutiliza
-    el avatar. Aprobación visual humana registrada el 2026-10-23.
+  - `assets/og-image.jpg` — imagen Open Graph JPEG 1200×630 (65 254 bytes, SHA-256
+    `3571ba25…8adf3`), **regenerada el 2026-11-23** (`redesign-social-preview`) con la
+    receta reproducible de `docs/specs/deploy-cloudflare-pages.md` actualizada para reflejar
+    la Tarjeta rediseñada: HTML temporal fuera del repo, composición con los valores reales
+    y actuales de `styles.css`/`index.html` (no los históricos de `DESIGN.md`), captura con
+    Chrome headless `--window-size=1200,630 --screenshot`, exportación JPEG calidad ~90 y
+    validación con `sips`/`file`/`wc -c`/`shasum`. No se commitea el HTML temporal ni se
+    reutiliza el avatar como binario. Reemplaza el asset previo del 2026-10-23 (37 214 bytes,
+    SHA-256 `b7c9b694…a012a2`). **Aprobación visual humana del nuevo binario: pendiente** —
+    ver `docs/risks-and-open-questions.md`.
   - `assets/fahedhermoza.vcf` — Contacto vCard 3.0 estática, UTF-8 sin BOM y con líneas
     CRLF; se sirve same-origin y se descarga con `download="fahedhermoza.vcf"`, sin
     `data:` URI, Blob ni generación en cliente. `.gitattributes` marca `assets/*.vcf`
@@ -196,6 +201,8 @@ presentación aquí descritos siguen siendo slices futuros.
   permisos del portapapeles. Verificar Compartir con API disponible y ausente. Repetir
   `./init.sh`, navegador móvil/escritorio, ocho anchuras, Lighthouse móvil Accessibility
   ≥95 y pruebas de los siete destinos y de la vCard.
-- La nueva `assets/og-image.jpg` debe seguir siendo JPEG 1200×630, distinta del avatar y
-  aprobada visualmente por el propietario. Tras su redeploy manual, repetir hashes/MIME
-  live y observar las vistas previas sociales. La URL pública no cambia.
+- **Implementado localmente (2026-11-23, `redesign-social-preview`):** `assets/og-image.jpg`
+  se regeneró como JPEG 1200×630 (65 254 bytes), distinta del avatar, reflejando la Tarjeta
+  rediseñada. Pendiente del propietario: aprobación visual, redeploy manual (tras el cual se
+  repiten hashes/MIME live) y observación real de vistas previas sociales. La URL pública no
+  cambia.
