@@ -2,11 +2,18 @@
 
 ## Publication Status And Manual Checks
 
-- **Resuelto (2026-10-23, `deploy-cloudflare-pages`) — imagen social:** `assets/og-image.jpg`
-  existe como JPEG 1200×630 (37 214 bytes, SHA-256 `b7c9b694…a012a2`), distinto del avatar,
-  generado con la receta reproducible del spec y validado con `sips`/`file`. La composición
-  usa los tokens de `DESIGN.md`. **Aprobación visual humana registrada el 2026-10-23** por el
-  propietario; el agente no interpreta imágenes.
+- **Reabierto (2026-11-23, `redesign-social-preview`) — imagen social:** el binario anterior
+  (37 214 bytes, SHA-256 `b7c9b694…a012a2`, aprobado el 2026-10-23) correspondía al diseño
+  previo al rediseño del 2026-11-21 y fue **reemplazado**. `assets/og-image.jpg` ahora es un
+  JPEG 1200×630 (65 254 bytes, SHA-256 `3571ba25…8adf3`) que refleja la Tarjeta rediseñada
+  (header "NFC CONNECT", avatar con halo/punto, Acciones rápidas, Enlaces en gradiente),
+  generado con la misma receta reproducible (HTML temporal + Chrome headless + `sips`/`file`)
+  pero con los valores reales y actuales de `styles.css`/`index.html`. Validado técnicamente
+  el 2026-11-23 (`./init.sh` 4/4 de `Sharing metadata production checks:`, dimensiones, tamaño
+  y distinción del avatar); **no se usa como `<img>` dentro de la Tarjeta**. La aprobación
+  visual humana de este nuevo binario, el redeploy manual y la observación real de vistas
+  previas en WhatsApp/Facebook/iMessage quedan **pendientes** — el agente no interpreta
+  imágenes ni puede fabricar estos tres insumos del propietario.
 - **Resuelto (2026-10-23) — URL pública:** la plataforma real es **Cloudflare Workers con
   static assets**, no Pages: `https://fahed-hermoza-card.fahedhermoza.workers.dev/`.
   `canonical`, `og:url` y las imágenes absolutas ya están cableados en `index.html` y
@@ -18,11 +25,14 @@
   SHA-256 local/remoto coinciden. `cache-control: public, max-age=0, must-revalidate` y
   `cf-cache-status: HIT` fueron observados. El método manual (dashboard vs `wrangler`) sigue
   sin documentarse, pero `wrangler.jsonc` es la configuración externa usada por el propietario.
-- **Reportado como correcto (2026-11-21) — unfurl real:** el propietario confirmó que el
-  protocolo de vistas previas en WhatsApp, Facebook e iMessage salió bien. No se recibieron
-  capturas ni resultados separados por app; esta evidencia es un reporte humano, no una
-  observación independiente del agente. La caché y las políticas de cada cliente siguen
-  pudiendo cambiar el resultado en otra ocasión.
+- **Reportado como correcto (2026-11-21) — unfurl real, binario anterior:** el propietario
+  confirmó que el protocolo de vistas previas en WhatsApp, Facebook e iMessage salió bien con
+  la imagen social del 2026-10-23. No se recibieron capturas ni resultados separados por app;
+  esta evidencia es un reporte humano, no una observación independiente del agente. **Este
+  resultado no cubre el binario regenerado el 2026-11-23** (`redesign-social-preview`): hasta
+  que el propietario repita el protocolo con el nuevo `assets/og-image.jpg` tras el redeploy,
+  el unfurl real del diseño rediseñado sigue sin verificar. La caché y las políticas de cada
+  cliente siguen pudiendo cambiar el resultado en otra ocasión.
 - **Nota de exposición (confirmada de nuevo 2026-11-21) — `wrangler.jsonc`:** su
   `assets.directory: "."` publica la raíz del repo. `/.git/config`, `/PROGRESS.md`,
   `/AGENTS.md` y `/docs/...` respondieron 200 el 2026-10-24; `curl` confirmó 200 para
@@ -75,10 +85,10 @@
   iOS es inconsistente) y Blob (exigiría JavaScript). El gate valida el asset byte a byte
   y su coherencia con los cinco Enlaces, el teléfono y el correo.
 - Fuente: precarga (`preload`) y fallback para evitar salto de texto (FOUT).
-- **Resuelto (2026-10-23, `deploy-cloudflare-pages`):** `og-image` es un JPEG 1200×630
-  generado con HTML temporal + Chrome + `sips`/`file`, con la composición documentada en
-  `DESIGN.md`; no se añadió ninguna herramienta al stack. Solo queda la aprobación visual
-  humana.
+- **Actualizado (2026-11-23, `redesign-social-preview`):** `og-image` sigue siendo un JPEG
+  1200×630 generado con HTML temporal + Chrome headless + `sips`/`file`, ahora con la
+  composición rediseñada documentada en `DESIGN.md`; no se añadió ninguna herramienta al
+  stack. Queda pendiente la aprobación visual humana del nuevo binario.
 - Comportamiento de `tel:` y `mailto:` según app por defecto del dispositivo.
 
 ## Later / Not MVP
@@ -164,4 +174,9 @@
   2026-10-24 (cinco paths 200, `text/x-vcard`, hashes idénticos).
 - ~~Definir herramienta para generar `assets/og-image.jpg` 1200×630.~~ **Resuelto
   (2026-10-23):** receta HTML + Chrome + `sips`/`file`, documentada en el spec y `DESIGN.md`;
-  aprobación visual humana registrada el 2026-10-23.
+  aprobación visual humana registrada el 2026-10-23 (binario anterior, reemplazado el
+  2026-11-23).
+- **Pendiente (2026-11-23, `redesign-social-preview`):** aprobación visual del propietario
+  para el nuevo `assets/og-image.jpg` (móvil y escritorio), redeploy manual y observación real
+  de vistas previas en WhatsApp/Facebook/iMessage con el binario rediseñado. Ninguno de los
+  tres puede ser fabricado, inferido ni simulado por el implementador o el validador.
