@@ -4,6 +4,7 @@ Este repositorio contiene la **Tarjeta digital** de Fahed Hermoza: una página e
 
 ## Read First
 
+- `CONTRIBUTING.md` — estrategia de ramas: `feature/<id>` → `demo/seed` (rebase and merge) y `demo/seed` → `main` (create a merge commit, obligatorio para no romper el ancestro común entre ambas ramas).
 - `CONTEXT.md` — vocabulario del dominio (Tarjeta digital, Enlace, Perfil, Handle, Tagline, Contacto).
 - `CONSTRAINTS.md` — reglas durables MUST/MUST NOT, incluida la base de accesibilidad AA.
 - `docs/build-brief.md` — problema, objetivos, alcance del MVP y criterios de éxito.
