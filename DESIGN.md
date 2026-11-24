@@ -296,23 +296,48 @@ Una sola vista: la Tarjeta digital. Estados:
 
 ## Open Graph Image (1200×630)
 
-Asset: `assets/og-image.jpg` — JPEG 1200×630, 37 214 bytes, SHA-256
-`b7c9b694…a012a2`, generado el 2026-10-23. No es una captura de la página ni una copia del
-avatar y no se muestra como `<img>` dentro de la Tarjeta.
+Asset: `assets/og-image.jpg` — JPEG 1200×630, 65 254 bytes, SHA-256
+`3571ba25…8adf3`, regenerado el 2026-11-23 (feature `redesign-social-preview`) para
+reflejar la Tarjeta **rediseñada** (header "NFC CONNECT", avatar con halo y punto
+ornamental, tres Acciones rápidas, cinco Enlaces en gradiente). Reemplaza el binario
+anterior del 2026-10-23 (37 214 bytes, SHA-256 `b7c9b694…a012a2`), cuya composición
+correspondía al diseño previo al rediseño de 2026-11-21. No es una captura literal de la
+página (chrome del navegador, barra de direcciones) ni una copia del avatar, y no se
+muestra como `<img>` dentro de la Tarjeta.
 
-Composición (tokens de este documento):
+Composición (valores reales y actuales de `styles.css`/`index.html`, sin inventar ninguno):
 
 - Lienzo `--color-background` `#f7f9ff` a 1200×630.
-- Tarjeta blanca 880×440 centrada, radio 24px, borde `1px solid rgba(0,0,0,0.04)` y la
-  sombra histórica de `0 18px 45px -10px rgba(25,30,48,0.08), 0 8px 16px -6px rgba(25,30,48,0.03)`.
-- Avatar real 128×128 circular (opcional) a la izquierda.
-- Nombre `Fahed Hermoza` a 64px/600 `#2d3139`; Handle `@fahedhermoza` a 30px/400
-  `#6b7280`; Tagline `Software Engineer & Speaker & Builder` a 26px/400 `#6b7280`.
-- Tipografía Plus Jakarta Sans (o pila del sistema). Sin colores, tipografías ni motivos
-  fuera de esta guía.
+- Tarjeta blanca 660px de ancho, centrada, `border: 1px solid #ebeef2`, `border-radius: 24px`
+  y la sombra real y actual de `.card`: `0 24px 64px -28px rgba(45, 49, 57, 0.16), 0 8px 24px
+  -10px rgba(45, 49, 57, 0.08)`.
+- Fila superior con el rótulo "NFC CONNECT" (icono de señal + texto en `--color-primary`
+  `#484dc4`, uppercase) a la izquierda y el icono decorativo de apertura externa
+  (`--color-on-surface-variant` `#6b7280`) a la derecha, igual que `.profile-top`.
+- Avatar real (`assets/avatar.jpg`) circular con halo blanco y el punto ornamental verde
+  `#2f8f65` en la esquina inferior derecha, igual que `.profile-avatar-frame`/`.profile-avatar-dot`.
+- Nombre `Fahed Hermoza` en `#2d3139` peso 600; Handle `@fahedhermoza` y Tagline
+  `Software Engineer & Speaker & Builder` en `--color-on-surface-variant` `#6b7280`, escalados
+  para legibilidad en el lienzo de 1200×630 (misma jerarquía tipográfica que
+  `.profile-identity`, no los mismos tamaños en px literales).
+- Insinuación de las tres Acciones rápidas (Celular, Correo, QR): círculos
+  `--color-surface-container-low` `#f1f4fa` con icono `--color-primary` `#484dc4`, igual
+  tratamiento que `.quick-action`.
+- Insinuación de los cinco Enlaces en gradiente: una fila de cinco bloques redondeados en
+  `--color-gradient-1` a `--color-gradient-5` (`#5c68d4`, `#6a64d8`, `#765fd4`, `#8659d1`,
+  `#9654c9`), en el mismo orden que `.links` (Instagram, Facebook, WhatsApp, LinkedIn,
+  Portafolio), con sus iconos reales; sin texto para no saturar el espacio a este tamaño.
+- Tipografía Plus Jakarta Sans (o su pila de respaldo). Sin colores, tipografías ni motivos
+  fuera de esta guía ni de `styles.css`.
 
-La aprobación visual de la composición es del propietario; `./init.sh` solo valida que el
-JPEG mida 1200×630, no sea una copia del avatar y no exceda 300 KiB.
+Receta reproducible (ver `docs/specs/redesign-social-preview.md` § "Technical Approach"):
+HTML temporal no commiteado (1200×630 exacto) con los valores de arriba, capturado con Chrome
+headless (`--window-size=1200,630 --screenshot`) y exportado a JPEG calidad ~90 con `sips`. El
+HTML de generación no se guarda en el repo; el único artefacto de producto es el binario.
+
+La aprobación visual de la composición es del propietario y está **pendiente** desde el
+2026-11-23: `./init.sh` solo valida que el JPEG mida 1200×630, no sea una copia del avatar y
+no exceda 300 KiB; no sustituye el criterio visual humano.
 
 ## Responsive Baseline
 
@@ -429,7 +454,7 @@ con la fórmula WCAG 2.x:
 
 - ~~Tratamiento final del botón "Guardar contacto" (neutro vs dentro del degradado).~~ **Resuelto (2026-10-23, `save-contact-vcard`):** misma forma que un Enlace con tratamiento neutro `#f1f4fa`/`#484dc4`, fuera de la rampa, entre los Enlaces y el pie.
 - ~~Cómo se repite/extiende el degradado de 5 tonos para 8 botones.~~ **Resuelto (2026-10-23, `links-order-gradient`):** los 7 Enlaces usan los cinco tonos más dos intermedios 50/50; "Guardar contacto" queda neutro y fuera de la rampa.
-- ~~Diseño definitivo de `assets/og-image.jpg`.~~ **Resuelto (2026-10-23, `deploy-cloudflare-pages`):** JPEG 1200×630 con la composición de la sección "Open Graph Image"; aprobada por el propietario el 2026-10-23.
+- ~~Diseño definitivo de `assets/og-image.jpg`.~~ **Resuelto (2026-10-23, `deploy-cloudflare-pages`):** JPEG 1200×630 con la composición de la sección "Open Graph Image"; aprobada por el propietario el 2026-10-23. **Superseded (2026-11-23, `redesign-social-preview`):** el binario se regeneró para reflejar la Tarjeta rediseñada (ver sección "Open Graph Image" actualizada); la aprobación visual de este nuevo binario queda `pending`.
 - ¿Se necesita favicon y `theme-color`? (fuera del MVP por ahora).
 
 ## Dirección del rediseño acordado (2026-11-21)
@@ -478,8 +503,9 @@ adjuntos son referencias parciales que no deben copiarse literalmente.
 - Conservar Plus Jakarta Sans y los SVG propios. Ajustar pesos, tamaños, espaciado y
   geometría hacia las capturas; no adoptar Inter, Font Awesome ni Tailwind CDN.
 - Conservar la imagen de perfil local y el archivo `assets/fahedhermoza.vcf`; no generar la
-  vCard mediante Blob. La imagen social se rediseñará para acompañar la nueva Tarjeta,
-  seguirá siendo JPEG 1200×630 y necesitará aprobación visual de Fahed antes de publicar.
+  vCard mediante Blob. **Resuelto (2026-11-23, `redesign-social-preview`):** la imagen social
+  se regeneró como JPEG 1200×630 reflejando la nueva Tarjeta (ver sección "Open Graph Image");
+  sigue pendiente la aprobación visual de Fahed antes de publicar.
 - El QR descargable debe ser PNG y codificar exactamente
   `https://fahed-hermoza-card.fahedhermoza.workers.dev/`. El sitio sigue siendo estático,
   sin backend ni build; se admite JavaScript mínimo solo para las nuevas interacciones.
@@ -557,3 +583,18 @@ El propietario aprobó directamente estos tres puntos, resolviendo la nota pendi
   Celular/Correo (superficie `--color-surface-container-low` `#f1f4fa`, icono
   `--color-primary` `#484dc4`, 48px, `:focus-visible` acento 2px/offset 2px). **No**
   introduce color, tono de degradado ni token nuevo.
+
+### Imagen social — recomposición del binario (`redesign-social-preview`, 2026-11-23)
+
+Última feature de los seis slices del rediseño acordado el 2026-11-21. No es una decisión de
+diseño nueva: la composición del binario reutiliza íntegramente tokens, geometría y contenido
+ya aprobados por las features de rediseño anteriores (`redesign-card-profile`,
+`redesign-contact-navigation`, `redesign-footer-contact`). Ver la sección "Open Graph Image
+(1200×630)" (actualizada en esta misma feature) para la composición, el tamaño y el SHA-256
+reales del binario entregado.
+
+- **Lo que sí requiere aprobación nueva del propietario:** el resultado visual final del
+  binario (¿se ve bien en móvil y escritorio?), no un token o layout nuevo — ver
+  `docs/risks-and-open-questions.md`.
+- **No cambia:** `index.html`, `styles.css`, `canonical`/`og:url`/`og:image`/`twitter:image`,
+  ni ningún otro asset (`avatar.jpg`, `qr.png`, `fahedhermoza.vcf`).
