@@ -4,14 +4,25 @@ Este repositorio contiene la **Tarjeta digital** de Fahed Hermoza: una página e
 
 ## Read First
 
+Para mantener el contexto de arranque liviano, los documentos se dividen en dos grupos.
+
+**Leer siempre (liviano):**
+
+- `CONTRIBUTING.md` — estrategia de ramas: `feature/<id>` → `demo/seed` (rebase and merge) y `demo/seed` → `main` (create a merge commit, obligatorio para no romper el ancestro común entre ambas ramas).
 - `CONTEXT.md` — vocabulario del dominio (Tarjeta digital, Enlace, Perfil, Handle, Tagline, Contacto).
 - `CONSTRAINTS.md` — reglas durables MUST/MUST NOT, incluida la base de accesibilidad AA.
+
+**Referencia on-demand (leer solo si tu tarea lo toca; no cargarlos por reflejo):**
+
+- `DESIGN.md` — sistema visual: tokens de color, tipografía, layout y componentes (fuente de verdad de diseño). **Léelo cuando tu tarea toque UI, estilos o diseño visual.**
 - `docs/build-brief.md` — problema, objetivos, alcance del MVP y criterios de éxito.
 - `docs/domain-model.md` — entidades, relaciones, escenarios y edge cases.
 - `docs/risks-and-open-questions.md` — riesgos, supuestos y preguntas abiertas.
-- `DESIGN.md` — sistema visual "Serene Bio Card": tokens de color, tipografía, layout y componentes (fuente de verdad de diseño).
 - `docs/technical-discovery.md` — stack, datos, integraciones, despliegue y verificación.
-- `visual/` — espejos HTML generados, de **solo lectura visual**; ninguno es fuente de verdad distinta:
+- `docs/specs/<id>.md` y `docs/validations/<id>.md` — spec y registro de validación de **una** feature; léelos solo al trabajar esa feature.
+- `docs/progress-archive/` — bitácora histórica de sesiones ya archivadas; consúltala solo si necesitas historia antigua (git también la conserva).
+
+Espejos HTML generados en `visual/`, de **solo lectura visual**; ninguno es fuente de verdad distinta:
   - `visual/DESIGN.html` — espejo de `DESIGN.md` (`scripts/build_design_html.py`): preview en vivo + paleta.
   - `visual/harness-status.html` — espejo de `feature_list.json` (`scripts/build_status_html.py`): avance, conteo por estado y readiness/bloqueo por dependencias.
 
@@ -20,7 +31,7 @@ Este repositorio contiene la **Tarjeta digital** de Fahed Hermoza: una página e
 Antes de escribir código:
 
 1. Confirmar el directorio de trabajo con `pwd`.
-2. Leer `PROGRESS.md` para conocer el estado verificado y el siguiente paso.
+2. Leer `PROGRESS.md` (recortado: estado verificado vigente + últimas 3 sesiones) para conocer el estado y el siguiente paso. La historia anterior está en `docs/progress-archive/`; solo consúltala si la necesitas.
 3. Leer `feature_list.json` y elegir la primera feature lista y sin terminar en el orden de la lista.
 4. Ejecutar `./init.sh`.
 5. Si la verificación base falla, arreglar la base antes de añadir trabajo de feature.
@@ -61,7 +72,7 @@ Una feature está terminada solo cuando todo lo siguiente es cierto:
 
 Antes de terminar una sesión:
 
-1. Actualizar `PROGRESS.md`.
-2. Actualizar `feature_list.json`.
+1. Actualizar `PROGRESS.md`. Mantener el `Session Log` acotado a **las últimas 3 sesiones**: si al añadir la tuya quedan más de 3, mover las más antiguas a `docs/progress-archive/` (un archivo por tramo, p. ej. `sessions-001-071.md`). El estado vigente va en `## Current Verified State`, no en la bitácora.
+2. Actualizar `feature_list.json`. El campo `evidence` se mantiene **compacto**: verdict en una línea + puntero a `docs/validations/<id>.md`; la evidencia detallada vive en el registro de validación, no en el JSON. Regenerar `visual/harness-status.html` en el mismo commit.
 3. Registrar riesgos o bloqueos sin resolver.
 4. Dejar el repo limpio para que la próxima sesión pueda ejecutar `./init.sh` de inmediato.
